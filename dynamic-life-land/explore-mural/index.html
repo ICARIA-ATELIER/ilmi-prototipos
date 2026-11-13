@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo Explore the Mural</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap">
+<style>
+/* Prototipo ILMI (skill prototipo-ilmi). WR2-201-IA01 Dynamic Life Display Game: Land, interactivo 2 de 2
+   (exploración del mural y simulación). Arriba, la barra de revisión, que sigue el tema claro u oscuro. Debajo,
+   la pantalla táctil de 32" a 1920 × 1080, escalada para caber. Baja fidelidad en grises, como el Figma. */
+:root {
+  --bg: #e9e8e4; --fg: #1c1c1a; --muted: #5c5b57; --line: #cbc9c3; --ctl: #ffffff; --well: #d3d1cb;
+  --ui: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ex: "Roboto", system-ui, sans-serif;
+  --ar: "Noto Sans Arabic", "Geeza Pro", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
+.app { height: 100%; display: flex; flex-direction: column; }
+
+/* --- barra de revisión --- */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+.ttl { display: flex; flex-direction: column; min-width: 0; }
+.ttl strong { font-size: 15px; font-weight: 700; }
+.ttl span { font-size: 12px; color: var(--muted); }
+.hint { flex: 1 1 260px; margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); min-width: 0; }
+.hint b { color: var(--fg); font-weight: 600; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctl { display: inline-flex; align-items: center; gap: 8px; }
+.ctrls label { font-size: 12px; color: var(--muted); }
+.ctrls select, .ctrls button { font: 500 13px var(--ui); color: var(--fg); background: var(--ctl); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; max-width: 100%; }
+.ctrls button:focus-visible, .ctrls select:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.ctrls button:disabled { opacity: .45; cursor: default; }
+.viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--well); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* --- pantalla de la pieza: baja fidelidad en grises, colores muestreados del Figma --- */
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #e5e5e5; font-family: var(--ex); color: #131313; user-select: none; -webkit-user-select: none; }
+.stage.tap { cursor: pointer; }
+.scene { position: absolute; inset: 0; }
+.abs { position: absolute; }
+.pic { display: block; pointer-events: none; }
+.tx { pointer-events: none; }
+.tx .t, .bt .t { display: inline-block; white-space: nowrap; }
+.ar { font-family: var(--ar); direction: rtl; letter-spacing: 0; }
+.bt { display: flex; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; border: 0; padding: 0; margin: 0; font-family: var(--ex); font-weight: 700; cursor: pointer; }
+.hot { background: transparent; border: 0; padding: 0; cursor: pointer; border-radius: 50%; }
+.stage button:focus-visible { outline: 6px solid #111; outline-offset: 4px; }
+.a-fade { animation: fade .45s ease-out both; }
+.a-up { animation: up .45s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes up { from { transform: translateY(120px) } to { transform: none } }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="ttl"><strong>Explore the animals on the mural!</strong><span>WR2-201-IA01 · interactivo 2 de 2 (exploración) · Figma «04/11 · v3», baja fidelidad</span></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ctrls">
+      <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
+      <span class="ctl"><label for="mode">Inactividad</label>
+        <select id="mode">
+          <option value="off">Sin vuelta al reposo (como el Figma)</option>
+          <option value="on">Vuelve al reposo a los 60 s (provisional)</option>
+        </select></span>
+      <span class="ctl"><label for="jump">Ir a</label><select id="jump"><option value="">Pantalla…</option></select></span>
+      <button id="restart" type="button">Reiniciar</button>
+    </div>
+  </header>
+  <main class="viewport" id="viewport">
+    <div class="stage" id="stage" role="region" aria-label="Pantalla del interactivo"></div>
+  </main>
+</div>
+
+<script>
+(() => {
+  // ===== Pantalla: táctil de 32", 1920 × 1080 (Pantallas_por_Pieza.md) =====
+  const W = 1920, H = 1080;
+  const KEY = 'proto-wr2201-explora';
+
+  // ===== Tiempos (ms). El Figma no fija ninguno: PROVISIONAL =====
+  const T = { idle: 60000 };   // vuelta al reposo (solo con el selector de inactividad)
+
+  // ===== Textos, tal cual del Figma (incluidos los de relleno y la errata «wrisband») =====
+  const TX = {
+    title: 'Explore the<br>animals on the<br>mural!',
+    scanEn: 'scan your wrisband to start', scanAr: 'امسح سوارك للبدء',
+    language: 'Select your language:', en: 'English', arabic: 'Arabic',
+    selectAnimal: 'Select an animal:', arBtn: 'ض',
+    lorem: 'Lorem Ipsum',
+    fields: ['Habitat', 'Length', 'Status', 'Food chain role'],
+    description: 'Description', didYouKnow: 'Did You Know?',
+    descBody: 'Lorem ipsum dolor sit amet,<br>consectetur adipiscing elit, sed do<br>eiusmod tempor incididunt ut labore<br>et dolore magna aliqua. Ut enim ad<br>minim veniam, quis nostrud<br>exercitation ullamco laboris nisi ut<br>aliquip ex ea commodo consequat.',
+    dykBody: 'Lorem ipsum dolor sit amet,<br>consectetur adipiscing elit, sed do<br>eiusmod tempor incididunt ut labore<br>et dolore magna aliqua. Ut enim ad<br>minim veniam.',
+    question: 'What would happen to the<br>food chain without it?',
+    simulate: 'Start simulation',
+    broken: 'Broken links:', brokenN: 'Xx', alerts: 'Main alerts:',
+    least: 'Least affected', most: 'Most affected',
+    happens: 'What happens?', happensBody: 'Lorem ipsum dolor sit amet', reason: 'Reason',
+    reasonBody: 'Lorem ipsum dolor sit amet,<br>consectetur adipiscing elit, sed do<br>eiusmod tempor incididunt ut labore et<br>dolore magna aliqua.'
+  };
+
+  // ===== Orden de pantallas y su nombre en «Ir a» =====
+  const ORDER = [
+    ['reposo', '1 · Reposo'],
+    ['idioma', '2 · Idioma'],
+    ['ampliado', '3 · Elegir animal (mural ampliado)'],
+    ['ficha', '4 · Ficha de especie'],
+    ['simulacion', '5 · Simulación: enlaces rotos'],
+    ['entero', '6 · Elegir animal (mural entero)']
+  ];
+
+  // Zonas tocables: las sombras que el Figma pone detrás de cada animal (x, y, ancho, alto)
+  const SPOTS_ZOOM = [[334, 251, 273, 254], [529, 173, 333, 302], [815, 154, 273, 254], [1362, 161, 144, 260], [823, 799, 222, 280],
+    [892, 873, 137, 175], [1508, 928, 287, 248], [1322, 653, 208, 184], [1010, 560, 207, 192], [618, 577, 207, 192], [1604, 654, 284, 337],
+    [1629, 337, 181, 203], [1465, 208, 181, 203], [368, 903, 270, 175], [464, 711, 442, 324], [1218, 714, 332, 215]];
+  const SPOTS_FULL = [[450, 547, 209, 187], [396, 681, 155, 84], [604, 596, 112, 124], [847, 599, 161, 121], [975, 646, 137, 108], [996, 564, 92, 140],
+    [1041, 398, 72, 86], [922, 353, 79, 85], [798, 577, 79, 45], [675, 594, 100, 79], [632, 358, 97, 85], [473, 353, 145, 120], [370, 394, 113, 96],
+    [473, 618, 111, 116], [839, 420, 73, 112], [1171, 529, 72, 86], [1316, 498, 72, 86], [1388, 510, 72, 86], [1471, 642, 79, 44], [1455, 352, 79, 44],
+    [1711, 424, 152, 114], [1776, 592, 65, 61], [1849, 647, 105, 100], [1736, 620, 112, 66], [1707, 537, 112, 118], [1172, 604, 72, 86],
+    [1243, 674, 155, 74], [656, 634, 82, 89]];
+
+  // ---------- estado y temporizadores
+  const stage = document.getElementById('stage'), viewport = document.getElementById('viewport'), hint = document.getElementById('hint');
+  const backBtn = document.getElementById('back'), fwdBtn = document.getElementById('fwd');
+  stage.style.width = W + 'px'; stage.style.height = H + 'px';
+  stage.setAttribute('aria-label', 'Pantalla del interactivo, ' + W + ' × ' + H);
+  let S = { screen: ORDER[0][0], lang: 'en' };
+  let IDLE = 'off';
+  try { IDLE = localStorage.getItem(KEY + '-idle') === 'on' ? 'on' : 'off'; } catch (e) {}
+  let past = [], future = [], cur = null, paused = false, timers = [], idleTimer = null, current = {}, SC = 1;
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  // ---------- ayudas para pintar (px de la pantalla real, sacados del Figma)
+  const scene = document.createElement('div'); scene.className = 'scene'; stage.appendChild(scene);
+  const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const add = e => (scene.appendChild(e), e);
+  const at = (e, x, y) => { e.style.left = Math.round(x) + 'px'; e.style.top = Math.round(y) + 'px'; return e; };
+  const size = (e, w, h) => { if (w != null) e.style.width = w + 'px'; if (h != null) e.style.height = h + 'px'; return e; };
+  const on = (e, fn) => { e.addEventListener('click', ev => { ev.stopPropagation(); paused = false; fn(); }); return e; };
+  const pic = (src, x, y, w, h, cls) => { const i = mk('img', 'abs pic' + (cls ? ' ' + cls : '')); i.src = 'img/' + src; i.alt = ''; i.draggable = false; return add(size(at(i, x, y), w, h)); };
+  const box = (x, y, w, h, st, cls) => { const b = add(mk('div', 'abs' + (cls ? ' ' + cls : ''))); size(at(b, x, y), w, h); Object.assign(b.style, st || {}); return b; };
+  const dot = (x, y, d, st, cls) => box(x, y, d, d, Object.assign({ borderRadius: '50%', boxSizing: 'border-box' }, st), cls);
+
+  // Tamaños compartidos (grp): se calculan una vez con un texto de referencia del Figma
+  const GRP = {};
+  const measure = (html, fw, fs) => { const s = mk('span', 't', html); s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font-family:Roboto;font-weight:${fw};font-size:${fs}px`; stage.appendChild(s); const w = s.offsetWidth; s.remove(); return w; };
+  function calibrate() {
+    const REF = { lab: ['Habitat', 300, 60], val: ['Lorem Ipsum', 700, 116], lang: ['English', 700, 172], scale: ['Least affected', 300, 95] };
+    for (const k in REF) { const [t, fw, fit] = REF[k]; GRP[k] = +(100 * fit / measure(t, fw, 100)).toFixed(2); }
+  }
+  // Texto. o: x (izquierda) | cx (centro) | rx (derecha); gy = arriba de las letras en el Figma;
+  // fit = ancho de la línea más larga en el Figma (px): el tamaño se ajusta solo para igualarlo, porque la Ilmi
+  // (propuesta de KTF) no está disponible. lead/follow: un texto toma el tamaño ya ajustado de otro.
+  const tx = (html, o) => {
+    const d = mk('div', 'abs tx' + (o.ar ? ' ar' : '') + (o.cls ? ' ' + o.cls : ''));
+    const s = mk('span', 't', html);
+    const fs = (o.grp && GRP[o.grp]) || o.fs || 30;
+    s.style.fontSize = fs + 'px'; s.style.fontWeight = o.fw || 400; s.style.lineHeight = (o.lh || Math.round(fs * 1.2)) + 'px';
+    if (o.col) s.style.color = o.col;
+    if (o.cx != null) { d.style.left = (o.cx - 1200) + 'px'; d.style.width = '2400px'; d.style.textAlign = 'center'; }
+    else if (o.rx != null) { d.style.left = (o.rx - 2400) + 'px'; d.style.width = '2400px'; d.style.textAlign = 'right'; }
+    else d.style.left = o.x + 'px';
+    d.style.top = o.gy + 'px'; d.dataset.gy = o.gy;
+    if (o.fit) s.dataset.fit = o.fit;
+    if (o.lead) s.dataset.lead = o.lead;
+    if (o.follow) s.dataset.follow = o.follow;
+    d.appendChild(s);
+    return add(d);
+  };
+  const hot = (x, y, w, h, fn, label) => {
+    const pw = Math.max(0, (90 - w) / 2), ph = Math.max(0, (90 - h) / 2);   // como mínimo 90 px para poder tocarla
+    const b = mk('button', 'abs hot'); b.type = 'button'; b.setAttribute('aria-label', label || 'Animal');
+    return add(on(size(at(b, x - pw, y - ph), w + 2 * pw, h + 2 * ph), fn));
+  };
+  function fitText() {
+    const lead = {};
+    scene.querySelectorAll('[data-fit]').forEach(s => {
+      for (let k = 0; k < 2; k++) { const w = s.offsetWidth; if (w) s.style.fontSize = (parseFloat(s.style.fontSize) * (+s.dataset.fit) / w).toFixed(2) + 'px'; }
+      if (s.dataset.lead) lead[s.dataset.lead] = s.style.fontSize;
+    });
+    scene.querySelectorAll('[data-follow]').forEach(s => { if (lead[s.dataset.follow]) s.style.fontSize = lead[s.dataset.follow]; });
+    scene.querySelectorAll('[data-gy]').forEach(d => {
+      const s = d.firstChild, fs = parseFloat(s.style.fontSize), lh = parseFloat(s.style.lineHeight);
+      const k = d.classList.contains('ar') ? 0.36 : 0.2;   // de la parte de arriba de la línea a la de las letras
+      d.style.top = (+d.dataset.gy - ((lh - 1.171 * fs) / 2 + k * fs)).toFixed(1) + 'px';
+    });
+  }
+
+  // ---------- piezas repetidas
+  // Botón de idioma «ض» (arriba a la derecha). En el Figma no hay pantallas en árabe: no hace nada.
+  const arBtn = () => {
+    dot(1821, 41, 59, { background: '#bcbcbc' });
+    tx(TX.arBtn, { cx: 1851, gy: 50, fs: 40, fw: 700, lh: 44, col: '#fff', ar: true });
+  };
+  const pillSelect = () => {
+    box(815, 41, 292, 75, { background: '#bcbcbc', borderRadius: '16px' });
+    tx(TX.selectAnimal, { cx: 960, gy: 66, fs: 30, lh: 36, fit: 226 });
+  };
+  const panel = () => box(0, 647, W, 433, { background: '#a0a0a0' }, 'a-up');
+  // Flecha ↓ del panel (supuesto: cierra el panel y vuelve a elegir animal)
+  const downBtn = (x, fn) => {
+    const b = mk('button', 'abs bt a-up'); b.type = 'button'; b.setAttribute('aria-label', 'Cerrar el panel');
+    size(at(b, x, 662), 60, 60); Object.assign(b.style, { background: '#444', borderRadius: '12px' });
+    b.innerHTML = '<svg width="60" height="60" viewBox="0 0 60 60" fill="none" stroke="#bdbdbd" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M30 12V47M17 34L30 47L43 34"/></svg>';
+    return add(on(b, fn));
+  };
+
+  // ---------- pantallas. Cada una pinta y devuelve { tap, hint }
+  const SCREENS = {
+    reposo() {
+      pic('explora-reposo.jpg', 0, 0, W, H);
+      tx(TX.title, { x: 72, gy: 73, fs: 56, fw: 700, lh: 58, fit: 378, col: '#000' });
+      tx(TX.scanEn, { rx: 1774, gy: 886, fs: 28, fw: 500, lh: 34, fit: 384, col: '#000' });
+      tx(TX.scanAr, { rx: 1774, gy: 924, fs: 30, fw: 500, lh: 44, fit: 256, ar: true, col: '#000' });
+      return { tap: () => go('idioma'), hint: '<b>Toca la pantalla</b>: hace de pasar la pulsera por el lector.' };
+    },
+    idioma() {
+      pic('explora-idioma.jpg', 0, 0, W, H);
+      box(622, 281, 704, 481, { background: '#fff', borderRadius: '32px' });
+      tx(TX.language, { cx: 975, gy: 338, fs: 30, lh: 36, fit: 286, col: '#000' });
+      [[683, TX.en, 'en'], [986, TX.arabic, 'ar']].forEach(([x, label, lang]) => {
+        const b = mk('button', 'abs bt'); b.type = 'button';
+        size(at(b, x, 434), 278, 266); Object.assign(b.style, { background: '#d5d5d5', borderRadius: '36px', color: '#3c3c3c' });
+        const s = mk('span', 't', label); s.style.fontSize = (GRP.lang || 56) + 'px'; s.style.lineHeight = '64px'; b.appendChild(s);
+        add(on(b, () => { S.lang = lang; go('ampliado'); }));
+      });
+      return { hint: '<b>Elige un idioma.</b> No hay pantallas en árabe en el Figma: las dos opciones siguen en inglés. Duda abierta: si la pulsera ya pone el idioma, ¿cuándo sale este popup?' };
+    },
+    ampliado() {
+      pic('explora-mural-ampliado.jpg', 0, 0, W, H);
+      SPOTS_ZOOM.forEach(([x, y, w, h]) => hot(x, y, w, h, () => go('ficha')));
+      pillSelect(); arBtn();
+      return { hint: '<b>Toca un animal con sombra</b>. El mural se ve ampliado y el Figma solo tiene esta parte, así que no se desplaza. El botón «<bdi>ض</bdi>» no hace nada.' };
+    },
+    ficha() {
+      pic('explora-ficha-mural.jpg', 0, 0, W, 647);
+      panel();
+      const g = box(0, 0, W, H, {}, 'a-up'); g.style.pointerEvents = 'none';
+      const into = el => (g.appendChild(el), el);
+      into(dot(55, 710, 276, { background: '#d1d1d1' }));
+      into(tx(TX.lorem, { x: 378, gy: 698, fs: 48, fw: 700, lh: 50, fit: 273 }));
+      into(tx(TX.lorem, { x: 378, gy: 747, fs: 40, fw: 300, lh: 46, fit: 208 }));
+      TX.fields.forEach((f, i) => {
+        into(tx(f, { x: 378, gy: [836, 890, 943, 1000][i], fw: 300, lh: 20, grp: 'lab' }));
+        into(tx(TX.lorem, { x: 378, gy: [855, 910, 964, 1020][i], fw: 700, lh: 22, grp: 'val' }));
+      });
+      into(tx(TX.description, { x: 694, gy: 837, fw: 300, lh: 20, grp: 'lab' }));
+      into(tx(TX.descBody, { x: 694, gy: 859, fs: 19, fw: 700, lh: 23, fit: 329, lead: 'body' }));
+      into(tx(TX.didYouKnow, { x: 1114, gy: 837, fw: 300, lh: 20, grp: 'lab' }));
+      into(tx(TX.dykBody, { x: 1114, gy: 859, fs: 19, fw: 700, lh: 23, follow: 'body' }));
+      into(box(1498, 692, 2, 348, { background: '#808080' }));
+      into(tx(TX.question, { cx: 1691, gy: 775, fs: 20, fw: 700, lh: 25, fit: 244 }));
+      const b = mk('button', 'abs bt a-up'); b.type = 'button';
+      size(at(b, 1561, 868), 261, 58); Object.assign(b.style, { background: '#444', color: '#fff', borderRadius: '29px' });
+      const s = mk('span', 't', TX.simulate); s.style.fontSize = '23px'; s.style.lineHeight = '28px'; s.dataset.fit = 171; b.appendChild(s);
+      add(on(b, () => go('simulacion')));
+      downBtn(1845, () => go('entero'));
+      arBtn();
+      return { hint: '<b>Toca «Start simulation»</b>. La flecha ↓ (supuesto: cierra la ficha) vuelve a elegir animal. Hay una sola ficha de relleno y vale para cualquier animal. Las flechas roja y verde del mural son las del Figma.' };
+    },
+    simulacion() {
+      pic('explora-simulacion-mural.jpg', 0, 0, W, 647);
+      panel();
+      const g = box(0, 0, W, H, {}, 'a-up'); g.style.pointerEvents = 'none';
+      const into = el => (g.appendChild(el), el);
+      into(tx(TX.broken, { x: 44, gy: 682, fs: 40, fw: 300, lh: 49, fit: 192 }));
+      into(tx(TX.brokenN, { x: 249, gy: 679, fs: 44, fw: 700, lh: 49, fit: 50 }));
+      into(tx(TX.alerts, { x: 44, gy: 743, fs: 40, fw: 300, lh: 49, fit: 181 }));
+      into(tx(TX.least, { x: 609, gy: 680, fw: 300, lh: 20, grp: 'scale' }));
+      into(box(729, 681, 462, 13, { borderRadius: '7px', background: 'linear-gradient(90deg, #f6f18e 0%, #dbac37 50%, #d73835 100%)' }));
+      into(tx(TX.most, { x: 1213, gy: 680, fw: 300, lh: 20, grp: 'scale' }));
+      [[44, '#d73535'], [683, '#d73535'], [1322, '#d68535']].forEach(([x, c]) => {
+        into(dot(x, 820, 168, { background: '#d1d1d1', border: '6px solid ' + c }));
+        into(tx(TX.lorem, { x: x + 208, gy: 827, fs: 32, fw: 700, lh: 49, fit: 159, col: c }));
+        into(tx(TX.happens, { x: x + 208, gy: 869, fs: 19, fw: 700, lh: 23, fit: 143 }));
+        into(tx(TX.happensBody, { x: x + 208, gy: 895, fs: 19, lh: 23, fit: 237 }));
+        into(tx(TX.reason, { x: x + 208, gy: 936, fs: 19, fw: 700, lh: 23, fit: 65 }));
+        into(tx(TX.reasonBody, { x: x + 208, gy: 962, fs: 19, lh: 23, fit: 337 }));
+      });
+      downBtn(1836, () => go('entero'));
+      arBtn();
+      return { hint: 'Resultado de quitar el animal: enlaces rotos en rojo y animales afectados de amarillo a rojo. <b>Toca la flecha ↓</b> para volver a elegir animal (supuesto).' };
+    },
+    entero() {
+      pic('explora-mural-entero.jpg', 0, 135, W, 765);
+      SPOTS_FULL.forEach(([x, y, w, h]) => hot(x, y, w, h, () => go('ficha')));
+      pillSelect(); arBtn();
+      return { hint: '<b>Toca un animal con sombra</b> para abrir su ficha. Supongo que esta pantalla es la vuelta tras la simulación o al cerrar la ficha.' };
+    }
+  };
+  const NEXT = { reposo: () => go('idioma'), idioma: () => go('ampliado'), ampliado: () => go('ficha'), ficha: () => go('simulacion'), simulacion: () => go('entero'), entero: () => go('ficha') };
+  const nextOf = id => NEXT[id] ? NEXT[id]() : toIdle();
+  function toIdle() { S = { screen: ORDER[0][0], lang: 'en' }; go(ORDER[0][0]); }
+
+  // ---------- inactividad (solo con el selector en «on»)
+  function armIdle() {
+    clearTimeout(idleTimer); idleTimer = null;
+    if (IDLE !== 'on' || S.screen === ORDER[0][0]) return;
+    idleTimer = setTimeout(() => { if (!paused) toIdle(); }, T.idle);
+  }
+
+  // ---------- navegación y revisión
+  const snap = () => ({ ...S });
+  function showHint() { hint.innerHTML = (paused ? '<b>En pausa</b> (Atrás / Adelante, o toca la pantalla para seguir). ' : '') + (current.hint || ''); }
+  function render() {
+    clearTimers();
+    scene.replaceChildren();
+    current = SCREENS[S.screen]() || {};
+    fitText();
+    stage.classList.toggle('tap', !!current.tap);
+    showHint(); armIdle();
+    cur = snap();
+    backBtn.disabled = !past.length;
+  }
+  function go(id) { if (cur) past.push(cur); future = []; S.screen = id; render(); }
+  function back() { if (!past.length) return; paused = true; future.push(cur); S = past.pop(); render(); }
+  function fwd() { paused = true; if (future.length) { past.push(cur); S = future.pop(); render(); } else nextOf(S.screen); }
+  function reset() { S = { screen: ORDER[0][0], lang: 'en' }; past = []; future = []; cur = null; paused = false; render(); }
+
+  stage.addEventListener('pointerdown', armIdle);
+  stage.addEventListener('click', () => { const was = paused; paused = false; if (current.tap) current.tap(); else if (was) render(); });
+  backBtn.addEventListener('click', back);
+  fwdBtn.addEventListener('click', fwd);
+  document.getElementById('restart').addEventListener('click', reset);
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('select')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); fwd(); }
+  });
+  const modeSel = document.getElementById('mode');
+  modeSel.value = IDLE;
+  modeSel.addEventListener('change', () => { IDLE = modeSel.value; try { localStorage.setItem(KEY + '-idle', IDLE); } catch (e) {} paused = false; render(); });
+  const jump = document.getElementById('jump');
+  ORDER.forEach(([id, label]) => { const o = document.createElement('option'); o.value = id; o.textContent = label; jump.appendChild(o); });
+  jump.addEventListener('change', () => { const v = jump.value; jump.value = ''; if (v) { paused = false; go(v); } });
+
+  // ---------- escalar la pantalla al hueco disponible
+  function fit() {
+    const cs = getComputedStyle(viewport);
+    const pl = parseFloat(cs.paddingLeft), pr = parseFloat(cs.paddingRight), pt = parseFloat(cs.paddingTop), pb = parseFloat(cs.paddingBottom);
+    const pw = viewport.clientWidth - pl - pr, ph = viewport.clientHeight - pt - pb;
+    SC = Math.max(0.01, Math.min(pw / W, ph / H));
+    stage.style.transform = `translate(${pl + (pw - W * SC) / 2}px, ${pt + (ph - H * SC) / 2}px) scale(${SC})`;
+  }
+  new ResizeObserver(fit).observe(viewport); fit();
+
+  // Las posiciones dependen del tamaño del texto: esperar a las fuentes antes de la primera pantalla.
+  const fonts = document.fonts && document.fonts.load
+    ? Promise.all(['300 30px Roboto', '400 30px Roboto', '500 30px Roboto', '700 40px Roboto', '500 30px "Noto Sans Arabic"', '700 40px "Noto Sans Arabic"'].map(f => document.fonts.load(f)))
+    : Promise.resolve();
+  const start = () => { calibrate(); render(); };
+  fonts.then(start, start);
+})();
+</script>

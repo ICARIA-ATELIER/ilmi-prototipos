@@ -1,0 +1,627 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo Tide Timelapse</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Roboto+Condensed:wght@500;600;700&family=Noto+Sans+Arabic:wght@500;700&display=swap">
+<style>
+/* Layout: thin review bar on top, the 2160×3840 portrait exhibit screen (86") scaled to fit below it. */
+:root {
+  --bg: #e9e8e4; --fg: #1c1c1a; --muted: #5c5b57; --line: #cbc9c3; --ctl: #ffffff; --well: #d3d1cb;
+  --ui: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ex: "Roboto Condensed", "Arial Narrow", "Roboto", system-ui, sans-serif;
+  --ar: "Noto Sans Arabic", "Geeza Pro", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark }
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
+.app { height: 100%; display: flex; flex-direction: column; }
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+.ttl { display: flex; flex-direction: column; min-width: 0; }
+.ttl strong { font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+.ttl span { font-size: 12px; color: var(--muted); }
+.hint { flex: 1 1 220px; margin: 0; font-size: 13px; color: var(--muted); min-width: 0; }
+.hint b { color: var(--fg); font-weight: 600; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctrls label { font-size: 12px; color: var(--muted); }
+.ctl { display: inline-flex; align-items: center; gap: 8px; }
+.ctrls select, .ctrls button { font: 500 13px var(--ui); color: var(--fg); background: var(--ctl); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+.ctrls button:focus-visible, .ctrls select:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.ctrls button:disabled { opacity: .45; cursor: default; }
+.viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--well); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 12px; }
+.stage { position: absolute; left: 0; top: 0; width: 2160px; height: 3840px; transform-origin: 0 0; overflow: hidden; background: #e9e9e9; font-family: var(--ex); color: #222; user-select: none; -webkit-user-select: none; cursor: default; }
+.stage.tap { cursor: pointer; }
+
+/* --- exhibit screen (fixed grayscale wireframe look, as in the Figma v6 wireframes) --- */
+/* Backgrounds are the 3D references at 40 % over the frame grey, baked into the JPGs so the tide cross-fade doesn't flicker. */
+.bgs, .scene { position: absolute; inset: 0; }
+.bgl { position: absolute; inset: 0; background: #e9e9e9 center / 100% 100% no-repeat; }
+.bgl.in { animation: fade .9s ease-out both; }
+.veil { position: absolute; inset: 0; background: #e9e9e9; opacity: .5; }
+.abs { position: absolute; }
+:where(button.abs) { font-family: var(--ex); border: 0; padding: 0; margin: 0; }
+.stage button:focus-visible, .slider:focus-visible { outline: 14px solid #111; outline-offset: 10px; }
+.pic { display: block; object-fit: cover; pointer-events: none; }
+.hot { background: transparent; cursor: pointer; border-radius: 40px; }
+
+.bub { display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 34px 90px; text-align: center; text-wrap: balance; border-radius: 90px; background: linear-gradient(180deg, #e6e6e6, #d2d2d2); color: #222; font-weight: 700; font-size: 58px; line-height: 1.08; box-shadow: 0 16px 34px rgba(0,0,0,.16); }
+button.bub { cursor: pointer; }
+.bub.lit { background: linear-gradient(180deg, #f1fafc, #d8ecf2); }
+.bub.dark { padding: 30px 80px; border-radius: 74px 74px 74px 0; background: linear-gradient(100deg, #2d4f58, #4b8592 62%, #63a2b0); color: #eef4f5; font-weight: 600; font-size: 59px; box-shadow: inset 0 8px 12px rgba(255,255,255,.22), 0 14px 30px rgba(0,0,0,.24); }
+.bub.tip { padding: 30px 70px; border-radius: 84px; }
+.card { box-sizing: border-box; padding: 72px 75px 80px; border-radius: 70px 70px 70px 0; background: #d8d8d8; color: #262626; box-shadow: 0 16px 34px rgba(0,0,0,.18); }
+.card h3 { margin: 0 0 22px; font-weight: 700; font-size: 58px; line-height: 1.05; }
+.card p { margin: 0; font-weight: 600; font-size: 41px; line-height: 1.17; }
+.card.mid { display: flex; align-items: center; justify-content: center; padding: 56px 80px; }
+.card.mid p { text-align: center; text-wrap: balance; }
+.card.ask { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 44px; padding: 56px 60px; }
+.card.ask p { max-width: 540px; text-align: center; font-size: 54px; line-height: 1.12; color: #2f2f2f; text-wrap: balance; }
+.xbtn { position: absolute; right: -28px; bottom: -28px; width: 100px; height: 100px; border: 0; padding: 0; border-radius: 50%; background: #3e3e3f; display: grid; place-items: center; cursor: pointer; }
+.xbtn svg { width: 56px; height: 56px; }
+.dbtn { width: 618px; height: 100px; border: 0; border-radius: 50px; background: #3e3e3e; color: #ececec; font: 600 48px var(--ex); cursor: pointer; box-shadow: 0 8px 18px rgba(0,0,0,.2); }
+.big { font-weight: 700; font-size: 145px; line-height: 136px; color: #000; pointer-events: none; }
+.scan { text-align: right; font-weight: 600; font-size: 47px; line-height: 63px; color: #000; pointer-events: none; white-space: nowrap; }
+.ar { font-family: var(--ar); direction: rtl; }
+.ring { position: absolute; box-sizing: border-box; border-radius: 50%; border: solid #000; pointer-events: none; }
+.closing { text-align: center; font-weight: 600; font-size: 58px; line-height: 1.12; color: #000; pointer-events: none; text-wrap: balance; }
+
+/* Tide staff (mareómetro): grey block on a pole, with its reading. */
+.staff { position: absolute; background: #616161; }
+.pole { position: absolute; width: 7px; background: #616161; }
+.gm { position: absolute; font-weight: 700; font-size: 82px; line-height: 98px; color: #616161; white-space: nowrap; }
+
+/* Tide slider: High → Falling → Low → Lowest. Drag the point or tap a stage. */
+.slider { width: 1864px; height: 324px; border-radius: 162px; background: #3e3e3e; box-shadow: 0 16px 30px rgba(0,0,0,.22); touch-action: none; cursor: grab; }
+.slider.dragging { cursor: grabbing; }
+.slider.locked { cursor: default; }
+.slider .track, .slider .fill { position: absolute; left: 216px; top: 204px; height: 8px; border-radius: 4px; }
+.slider .track { width: 1432px; background: #262626; }
+.slider .fill { background: #d9d9d9; }
+.slider .dot { position: absolute; top: 196px; width: 24px; height: 24px; margin-left: -12px; border-radius: 50%; background: #262626; }
+.slider .dot.on { background: #d9d9d9; }
+.slider .lab { position: absolute; top: 104px; transform: translateX(-50%); font-weight: 600; font-size: 37px; line-height: 40px; color: #575757; white-space: nowrap; pointer-events: none; }
+.slider .lab.on { color: #d9d9d9; }
+.slider .lab.cur { top: 53px; font-weight: 700; font-size: 58px; line-height: 75px; color: #f2f2f2; }
+.slider .knob { position: absolute; top: 152px; width: 112px; height: 112px; margin-left: -56px; border-radius: 50%; background: rgba(232,232,232,.2); pointer-events: none; }
+.slider .knob::after { content: ""; position: absolute; inset: 20px; border-radius: 50%; background: #e8e8e8; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
+.slider.snap .knob, .slider.snap .fill { transition: left .25s ease, width .25s ease; }
+
+/* Restart: tab on the left edge, on screens 2–17 (Figma). */
+.rs { left: 0; top: 2477px; width: 167px; height: 123px; box-sizing: border-box; border-radius: 0 50px 50px 0; background: linear-gradient(180deg, #666, #505050); color: #eef4f5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 28px; line-height: 1; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,.25); }
+.rs svg { width: 46px; height: 46px; }
+
+/* motion */
+@keyframes pop { from { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } to { transform: scale(1); } }
+@keyframes rise { from { transform: scale(.86); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fade { from { opacity: 0; } }
+@keyframes deploy { from { transform: translateY(420px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes swim { from { transform: translateX(-320px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes bob { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-36px, 16px) rotate(-3deg); } }
+@keyframes walk { from { transform: translate(-108px, 28px); } to { transform: none; } }
+@keyframes flyin { from { transform: translate(-620px, 120px); } to { transform: none; } }
+@keyframes flyout { from { transform: translate(-923px, 1072px) scale(1.02); } to { transform: none; } }
+@keyframes pulse { 0%, 100% { opacity: .9; } 50% { opacity: .45; } }
+@keyframes halo { 0%, 100% { filter: drop-shadow(0 0 22px rgba(57,184,216,.95)) drop-shadow(0 0 60px rgba(57,184,216,.7)); } 50% { filter: drop-shadow(0 0 12px rgba(57,184,216,.7)) drop-shadow(0 0 30px rgba(57,184,216,.4)); } }
+.a-pop { animation: pop .5s cubic-bezier(.2,.9,.3,1) both; }
+.a-rise { animation: rise .35s ease-out both; }
+.a-fade { animation: fade .6s ease-out both; }
+.a-deploy { animation: deploy .7s cubic-bezier(.2,.9,.3,1) both; }
+.a-swim { animation: swim 1.4s ease-out both; }
+.a-bob { animation: fade .8s ease-out both, bob 4.5s ease-in-out .8s infinite; }
+.a-walk { animation: walk 1s ease-out both; }
+.a-flyin { animation: flyin 1.3s cubic-bezier(.2,.8,.3,1) both; }
+.a-flyout { animation: flyout 1.6s ease-in both; }
+/* What to tap next: a soft glow in the gallery cyan (#39B8D8), as the cyan ellipses in Figma. */
+.call::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(57,184,216,.85); animation: pulse 2s ease-in-out infinite; }
+.xbtn.call::after { --glow-blur: 50px; --glow-spread: 14px; }
+.slider .dot.call { --glow-blur: 40px; --glow-spread: 18px; background: #e8e8e8; }
+.glowing { animation: halo 2s ease-in-out infinite; }
+.glowing.a-fade { animation: fade .6s ease-out both, halo 2s ease-in-out infinite; }
+.glowing.a-flyin { animation: flyin 1.3s cubic-bezier(.2,.8,.3,1) both, halo 2s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage, .call::after { animation: none !important; transition: none !important; } .call::after { opacity: .8; } .glowing { filter: drop-shadow(0 0 22px rgba(57,184,216,.95)); } }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="ttl"><strong>Tide Timelapse</strong><span>WR2-403-IA01 · prototipo happy path (Figma 05/11), baja fidelidad</span></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ctrls">
+      <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
+      <span class="ctl"><label for="mode">Inactividad</label>
+      <select id="mode">
+        <option value="happy">Como el Figma (solo happy path)</option>
+        <option value="unhappy">Con unhappy I2–I7 (tiempos provisionales)</option>
+      </select></span>
+      <span class="ctl"><label for="jump">Ir a</label>
+      <select id="jump">
+        <option value="">Pantalla…</option>
+        <option value="s1">1 · Reposo</option>
+        <option value="s2">2 · Intro · Pregunta</option>
+        <option value="s3">3 · Intro · Raíces que respiran</option>
+        <option value="s4">4 · Intro · Burbuja iluminada</option>
+        <option value="s5">5 · Intro · Tarjeta «Guess what?»</option>
+        <option value="s6">6 · Intro · Sube la marea</option>
+        <option value="s7a">7a · Marea alta · Pargo (bocadillo)</option>
+        <option value="s7b">7b · Marea alta · Pargo (tarjeta)</option>
+        <option value="s8">8 · Marea alta · Medir la marea</option>
+        <option value="s9">9 · Mareómetro y slider</option>
+        <option value="s10">10 · High Tide · Pista para arrastrar</option>
+        <option value="s11">11 · Falling Tide · Propágulo</option>
+        <option value="s12">12 · Falling Tide · El propágulo deriva</option>
+        <option value="s13">13 · Low Tide · Cangrejos</option>
+        <option value="s14">14 · Low Tide · Texto del cangrejo</option>
+        <option value="s15">15 · Lowest Tide · Chorlito cangrejero</option>
+        <option value="s16">16 · Lowest Tide · El ave caza</option>
+        <option value="s17">17 · Lowest Tide · El ave se va</option>
+        <option value="s18">18 · Final · Reflexión</option>
+      </select></span>
+      <button id="restart" type="button">Reiniciar</button>
+    </div>
+  </header>
+  <main class="viewport" id="viewport">
+    <div class="stage" id="stage" aria-label="Pantalla del interactivo, 86 pulgadas en vertical, 2160 × 3840"></div>
+  </main>
+</div>
+
+<script>
+(() => {
+  const W = 2160, H = 3840;
+  const stage = document.getElementById('stage'), viewport = document.getElementById('viewport'), hint = document.getElementById('hint');
+  const backBtn = document.getElementById('back'), fwdBtn = document.getElementById('fwd');
+  const REDO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12.5 15.5A15 15 0 1 1 9 26" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M11 6.5v10h10" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const XSVG = '<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M14 14l28 28M42 14L14 42" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>';
+  const ORDER = ['s1', 's2', 's3', 's4', 's5', 's6', 's7a', 's7b', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17', 's18'];
+
+  // Timings (ms). The first seven are the AFTER_TIMEOUT values of the Figma prototype (05/11), all provisional.
+  // The rest only apply with "unhappy I2–I7" on; their values are still to be decided (Figma notes I1–I7).
+  const T = { s2: 3000, s3: 3000, s4: 6000, s6: 3000, s9: 4000, s16: 4000, s17: 3000,
+              glowX: 6000, cardIdle: 30000, staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
+
+  // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
+  const STOPS = [365, 842, 1320, 1797], NAMES = ['High Tide', 'Falling Tide', 'Low Tide', 'Lowest Tide'];
+  const SL = { x: 149, y: 2550 };
+
+  // seed / crab: already seen. Going back on the slider counts them as done (Montse, 03/11).
+  let S = { screen: 's1', seed: false, crab: false };
+  let MODE = 'happy';
+  try { MODE = localStorage.getItem('tt-mode') === 'unhappy' ? 'unhappy' : 'happy'; } catch (e) {}
+  const UNHAPPY = () => MODE === 'unhappy';
+  // Review history for the back / forward buttons. While paused, screens don't advance on their own.
+  let past = [], future = [], cur = null, paused = false;
+  let timers = [];
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const auto = (fn, ms) => later(() => { if (!paused) fn(); }, ms);
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const calm = matchMedia('(prefers-reduced-motion: reduce)');
+
+  // ---------- helpers
+  const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const bgs = mk('div', 'bgs'), scene = mk('div', 'scene');
+  stage.append(bgs, scene);
+  const add = e => (scene.appendChild(e), e);
+  const at = (e, x, y) => { e.style.left = Math.round(x) + 'px'; e.style.top = Math.round(y) + 'px'; return e; };
+  const size = (e, w, h) => { if (w != null) e.style.width = w + 'px'; if (h != null) e.style.height = h + 'px'; return e; };
+  function place(e, cx, cy) {
+    const w = e.offsetWidth, h = e.offsetHeight;
+    return at(e, Math.max(40, Math.min(W - 40 - w, cx - w / 2)), Math.max(40, Math.min(H - 40 - h, cy - h / 2)));
+  }
+  const anim = (e, cls, delay = 0) => { if (cls) { e.classList.add(...cls.split(' ')); if (delay) e.style.animationDelay = delay + 'ms'; } return e; };
+  const on = (e, fn) => { e.addEventListener('click', ev => { ev.stopPropagation(); paused = false; fn(); }); return e; };
+
+  // Background per tide; a new one fades in over the previous one.
+  let bgCur;
+  function bg(name, veil = false) {
+    if (name !== bgCur) {
+      const l = mk('div', 'bgl');
+      if (name) l.style.backgroundImage = 'url("img/bg-' + name + '.jpg")';
+      const olds = [...bgs.querySelectorAll('.bgl')];
+      bgs.appendChild(l);
+      if (bgCur !== undefined) l.classList.add('in');
+      setTimeout(() => olds.forEach(o => o.remove()), bgCur === undefined ? 0 : 950);
+      bgCur = name;
+    }
+    let v = bgs.querySelector('.veil');
+    if (veil) { if (!v) v = mk('div', 'veil a-fade'); bgs.appendChild(v); } else if (v) v.remove();
+  }
+  function pic(src, x, y, w, h, cls) {
+    const e = add(mk('img', 'abs pic' + (cls ? ' ' + cls : '')));
+    e.src = 'img/' + src; e.alt = ''; e.draggable = false;
+    return size(at(e, x, y), w, h);
+  }
+  // Tap zone, same rectangle as the "⚡" hotspot in Figma.
+  function hot(x, y, w, h, label, fn) {
+    const b = add(mk('button', 'abs hot')); b.type = 'button'; b.setAttribute('aria-label', label);
+    size(at(b, x, y), w, h); return on(b, fn);
+  }
+  // Speech bubble centred on its Figma box; it grows if the text needs more room.
+  function bub(text, box, o = {}) {
+    const [x, y, w, h] = box;
+    const e = add(mk(o.fn ? 'button' : 'div', 'abs bub' + (o.cls ? ' ' + o.cls : ''), text));
+    if (o.fn) { e.type = 'button'; on(e, o.fn); if (o.label) e.setAttribute('aria-label', o.label); }
+    if (o.nowrap) { e.style.whiteSpace = 'nowrap'; e.style.minWidth = w + 'px'; } else e.style.width = w + 'px';
+    e.style.minHeight = h + 'px';
+    place(e, x + w / 2, y + h / 2);
+    return anim(e, o.anim, o.delay);
+  }
+  // Card with its close X on the bottom-right corner. bottom: keep the card's lower edge where Figma has it.
+  function card(html, box, o = {}) {
+    const [x, y, w, h] = box;
+    const e = add(mk('div', 'abs card' + (o.cls ? ' ' + o.cls : ''), html));
+    size(e, w); e.style.minHeight = h + 'px';
+    at(e, x, o.bottom ? y + h - e.offsetHeight : y);
+    if (o.close) {
+      const b = mk('button', 'xbtn', XSVG); b.type = 'button'; b.setAttribute('aria-label', 'Cerrar la tarjeta');
+      e.appendChild(b); on(b, o.close); e.closeBtn = b;
+    }
+    return anim(e, o.anim === undefined ? 'a-rise' : o.anim);
+  }
+  // Tide staff. high: top of the water (screens 9–10); low: screens 12–14; lowest: screens 15–18 (as drawn in Figma).
+  function gauge(kind, cls) {
+    const g = add(mk('div', 'abs')); at(g, 0, 0);
+    const put = (c, x, y, w, h, html) => { const e = mk('div', c, html); g.appendChild(size(at(e, x, y), w, h)); return e; };
+    if (kind === 'high') {
+      put('pole', 101, 2232, null, H - 2232); put('staff', 61, 1999, 87, 233);
+      const t = put('gm', 0, 1962, null, null, '2 m'); t.style.left = Math.round(245 - t.offsetWidth / 2) + 'px';
+    } else if (kind === 'low') {
+      put('pole', 97, 3305, null, H - 3305); put('staff', 57, 3166, 87, 139); put('gm', 190, 3161, null, null, '2 m');
+    } else {
+      const s = put('staff', 10, 3697, 87, 139); s.style.transformOrigin = '0 0'; s.style.transform = 'rotate(-40deg)';
+    }
+    return anim(g, cls);
+  }
+
+  // ---------- slider
+  // targets: { stage index: () => next screen }. Only those stages (and the current one) can be reached;
+  // dragging further does nothing, as in Figma, where only those hotspots exist.
+  function slider(curIdx, targets, o = {}) {
+    const el = add(mk('div', 'abs slider')); at(el, SL.x, SL.y);
+    const rel = i => STOPS[i] - SL.x;
+    const track = mk('div', 'track'), fill = mk('div', 'fill'), knob = mk('div', 'knob');
+    el.append(track, fill);
+    const dots = STOPS.map((_, i) => { const d = mk('div', 'dot' + (i <= curIdx ? ' on' : '')); d.style.left = rel(i) + 'px'; el.appendChild(d); return d; });
+    NAMES.forEach((n, i) => { const l = mk('div', 'lab' + (i === curIdx ? ' cur' : i < curIdx ? ' on' : ''), n); l.style.left = rel(i) + 'px'; el.appendChild(l); });
+    el.appendChild(knob);
+    const setX = x => { knob.style.left = x + 'px'; fill.style.width = Math.max(0, x - rel(0)) + 'px'; };
+    setX(rel(curIdx));
+    el.setAttribute('role', 'slider'); el.setAttribute('aria-label', 'Nivel de la marea');
+    el.setAttribute('aria-valuemin', '0'); el.setAttribute('aria-valuemax', '3');
+    el.setAttribute('aria-valuenow', String(curIdx)); el.setAttribute('aria-valuetext', NAMES[curIdx]);
+    el.addEventListener('click', ev => ev.stopPropagation());
+    if (o.locked) { el.classList.add('locked'); el.setAttribute('aria-disabled', 'true'); return el; }
+    if (o.callIdx != null) dots[o.callIdx].classList.add('call');
+    el.tabIndex = 0;
+    const ok = [curIdx, ...Object.keys(targets).map(Number)];
+    const lo = rel(Math.min(...ok)), hi = rel(Math.max(...ok));
+    const sx = ev => { const r = stage.getBoundingClientRect(); return (ev.clientX - r.left) / (r.width / W) - SL.x; };
+    const clamp = x => Math.max(lo, Math.min(hi, x));
+    const choose = i => { if (i !== curIdx && targets[i]) { paused = false; targets[i](); return true; } return false; };
+    let drag = false;
+    el.addEventListener('pointerdown', ev => {
+      drag = true; el.classList.remove('snap'); el.classList.add('dragging');
+      try { el.setPointerCapture(ev.pointerId); } catch (e) {}
+      setX(clamp(sx(ev)));
+    });
+    el.addEventListener('pointermove', ev => { if (drag) setX(clamp(sx(ev))); });
+    const end = (ev, cancel) => {
+      if (!drag) return; drag = false; el.classList.remove('dragging');
+      const x = clamp(sx(ev));
+      let best = curIdx, d = Infinity;
+      for (const i of ok) { const dd = Math.abs(rel(i) - x); if (dd < d) { d = dd; best = i; } }
+      if (cancel || !choose(best)) { el.classList.add('snap'); setX(rel(curIdx)); }
+    };
+    el.addEventListener('pointerup', ev => end(ev, false));
+    el.addEventListener('pointercancel', ev => end(ev, true));
+    el.addEventListener('keydown', ev => {
+      if (ev.key !== 'ArrowLeft' && ev.key !== 'ArrowRight') return;
+      ev.preventDefault(); ev.stopPropagation();
+      const dir = ev.key === 'ArrowRight' ? 1 : -1;
+      const next = ok.filter(i => dir > 0 ? i > curIdx : i < curIdx).sort((a, b) => dir * (a - b))[0];
+      if (next != null) choose(next);
+    });
+    return el;
+  }
+
+  // Restart tab on the left edge: back to the idle screen (Figma: "Restart → 1").
+  function restartTab() {
+    const b = add(mk('button', 'abs rs', REDO + '<span>Restart</span>')); b.type = 'button';
+    b.setAttribute('aria-label', 'Restart: volver a la pantalla de reposo');
+    on(b, toIdle);
+    return b;
+  }
+  function toIdle() { S.seed = false; S.crab = false; go('s1'); }
+
+  // Unhappy I2: card left open. The X lights up, then the piece restarts if nobody touches it.
+  function cardIdle(c) {
+    if (!UNHAPPY()) return;
+    later(() => c.closeBtn.classList.add('call'), T.glowX);
+    auto(toIdle, T.glowX + T.cardIdle);
+  }
+  // Unhappy I5: no touch for T.idle on any screen but idle → back to idle.
+  let idleTimer = null;
+  function armIdle() {
+    clearTimeout(idleTimer); idleTimer = null;
+    if (!UNHAPPY() || S.screen === 's1') return;
+    idleTimer = setTimeout(() => { if (!paused) toIdle(); }, T.idle);
+  }
+  const uh = txt => UNHAPPY() ? ' <b>Unhappy:</b> ' + txt : '';
+
+  // ---------- where each screen goes next (used by timers, taps, the slider and the forward button)
+  const fall = () => S.seed ? 's12' : 's11';
+  const low = () => S.crab ? 's14' : 's13';
+  const NEXT = {
+    s1: () => go('s2'), s2: () => go('s3'), s3: () => go('s4'), s4: () => go('s5'), s5: () => go('s6'),
+    s6: () => go('s7a'), s7a: () => go('s7b'), s7b: () => go('s8'), s8: () => go('s9'), s9: () => go('s10'),
+    s10: () => go(fall()), s11: () => go('s12'), s12: () => go(low()), s13: () => go('s14'), s14: () => go('s15'),
+    s15: () => go('s16'), s16: () => go('s17'), s17: () => go('s18'), s18: toIdle
+  };
+
+  // ---------- texts (Figma v6, 05/11)
+  const TX = {
+    q: 'Take a guess! Can roots hold their breath?',
+    a: 'Not exactly... but these help mangroves breathe when tides cover the ground!',
+    guessH: 'Guess What?',
+    guess: 'Living where the sea rises and falls every day is not easy! Mangroves have developed special aerial roots that work like snorkels. When the tide is out, they take in air. When the tide comes in, they close up their pores to keep water out.',
+    tideIn: 'The tide is coming in!',
+    food: 'That means more food too!',
+    foodCard: 'As the tide comes and goes, it brings nutrients, balances salt levels, and creates a healthy home for fish, crabs, and many other species.',
+    measure: 'Flooded roots shelter juvenile fish.<br>Do you want to measure the tide?',
+    drag: 'Drag to set the tide!',
+    seed: 'Mangrove seedlings drift with the tide, searching for a place to grow.<br>Where will they land?',
+    crab: 'Low tide reveals a busy feeding ground. How many birds feed on the mudflat?',
+    lorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing eli',
+    closing: 'Prompt y reflexión final que cuente lo que queramos resumir de esta pieza. Contenido manda.'
+  };
+  // Boxes [x, y, w, h] in the 2160 × 3840 screen, from the Figma prototype.
+  const BX = {
+    q: [390, 2205, 900, 204], a: [543, 2732, 900, 266], tideIn: [645, 2236, 690, 148], food: [391, 2045, 828, 148],
+    guess: [712, 1523, 738, 571], foodCard: [698, 1484, 738, 369], measure: [766, 1848, 740, 465],
+    drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 328], crab: [975, 2114, 900, 266], lorem: [540, 1669, 900, 204],
+    closing: [626, 1834, 910, 225]
+  };
+  // Faded seedling (the seed has taken root). Its PNGs already carry the 40 % opacity of the Figma layers.
+  const seedling = () => { pic('plantula-arriba.png', 1064, 2098, 222, 410); pic('plantula-abajo.png', 1013, 2262, 296, 251); };
+
+  // ---------- screens
+  const SCREENS = {
+    s1() {
+      bg(null);
+      const t = add(mk('div', 'abs big', 'Thrive<br>on<br>tides!')); at(t, 944, 1607);
+      const en = add(mk('div', 'abs scan', 'Scan your wristband or tap to start')); at(en, 1954 - en.offsetWidth, 3132);
+      const ar = add(mk('div', 'abs scan ar', 'مرّر سوارك أو المس للبدء')); at(ar, 1954 - ar.offsetWidth, 3195);
+      [[2013, 3054, 267, 3.4], [2046, 3087, 202, 10.3], [2080, 3121, 134, 13.7]].forEach(([x, y, d, b]) => {
+        const r = add(mk('div', 'ring')); size(at(r, x, y), d, d); r.style.borderWidth = b + 'px';
+      });
+      return { tap: NEXT.s1, hint: '<b>Toca la pantalla</b> para empezar (o pasa la pulsera).' };
+    },
+    s2() {
+      bg('media');
+      bub(TX.q, BX.q, { anim: 'a-rise' });
+      auto(NEXT.s2, T.s2);
+      return { hint: 'Intro con la marea media: sale la pregunta. Sigue sola en ' + T.s2 / 1000 + ' s.' };
+    },
+    s3() {
+      bg('bajamar');
+      bub(TX.q, BX.q);
+      bub(TX.a, BX.a, { anim: 'a-rise' });
+      auto(NEXT.s3, T.s3);
+      return { hint: 'Sale la respuesta. En ' + T.s3 / 1000 + ' s se ilumina.' };
+    },
+    s4() {
+      bg('bajamar');
+      bub(TX.a, BX.a, { cls: 'lit call', fn: NEXT.s4, label: TX.a + ' Toca para saber más.' });
+      auto(() => go('s6'), T.s4);
+      return { hint: '<b>Toca la burbuja iluminada</b> para ver la tarjeta. Si no la tocas, en ' + T.s4 / 1000 + ' s sigue sola sin tarjeta (unhappy I1).' };
+    },
+    s5() {
+      bg('bajamar');
+      bub(TX.a, BX.a);
+      const c = card('<h3>' + TX.guessH + '</h3><p>' + TX.guess + '</p>', BX.guess, { close: NEXT.s5 });
+      cardIdle(c);
+      return { hint: '<b>Toca la X</b> para cerrar la tarjeta.' + uh('a los ' + T.glowX / 1000 + ' s se ilumina la X y, si nadie toca en ' + T.cardIdle / 1000 + ' s más, vuelve al reposo (I2).') };
+    },
+    s6() {
+      bg('media');
+      bub(TX.tideIn, BX.tideIn, { cls: 'dark', nowrap: true, anim: 'a-rise' });
+      auto(NEXT.s6, T.s6);
+      return { hint: 'Sube la marea. Sigue sola en ' + T.s6 / 1000 + ' s.' };
+    },
+    s7a() {
+      bg('submarina');
+      pic('pargo.png', 167, 2193, 303, 120, 'a-swim');
+      bub(TX.food, BX.food, { cls: 'dark call', nowrap: true, fn: NEXT.s7a, anim: 'a-rise', delay: 600, label: TX.food + ' Toca para saber más.' });
+      return { hint: 'Marea alta: aparece el pargo juvenil. <b>Toca el bocadillo iluminado.</b>' };
+    },
+    s7b() {
+      bg('submarina');
+      pic('pargo.png', 167, 2193, 303, 120);
+      bub(TX.food, BX.food, { cls: 'dark', nowrap: true });
+      const c = card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b });
+      cardIdle(c);
+      return { hint: '<b>Toca la X</b> para cerrar la tarjeta.' + uh('a los ' + T.glowX / 1000 + ' s se ilumina la X y, si nadie toca en ' + T.cardIdle / 1000 + ' s más, vuelve al reposo (I2).') };
+    },
+    s8() {
+      bg('submarina');
+      pic('pargo.png', 246, 2313, 303, 120);
+      const c = card('<p>' + TX.measure + '</p>', BX.measure, { cls: 'ask', bottom: true });
+      const b = mk('button', 'dbtn', 'Tide up!'); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
+      at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
+      if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
+      return { hint: '<b>Toca «Tide up!»</b> para medir la marea.' + uh('si nadie toca, a los ' + T.staffAuto / 1000 + ' s la tarjeta se cierra y el mareómetro se despliega solo (I3).') };
+    },
+    s9() {
+      bg('submarina');
+      gauge('high', 'a-deploy');
+      anim(slider(0, { 1: () => go(fall()) }), 'a-deploy', 150);
+      auto(NEXT.s9, T.s9);
+      return { hint: 'Se despliegan el mareómetro y el slider en High Tide. <b>Arrastra el punto</b> o toca «Falling Tide». A los ' + T.s9 / 1000 + ' s sale la pista.' };
+    },
+    s10() {
+      bg('submarina');
+      gauge('high');
+      slider(0, { 1: () => go(fall()) }, { callIdx: UNHAPPY() ? 1 : null });
+      bub(TX.drag, BX.drag, { cls: 'tip', nowrap: true, anim: 'a-pop' });
+      return { hint: 'Pista «Drag to set the tide!». <b>Arrastra el punto hasta Falling Tide</b> (o toca la etiqueta). En High Tide no hay nada que tocar.' + uh('además se ilumina el punto de Falling Tide (I4).') };
+    },
+    s11() {
+      bg('submarina');
+      slider(1, { 0: () => go('s10') });
+      pic('propagulo.png', 358, 1001, 448, 672, 'glowing a-fade');
+      hot(358, 994, 448, 679, 'Semilla de mangle: tócala para soltarla', NEXT.s11);
+      bub(TX.seed, BX.seed, { anim: 'a-rise', delay: 300 });
+      if (UNHAPPY()) auto(NEXT.s11, T.seedAuto);
+      return { hint: '<b>Toca la semilla iluminada.</b> Hasta entonces el slider solo deja volver a High Tide.' + uh('a los ' + T.seedAuto / 1000 + ' s la semilla cae sola al agua (I6).') };
+    },
+    s12() {
+      bg('alta');
+      // Figma stacks two copies of the faded seedling here.
+      for (let n = 0; n < 2; n++) { pic('plantula-arriba.png', 963, 2163, 357, 531); pic('plantula-abajo.png', 976, 2384, 373, 316); }
+      pic('semilla-deriva.png', 1741, 2163, 306, 459, 'a-bob');
+      gauge('low');
+      slider(1, { 0: () => go('s10'), 2: () => go(low()) });
+      return { hint: 'La semilla va a la deriva. <b>Arrastra hasta Low Tide.</b>' };
+    },
+    s13() {
+      bg('media');
+      seedling();
+      pic('cangrejo.png', 1677, 2389, 243, 162, 'glowing a-fade');
+      hot(1660, 2330, 300, 230, 'Cangrejo: tócalo', NEXT.s13);
+      gauge('low');
+      slider(2, { 0: () => go('s10'), 1: () => go('s12') });
+      if (UNHAPPY()) auto(NEXT.s13, T.crabAuto);
+      return { hint: '<b>Toca el cangrejo iluminado.</b> El slider no pasa de Low Tide hasta entonces.' + uh('a los ' + T.crabAuto / 1000 + ' s el texto del cangrejo sale solo (I7).') };
+    },
+    s14() {
+      bg('media');
+      seedling();
+      pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
+      bub(TX.crab, BX.crab, { anim: 'a-rise', delay: 300 });
+      gauge('low');
+      slider(2, { 0: () => go('s10'), 1: () => go('s12'), 3: NEXT.s14 });
+      return { hint: 'El cangrejo se mueve y sale su texto. <b>Arrastra hasta Lowest Tide.</b>' };
+    },
+    s15() {
+      bg('bajamar');
+      pic('cangrejo.png', 1785, 2361, 243, 162);
+      pic('ave-vuela.png', -521, 856, 956, 713, 'glowing a-flyin');
+      hot(0, 960, 330, 420, 'Chorlito cangrejero: tócalo', NEXT.s15);
+      gauge('lowest');
+      slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
+      return { hint: '<b>Toca el chorlito cangrejero</b> que entra por la izquierda.' };
+    },
+    s16() {
+      bg('bajamar');
+      pic('ave-caza.png', 874, 1873, 979, 730, 'a-fade');
+      bub(TX.lorem, BX.lorem, { anim: 'a-rise', delay: 300 });
+      gauge('lowest');
+      slider(3, {}, { locked: true });
+      auto(NEXT.s16, T.s16);
+      return { hint: 'El ave caza un cangrejo; el slider queda bloqueado mientras está posada. <b>Pendiente:</b> el texto (lorem ipsum en el Figma). Sigue sola en ' + T.s16 / 1000 + ' s.' };
+    },
+    s17() {
+      bg('bajamar');
+      pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
+      gauge('lowest');
+      slider(3, {}, { locked: true });
+      auto(NEXT.s17, T.s17);
+      return { hint: 'El ave se va volando. Sigue sola en ' + T.s17 / 1000 + ' s.' };
+    },
+    s18() {
+      bg('bajamar', true);
+      gauge('lowest');
+      const t = add(mk('div', 'abs closing', TX.closing)); size(t, BX.closing[2]); at(t, BX.closing[0], BX.closing[1]); anim(t, 'a-fade');
+      const b = add(mk('button', 'abs dbtn', 'Restart')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
+      on(b, toIdle);
+      return { hint: 'Cierre. <b>Pendiente:</b> la película automática de la marea (no está en el prototipo de Figma) y el texto final, que decide contenido. <b>Restart</b> vuelve al reposo.' };
+    }
+  };
+
+  // ---------- navigation
+  const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab });
+  const load = s => { S = { ...s }; };
+  let current = { tap: null };
+  function showHint() { hint.innerHTML = (paused ? '<b>En pausa</b> (usa Atrás / Adelante o toca la pantalla para seguir). ' : '') + (current.hint || ''); }
+  function render() {
+    clearTimers();
+    scene.replaceChildren();
+    current = SCREENS[S.screen]() || {};
+    if (!['s1', 's18'].includes(S.screen)) restartTab();
+    stage.classList.toggle('tap', !!current.tap);
+    showHint();
+    armIdle();
+    cur = snap();
+    backBtn.disabled = !past.length;
+  }
+  function go(screen) {
+    if (cur) past.push(cur);
+    future = [];
+    S.screen = screen;
+    if (screen === 's12') S.seed = true;
+    if (screen === 's14') S.crab = true;
+    render();
+  }
+  function back() { if (!past.length) return; paused = true; future.push(cur); load(past.pop()); render(); }
+  function fwd() {
+    paused = true;
+    if (future.length) { past.push(cur); load(future.pop()); render(); }
+    else NEXT[S.screen]();
+  }
+  function reset() { S = { screen: 's1', seed: false, crab: false }; past = []; future = []; cur = null; paused = false; render(); }
+
+  // Any touch restarts the inactivity countdown.
+  stage.addEventListener('pointerdown', armIdle);
+  stage.addEventListener('click', () => {
+    const was = paused; paused = false;
+    if (current.tap) current.tap();
+    else if (was) render();
+  });
+  backBtn.addEventListener('click', back);
+  fwdBtn.addEventListener('click', fwd);
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('select, .slider')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); fwd(); }
+    else if ((e.key === 'Enter' || e.key === ' ') && current.tap && !(e.target.closest && e.target.closest('button'))) { e.preventDefault(); paused = false; current.tap(); }
+  });
+
+  // review controls
+  document.getElementById('restart').addEventListener('click', reset);
+  const modeSel = document.getElementById('mode');
+  modeSel.value = MODE;
+  modeSel.addEventListener('change', () => {
+    MODE = modeSel.value;
+    try { localStorage.setItem('tt-mode', MODE); } catch (e) {}
+    paused = false; render();
+  });
+  document.getElementById('jump').addEventListener('change', e => {
+    const v = e.target.value; e.target.value = '';
+    if (!v) return;
+    paused = false;
+    const i = ORDER.indexOf(v);
+    S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14');
+    go(v);
+  });
+
+  // scale the 2160×3840 screen into the viewport
+  function fit() {
+    const cs = getComputedStyle(viewport);
+    const pw = viewport.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const ph = viewport.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    const s = Math.max(0.01, Math.min(pw / W, ph / H));
+    const x = parseFloat(cs.paddingLeft) + (pw - W * s) / 2, y = parseFloat(cs.paddingTop) + (ph - H * s) / 2;
+    stage.style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+  }
+  new ResizeObserver(fit).observe(viewport); fit();
+
+  // Positions depend on text size, so wait for the exhibit fonts before the first screen.
+  const fonts = document.fonts && document.fonts.load
+    ? Promise.all(['700 58px "Roboto Condensed"', '600 41px "Roboto Condensed"', '600 47px "Noto Sans Arabic"'].map(f => document.fonts.load(f)))
+    : Promise.resolve();
+  fonts.then(render, render);
+})();
+</script>

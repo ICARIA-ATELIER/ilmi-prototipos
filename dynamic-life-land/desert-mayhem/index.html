@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo Desert Mayhem</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Noto+Sans+Arabic:wght@400;500;700&display=swap">
+<style>
+/* Prototipo ILMI (skill prototipo-ilmi). WR2-201-IA01 Dynamic Life Display Game: Land, interactivo 1 de 2 (el juego).
+   Arriba, la barra de revisión, que sigue el tema claro u oscuro. Debajo, la pantalla táctil de 32" a 1920 × 1080,
+   escalada para caber. Baja fidelidad en grises, como el Figma. */
+:root {
+  --bg: #e9e8e4; --fg: #1c1c1a; --muted: #5c5b57; --line: #cbc9c3; --ctl: #ffffff; --well: #d3d1cb;
+  --ui: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ex: "Roboto", system-ui, sans-serif;
+  --ar: "Noto Sans Arabic", "Geeza Pro", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
+.app { height: 100%; display: flex; flex-direction: column; }
+
+/* --- barra de revisión --- */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+.ttl { display: flex; flex-direction: column; min-width: 0; }
+.ttl strong { font-size: 15px; font-weight: 700; }
+.ttl span { font-size: 12px; color: var(--muted); }
+.hint { flex: 1 1 260px; margin: 0; font-size: 13px; line-height: 1.4; color: var(--muted); min-width: 0; }
+.hint b { color: var(--fg); font-weight: 600; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctl { display: inline-flex; align-items: center; gap: 8px; }
+.ctrls label { font-size: 12px; color: var(--muted); }
+.ctrls select, .ctrls button { font: 500 13px var(--ui); color: var(--fg); background: var(--ctl); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; max-width: 100%; }
+.ctrls button:focus-visible, .ctrls select:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.ctrls button:disabled { opacity: .45; cursor: default; }
+.viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--well); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+
+/* --- pantalla de la pieza: baja fidelidad en grises, colores muestreados del Figma --- */
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #e5e5e5; font-family: var(--ex); color: #000; user-select: none; -webkit-user-select: none; }
+.stage.tap { cursor: pointer; }
+.scene { position: absolute; inset: 0; }
+.abs { position: absolute; }
+.pic { display: block; pointer-events: none; }
+.tx { pointer-events: none; }
+.tx .t, .bt .t { display: inline-block; white-space: nowrap; }
+.ar { font-family: var(--ar); direction: rtl; letter-spacing: 0; }
+.bt { display: flex; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; border: 0; padding: 0; margin: 0; font-family: var(--ex); font-weight: 700; color: #000; background: #969696; border-radius: 999px; cursor: pointer; }
+.bt:disabled { cursor: default; }
+.hot { background: transparent; border: 0; padding: 0; cursor: pointer; border-radius: 50%; }
+.stage button:focus-visible { outline: 6px solid #111; outline-offset: 4px; }
+.pill { display: flex; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; background: #969696; border-radius: 999px; font-weight: 700; cursor: grab; touch-action: none; }
+.pill.drag { cursor: grabbing; z-index: 5; box-shadow: 0 14px 30px rgba(0,0,0,.22); }
+.pill.back { transition: left .35s ease, top .35s ease; }
+.a-fade { animation: fade .45s ease-out both; }
+.a-pop { animation: pop .4s cubic-bezier(.2,.8,.3,1.2) both; }
+@keyframes fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes pop { from { opacity: 0; transform: scale(.6) } to { opacity: 1; transform: none } }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="ttl"><strong>Desert Mayhem! Discover the Web</strong><span>WR2-201-IA01 · interactivo 1 de 2 (juego) · Figma «04/11 · v3», baja fidelidad</span></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ctrls">
+      <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
+      <span class="ctl"><label for="mode">Inactividad</label>
+        <select id="mode">
+          <option value="off">Sin vuelta al reposo (como el Figma)</option>
+          <option value="on">Vuelve al reposo a los 60 s (provisional)</option>
+        </select></span>
+      <span class="ctl"><label for="jump">Ir a</label><select id="jump"><option value="">Pantalla…</option></select></span>
+      <button id="restart" type="button">Reiniciar</button>
+    </div>
+  </header>
+  <main class="viewport" id="viewport">
+    <div class="stage" id="stage" role="region" aria-label="Pantalla del interactivo"></div>
+  </main>
+</div>
+
+<script>
+(() => {
+  // ===== Pantalla: táctil de 32", 1920 × 1080 (Pantallas_por_Pieza.md) =====
+  const W = 1920, H = 1080;
+  const KEY = 'proto-wr2201-juego';
+
+  // ===== Tiempos (ms). El Figma no fija ninguno: todos PROVISIONALES =====
+  const T = {
+    great: 1500,    // de la cadena completa del tutorial al popup «Great!»
+    ok: 1500,       // del acierto en la zona a «Look at the mural!»
+    mural: 5000,    // lo que dura «Look at the mural!» antes de volver
+    allDone: 2000,  // las 4 zonas en gris antes de «Food chains don't exist…»
+    idle: 60000     // vuelta al reposo (solo con el selector de inactividad)
+  };
+  const seg = ms => String(ms / 1000).replace('.', ',');   // segundos con coma decimal
+
+  // ===== Textos, tal cual del Figma (incluidos los de relleno y la errata «wrisband») =====
+  const TX = {
+    title: 'Desert Mayhem!<br>Discover the Web',
+    scanEn: 'scan your wrisband to start', scanAr: 'امسح سوارك للبدء',
+    foodWeb: 'Food web',
+    foodWebBody: 'A food chain (or trophic chain) is the linear path or sequence<br>through which energy and nutrients are transferred from one<br>organism to another within an ecosystem.',
+    eachLink: 'Each link represents a trophic level. Find out what they are:',
+    levels: ['Producers', 'Primary<br>Consumers', 'Secondary<br>Consumers', 'Tertiary<br>Consumers'],
+    levelName: ['Producers', 'Primary Consumers', 'Secondary Consumers', 'Tertiary Consumers'],
+    level1Body: 'Autotrophic organisms, such as plants, algae, and<br>phytoplankton, capable of making their own food<br>through photosynthesis using solar energy.',
+    levelLorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing<br>elit, sed do eiusmod tempor incididunt ut labore<br>et dolore magna aliqua.',
+    great: 'Great!',
+    greatIntro: 'Now that you know what a food web is and<br>what its links are, let\'s complete the<br>terrestrial food webs of Arabia!',
+    startGame: 'Start Game',
+    selectArea: 'Select an area:',
+    areas: ['Gravel Plains', 'Mountains', 'Wadis', 'Desert'],
+    areaLorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod<br>tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim<br>veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea<br>commodo consequat.',
+    cont: 'Continue',
+    mainChain: 'Main food chain',
+    legend: ['Productores', 'Primary<br>Consumers', 'Secondary<br>Consumers', 'Tertiary<br>Consumers'],
+    missing: 'Which animal is missing from the chain?',
+    lorem: 'Lorem Ipsum',
+    lookMural: 'Look at the mural!',
+    webIntro: 'Food chains don\'t exist in isolation: they form<br>one big web of life. Keep exploring to uncover<br>the ecosystem\'s true complexity.',
+    selectAnimal: 'Select an animal:',
+    selected: 'Selected Animal', role: 'Food chain role', eats: 'Eats:', eatenBy: 'Eaten by:',
+    done: 'Mission complete!',
+    doneBody: 'Energy flows through all forms of life, showing that<br>every creature is vital to the health of its habitat.',
+    restart: 'Restart'
+  };
+
+  // ===== Orden de pantallas y su nombre en «Ir a» =====
+  const ORDER = [
+    ['reposo', '1 · Reposo'],
+    ['tablero', '2 · Tutorial: colocar los niveles'],
+    ['nivel', '3 · Tutorial: popup del nivel'],
+    ['cadena', '4 · Tutorial: cadena completa'],
+    ['empezar', '5 · Tutorial: «Great!» y Start Game'],
+    ['zonas', '6 · Zonas: elegir una'],
+    ['zona', '7 · Zona: presentación'],
+    ['falta', '8 · Zona: ¿qué animal falta?'],
+    ['acierto', '9 · Zona: acierto'],
+    ['mural', '10 · Zona: «Look at the mural!»'],
+    ['zonasHechas', '11 · Zonas: las 4 hechas'],
+    ['red', '12 · Red: «Food chains don\'t exist…»'],
+    ['animales', '13 · Red: elegir animal'],
+    ['buhoMural', '14 · Red: «Look at the mural!» (búho)'],
+    ['ficha1', '15 · Red: ficha del primer animal'],
+    ['ficha2', '16 · Red: segunda selección'],
+    ['fin', '17 · Mission complete!']
+  ];
+  // Estado de partida que necesita cada pantalla al saltar con «Ir a»
+  const AREA = 'Mountains';
+  const PRESET = {
+    reposo: {}, tablero: { placed: [] }, nivel: { placed: [0], popup: 0 },
+    cadena: { placed: [0, 1, 2, 3] }, empezar: { placed: [0, 1, 2, 3] },
+    zonas: { done: [] }, zona: { done: [], area: AREA }, falta: { done: [], area: AREA },
+    acierto: { done: [], area: AREA }, mural: { done: [], area: AREA },
+    zonasHechas: { done: TX.areas.slice() }, red: {}, animales: {}, buhoMural: {}, ficha1: {}, ficha2: {}, fin: {}
+  };
+
+  // ---------- estado y temporizadores
+  const stage = document.getElementById('stage'), viewport = document.getElementById('viewport'), hint = document.getElementById('hint');
+  const backBtn = document.getElementById('back'), fwdBtn = document.getElementById('fwd');
+  stage.style.width = W + 'px'; stage.style.height = H + 'px';
+  stage.setAttribute('aria-label', 'Pantalla del interactivo, ' + W + ' × ' + H);
+  const fresh = id => Object.assign({ screen: id, placed: [], popup: null, done: [], area: AREA }, JSON.parse(JSON.stringify(PRESET[id] || {})));
+  let S = fresh(ORDER[0][0]);
+  let IDLE = 'off';
+  try { IDLE = localStorage.getItem(KEY + '-idle') === 'on' ? 'on' : 'off'; } catch (e) {}
+  let past = [], future = [], cur = null, paused = false, timers = [], idleTimer = null, current = {}, SC = 1;
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  const auto = (fn, ms) => later(() => { if (!paused) fn(); }, ms);
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  // ---------- ayudas para pintar (px de la pantalla real, sacados del Figma)
+  const scene = document.createElement('div'); scene.className = 'scene'; stage.appendChild(scene);
+  const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const add = e => (scene.appendChild(e), e);
+  const at = (e, x, y) => { e.style.left = Math.round(x) + 'px'; e.style.top = Math.round(y) + 'px'; return e; };
+  const size = (e, w, h) => { if (w != null) e.style.width = w + 'px'; if (h != null) e.style.height = h + 'px'; return e; };
+  const on = (e, fn) => { e.addEventListener('click', ev => { ev.stopPropagation(); paused = false; fn(); }); return e; };
+  const pic = (src, x, y, w, h, cls) => { const i = mk('img', 'abs pic' + (cls ? ' ' + cls : '')); i.src = 'img/' + src; i.alt = ''; i.draggable = false; return add(size(at(i, x, y), w, h)); };
+  const box = (x, y, w, h, st, cls) => { const b = add(mk('div', 'abs' + (cls ? ' ' + cls : ''))); size(at(b, x, y), w, h); Object.assign(b.style, st || {}); return b; };
+  const dot = (x, y, d, st, cls) => box(x, y, d, d, Object.assign({ borderRadius: '50%' }, st), cls);
+  const svg = (x, y, w, h, inner, stroke) => { const d = box(x, y, w, h, { pointerEvents: 'none' }); d.innerHTML = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" fill="none" stroke="${stroke || '#585858'}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`; return d; };
+  const arrowR = (x, y) => svg(x, y, 54, 36, '<path d="M2 18H51M36 4L51 18L36 32"/>');
+  const arrowUp = (x, y) => svg(x, y, 126, 188, '<path d="M63 185V5M4 49L63 5L122 49"/>');
+  const overlay = () => box(0, 0, W, H, { background: 'rgba(0,0,0,.5)' }, 'a-fade');
+
+  // Texto. o: x (izquierda) | cx (centro) | rx (derecha); gy = arriba de las letras en el Figma;
+  // fit = ancho de la línea más larga en el Figma (px): el tamaño se ajusta solo para igualarlo, porque la Ilmi
+  // (propuesta de KTF) no está disponible y Roboto es más ancha o más estrecha según el peso.
+  // Tamaños compartidos (grp): se calculan una vez con un texto de referencia del Figma, para que botones o
+  // etiquetas del mismo estilo tengan el mismo tamaño aunque su texto sea distinto.
+  const GRP = {};
+  const measure = (html, fw, fs) => { const s = mk('span', 't', html); s.style.cssText = `position:absolute;visibility:hidden;white-space:nowrap;font-family:Roboto;font-weight:${fw};font-size:${fs}px`; stage.appendChild(s); const w = s.offsetWidth; s.remove(); return w; };
+  function calibrate() {
+    const REF = { pill: ['Producers', 700, 179], area: ['Gravel Plains', 700, 229], legend: ['Consumers', 400, 114],
+      lvl: ['Producers', 700, 260], zt: ['Mountains', 700, 274], zp: ['Mountains', 700, 264] };
+    for (const k in REF) { const [t, fw, fit] = REF[k]; GRP[k] = +(100 * fit / measure(t, fw, 100)).toFixed(2); }
+  }
+  const tx = (html, o) => {
+    const d = mk('div', 'abs tx' + (o.ar ? ' ar' : '') + (o.cls ? ' ' + o.cls : ''));
+    const s = mk('span', 't', html);
+    const fs = (o.grp && GRP[o.grp]) || o.fs || 30;
+    s.style.fontSize = fs + 'px'; s.style.fontWeight = o.fw || 400; s.style.lineHeight = (o.lh || Math.round(fs * 1.2)) + 'px';
+    if (o.col) s.style.color = o.col;
+    if (o.cx != null) { d.style.left = (o.cx - 1200) + 'px'; d.style.width = '2400px'; d.style.textAlign = 'center'; }
+    else if (o.rx != null) { d.style.left = (o.rx - 2400) + 'px'; d.style.width = '2400px'; d.style.textAlign = 'right'; }
+    else d.style.left = o.x + 'px';
+    d.style.top = (o.y != null ? o.y : o.gy) + 'px';
+    if (o.fit) s.dataset.fit = o.fit;
+    if (o.gy != null) d.dataset.gy = o.gy;
+    d.appendChild(s);
+    return add(d);
+  };
+  // Botón con texto centrado (pastillas grises del Figma)
+  const btn = (label, x, y, w, h, fn, o = {}) => {
+    const b = mk('button', 'abs bt' + (o.cls ? ' ' + o.cls : '')); b.type = 'button';
+    size(at(b, x, y), w, h); Object.assign(b.style, o.st || {});
+    const fs = (o.grp && GRP[o.grp]) || o.fs || 40;
+    const s = mk('span', 't', label); s.style.fontSize = fs + 'px'; s.style.lineHeight = (o.lh || Math.round(fs * 1.15)) + 'px';
+    if (o.fit) s.dataset.fit = o.fit;
+    b.appendChild(s);
+    if (fn) on(b, fn); else b.disabled = true;
+    return add(b);
+  };
+  const hot = (x, y, w, h, fn, label) => { const b = mk('button', 'abs hot'); b.type = 'button'; b.setAttribute('aria-label', label || 'Zona tocable'); return add(on(size(at(b, x, y), w, h), fn)); };
+
+  // Ajuste de tamaños (ver «fit») y colocación por la parte de arriba de las letras (gy)
+  function fitText() {
+    scene.querySelectorAll('[data-fit]').forEach(s => {
+      for (let k = 0; k < 2; k++) { const w = s.offsetWidth; if (w) s.style.fontSize = (parseFloat(s.style.fontSize) * (+s.dataset.fit) / w).toFixed(2) + 'px'; }
+    });
+    scene.querySelectorAll('[data-gy]').forEach(d => {
+      const s = d.firstChild, fs = parseFloat(s.style.fontSize), lh = parseFloat(s.style.lineHeight);
+      const k = d.classList.contains('ar') ? 0.36 : 0.2;   // de la parte de arriba de la línea a la de las letras
+      d.style.top = (+d.dataset.gy - ((lh - 1.171 * fs) / 2 + k * fs)).toFixed(1) + 'px';
+    });
+  }
+
+  // ---------- piezas repetidas
+  const LV_ICON = ['nivel-plant.png', 'nivel-primary.png', 'nivel-secondary.png', 'nivel-tertiary.png'];
+  const LV_ICON_SIZE = [[28, 37], [38, 28], [38, 28], [27, 32]];
+  // Insignia redonda de 54 px con el icono del nivel trófico
+  const badge = (x, y, lv, fill) => {
+    dot(x, y, 54, { background: fill || '#d9d9d9', border: '2px solid #000', boxSizing: 'border-box' });
+    const [w, h] = LV_ICON_SIZE[lv];
+    pic(LV_ICON[lv], x + 27 - w / 2, y + 27 - h / 2, w, h);
+  };
+  const sparkle = (x, y, d) => pic('destello.png', x, y, d || 159, d || 159, 'a-pop');
+
+  // Tutorial: dos maquetas del Figma. Mientras quedan pastillas, círculos juntos; con las 4, círculos más separados.
+  const BOARD = {
+    open: { cx: [332, 680, 1028, 1376], badge: [428, 776, 1124, 1472], arrow: [612, 961, 1309] },
+    full: { cx: [214, 612, 1010, 1408], badge: [310, 708, 1106, 1504], arrow: [514, 913, 1311] }
+  };
+  // Pastillas sueltas, donde están en el Figma (desordenadas): nivel → [x, y, w, h]
+  const PILL_HOME = { 3: [202, 876, 369, 100], 2: [611, 876, 369, 100], 0: [1020, 885, 289, 82], 1: [1349, 871, 369, 100] };
+  const pillSize = lv => lv === 0 ? [289, 82] : [369, 100];
+  const pillText = (el, lv) => { const s = mk('span', 't', TX.levels[lv]); s.style.fontSize = (GRP.pill || 38) + 'px'; s.style.lineHeight = lv === 0 ? '46px' : '40px'; el.appendChild(s); };
+
+  function drawBoard(placed, layout) {
+    const L = BOARD[layout];
+    tx(TX.foodWeb, { x: 124, gy: 101, fs: 52, fw: 700, lh: 60, fit: 272 });
+    tx(TX.foodWebBody, { x: 124, gy: 168, fs: 28, lh: 36, fit: 801 });
+    tx(TX.eachLink, { x: 124, gy: 308, fs: 28, lh: 36, fit: 798 });
+    for (let i = 0; i < 4; i++) {
+      const isIn = placed.includes(i);
+      dot(L.cx[i], 446, 268, { background: isIn ? '#b1b1b1' : '#d9d9d9' });
+      dot(L.badge[i], 413, 76, { background: '#585858' });
+      tx(String(i + 1), { cx: L.badge[i] + 38, gy: 432, fs: 44, fw: 700, lh: 50, col: '#fff' });
+    }
+    L.arrow.forEach(x => arrowR(x, 561));
+    placed.forEach(lv => {
+      const [w, h] = pillSize(lv);
+      const pw = layout === 'open' && lv !== 0 ? 330 : w;   // juntos no caben 369 px: se estrechan un poco
+      const p = box(L.cx[lv] + 134 - pw / 2, 680, pw, h, {}, 'pill');
+      p.style.cursor = 'default'; pillText(p, lv);
+    });
+    if (layout === 'open') placed.forEach(lv => { sparkle(L.cx[lv] - 134, 574); sparkle(L.cx[lv] + 202, 396); });
+    else [[43, 531], [436, 396], [860, 387], [1268, 396], [1677, 512]].forEach(([x, y]) => sparkle(x, y));
+  }
+
+  // Arrastrar una pastilla a su círculo (supuesto: el Figma no dice si se arrastra o se toca)
+  function dragPill(p, lv) {
+    let sx, sy, ox, oy, moved = false;
+    p.addEventListener('click', ev => ev.stopPropagation());
+    p.addEventListener('pointerdown', ev => {
+      ev.preventDefault(); ev.stopPropagation(); paused = false; armIdle();
+      p.setPointerCapture(ev.pointerId); p.classList.remove('back'); p.classList.add('drag');
+      sx = ev.clientX; sy = ev.clientY; ox = parseFloat(p.style.left); oy = parseFloat(p.style.top); moved = false;
+    });
+    p.addEventListener('pointermove', ev => {
+      if (!p.classList.contains('drag')) return;
+      moved = true;
+      p.style.left = (ox + (ev.clientX - sx) / SC) + 'px'; p.style.top = (oy + (ev.clientY - sy) / SC) + 'px';
+    });
+    const end = () => {
+      if (!p.classList.contains('drag')) return;
+      p.classList.remove('drag');
+      const cx = parseFloat(p.style.left) + p.offsetWidth / 2, cy = parseFloat(p.style.top) + p.offsetHeight / 2;
+      const L = BOARD.open;
+      const hit = L.cx.findIndex(x => Math.hypot(cx - (x + 134), cy - 580) < 190);
+      if (moved && hit === lv) place(lv);
+      else { p.classList.add('back'); p.style.left = ox + 'px'; p.style.top = oy + 'px'; }   // provisional: vuelve a su sitio
+    };
+    p.addEventListener('pointerup', end); p.addEventListener('pointercancel', end);
+  }
+  function place(lv) { S.placed = S.placed.concat(lv); S.popup = lv; go('nivel'); }
+  const nextPill = () => [0, 1, 2, 3].find(lv => !S.placed.includes(lv));
+
+  // Pantallas de la zona (Mountains es la única dibujada; las demás usan su misma maqueta)
+  function drawChain(answered) {
+    tx(S.area, { cx: 960, gy: 75, fw: 700, lh: 60, grp: 'zt' });
+    tx(TX.mainChain, { cx: 960, gy: 129, fs: 40, fw: 700, lh: 46, col: '#a9a9a9', fit: 300 });
+    [132, 496, 860, 1224, 1588].forEach((x, i) => dot(x, 231, 200, { background: i === 1 ? '#a6a6a6' : '#d9d9d9' }));
+    [387, 751, 1115, 1479].forEach(x => arrowR(x, 313));
+    badge(205, 204, 0); badge(933, 204, 2); badge(1297, 204, 2); badge(1661, 204, 3);
+    if (answered) { badge(567, 204, 1); sparkle(439, 175, 111); sparkle(667, 349, 111); }
+    else tx('?', { cx: 596, gy: 300, fs: 92, fw: 700, lh: 100, col: '#d9d9d9' });
+    // Leyenda de niveles
+    [[367, 0], [667, 1], [991, 2], [1322, 3]].forEach(([x, lv]) => badge(x, 474, lv));
+    tx(TX.legend[0], { x: 442, gy: 489, fs: 24, lh: 30, fit: 122 });
+    [[742, 1], [1066, 2], [1390, 3]].forEach(([x, lv]) => tx(TX.legend[lv], { x, gy: 479, lh: 23, grp: 'legend' }));
+  }
+  // Tarjetas de respuesta: la 3.ª es la correcta en el Figma
+  const CARDS = [[226, 0], [622, 2], [1018, 1], [1414, 1]];
+
+  // ---------- pantallas. Cada una pinta y devuelve { tap, hint }
+  const SCREENS = {
+    reposo() {
+      pic('juego-reposo.jpg', 0, 0, W, H);
+      tx(TX.title, { cx: 960, gy: 643, fs: 56, fw: 700, lh: 58, fit: 444 });
+      tx(TX.scanEn, { rx: 1774, gy: 886, fs: 28, fw: 500, lh: 34, fit: 384 });
+      tx(TX.scanAr, { rx: 1774, gy: 924, fs: 30, fw: 500, lh: 44, fit: 256, ar: true });
+      return { tap: () => { S = fresh('tablero'); go('tablero'); }, hint: '<b>Toca la pantalla</b>: hace de pasar la pulsera por el lector. No hay selector de idioma: supongo que lo pone la pulsera.' };
+    },
+    tablero() {
+      drawBoard(S.placed, 'open');
+      [0, 1, 2, 3].filter(lv => !S.placed.includes(lv)).forEach(lv => {
+        const [x, y, w, h] = PILL_HOME[lv];
+        const p = box(x, y, w, h, {}, 'pill'); pillText(p, lv);
+        p.setAttribute('role', 'button'); p.setAttribute('aria-label', TX.levelName[lv]);
+        dragPill(p, lv);
+      });
+      return { hint: '<b>Arrastra cada pastilla a su círculo</b>, del 1 (Producers) al 4. Arrastrar es un supuesto. Si se suelta en otro círculo vuelve a su sitio (el fallo no está dibujado). «Adelante →» coloca la siguiente.' };
+    },
+    nivel() {
+      drawBoard(S.placed, 'open');
+      [0, 1, 2, 3].filter(lv => !S.placed.includes(lv)).forEach(lv => { const [x, y, w, h] = PILL_HOME[lv]; const p = box(x, y, w, h, {}, 'pill'); p.style.cursor = 'default'; pillText(p, lv); });
+      overlay();
+      const lv = S.popup;
+      box(486, 252, 947, 576, { background: '#fff', borderRadius: '32px' }, 'a-fade');
+      tx('Level ' + (lv + 1), { cx: 956, gy: 297, fs: 30, fw: 300, lh: 36, fit: 77, cls: 'a-fade' });
+      tx(TX.levelName[lv], { cx: 956, gy: 338, fw: 700, lh: 60, grp: 'lvl', cls: 'a-fade' });
+      if (lv === 0) {
+        tx(TX.level1Body, { x: 640, gy: 428, fs: 28, lh: 36, fit: 654, cls: 'a-fade' });
+        pic('planta.png', 718, 570, 475, 239, 'a-fade');
+      } else {
+        tx(TX.levelLorem, { x: 640, gy: 428, fs: 28, lh: 36, fit: 600, cls: 'a-fade' });
+        box(718, 570, 475, 220, { background: '#efefef', borderRadius: '20px' }, 'a-fade');
+      }
+      const x = mk('button', 'abs hot a-fade'); x.type = 'button'; x.setAttribute('aria-label', 'Cerrar');
+      size(at(x, 1355, 274), 59, 59); x.style.background = '#d9d9d9';
+      x.innerHTML = '<svg width="59" height="59" viewBox="0 0 59 59" fill="none" stroke="#585858" stroke-width="5" stroke-linecap="round"><path d="M18 18L41 41M41 18L18 41"/></svg>';
+      add(on(x, closeLevel));
+      return { hint: '<b>Toca la X</b> para cerrar.' + (lv === 0 ? '' : ' El Figma solo dibuja el popup del nivel 1: aquí el texto es de relleno y falta la ilustración.') };
+    },
+    cadena() {
+      drawBoard([0, 1, 2, 3], 'full');
+      auto(() => go('empezar'), T.great);
+      return { hint: 'Las 4 en su sitio. Pasa sola al «Great!» en ' + seg(T.great) + ' s (provisional).' };
+    },
+    empezar() {
+      drawBoard([0, 1, 2, 3], 'full');
+      overlay();
+      box(546, 263, 828, 481, { background: '#fff', borderRadius: '32px' }, 'a-fade');
+      tx(TX.great, { cx: 945, gy: 319, fs: 56, fw: 700, lh: 60, fit: 153, cls: 'a-fade' });
+      tx(TX.greatIntro, { cx: 946, gy: 406, fs: 28, lh: 36, fit: 574, cls: 'a-fade' });
+      btn(TX.startGame, 807, 580, 278, 79, () => { S.done = []; go('zonas'); }, { fs: 38, fit: 202, cls: 'a-fade' });
+      return { hint: '<b>Toca «Start Game»</b>.' };
+    },
+    zonas() {
+      pic('juego-paisaje.jpg', 0, 60, W, 620);
+      tx(TX.selectArea, { cx: 960, gy: 766, fs: 30, lh: 36, fit: 194 });
+      TX.areas.forEach((a, i) => {
+        const done = S.done.includes(a);
+        btn(a, 136 + i * 426, 836, 369, 100, done ? null : () => { S.area = a; go('zona'); },
+          { grp: 'area', st: done ? { background: '#d6d6d6', color: '#ababab' } : {} });
+      });
+      return { hint: '<b>Elige una zona</b>. Las hechas quedan en gris y no se pueden tocar. Solo Mountains está dibujada: las otras usan su misma maqueta.' };
+    },
+    zona() {
+      pic(S.area === 'Mountains' ? 'juego-paisaje-montanas.jpg' : 'juego-paisaje.jpg', 0, 60, W, 620);
+      box(489, 685, 942, 343, { background: '#969696', borderRadius: '40px' }, 'a-fade');
+      tx(S.area, { cx: 960, gy: 708, fw: 700, lh: 60, grp: 'zp' });
+      tx(TX.areaLorem, { cx: 960, gy: 778, fs: 18, lh: 23, fit: 618 });
+      btn(TX.cont, 775, 901, 369, 100, () => go('falta'), { fs: 40, fit: 157, st: { background: '#585858', color: '#b4b4b4' } });
+      return { hint: '<b>Toca «Continue»</b>.' + (S.area === 'Mountains' ? '' : ' El resaltado de esta zona en el paisaje no está dibujado.') };
+    },
+    falta() {
+      drawChain(false);
+      tx(TX.missing, { cx: 960, gy: 620, fs: 48, fw: 700, lh: 56, fit: 883 });
+      CARDS.forEach(([x, lv], i) => {
+        const c = mk('button', 'abs hot'); c.type = 'button'; c.setAttribute('aria-label', 'Respuesta ' + (i + 1));
+        size(at(c, x, 697), 369, 269); Object.assign(c.style, { background: '#969696', borderRadius: '40px' });
+        add(i === 2 ? on(c, () => go('acierto')) : c);
+        const bx = [259, 648, 1046, 1439][i];
+        badge(bx, 888, lv, 'transparent');
+        tx(TX.lorem, { x: [322, 718, 1114, 1510][i], gy: 899, fs: 30, lh: 36, fit: 174 });
+      });
+      return { hint: '<b>Toca la 3.ª tarjeta</b> (la correcta en el Figma). Las demás no hacen nada: el fallo no está dibujado.' };
+    },
+    acierto() {
+      drawChain(true);
+      tx(TX.missing, { cx: 960, gy: 620, fs: 48, fw: 700, lh: 56, fit: 883 });
+      CARDS.forEach(([x, lv], i) => {
+        box(x, 697, 369, 269, { background: i === 2 ? '#585858' : '#969696', borderRadius: '40px' });
+        badge([259, 648, 1046, 1439][i], 888, lv, 'transparent');
+        tx(TX.lorem, { x: [322, 718, 1114, 1510][i], gy: 899, fs: 30, lh: 36, fit: 174, col: i === 2 ? '#fff' : '#000' });
+      });
+      auto(() => go('mural'), T.ok);
+      return { hint: 'Acierto: el animal entra en el hueco. Pasa sola en ' + seg(T.ok) + ' s (provisional).' };
+    },
+    mural() {
+      drawChain(true);
+      tx(TX.great, { cx: 960, gy: 705, fs: 56, fw: 700, lh: 60, fit: 153 });
+      tx(TX.lookMural, { cx: 960, gy: 772, fs: 56, fw: 700, lh: 60, fit: 466 });
+      arrowUp(533, 935); arrowUp(1288, 933);
+      auto(finishArea, T.mural);
+      return { hint: 'El mural enseña la cadena. La pantalla vuelve sola a las zonas en ' + seg(T.mural) + ' s (provisional); no sé si se bloquea mientras tanto.' };
+    },
+    zonasHechas() {
+      pic('juego-paisaje.jpg', 0, 60, W, 620);
+      tx(TX.selectArea, { cx: 960, gy: 766, fs: 30, lh: 36, fit: 194 });
+      TX.areas.forEach((a, i) => btn(a, 136 + i * 426, 836, 369, 100, null, { grp: 'area', st: { background: '#d6d6d6', color: '#ababab' } }));
+      auto(() => go('red'), T.allDone);
+      return { hint: 'Las 4 zonas hechas. Pasa sola en ' + seg(T.allDone) + ' s (provisional).' };
+    },
+    red() {
+      pic('juego-paisaje.jpg', 0, 60, W, 620);
+      tx(TX.great, { cx: 960, gy: 685, fs: 56, fw: 700, lh: 60, fit: 153 });
+      tx(TX.webIntro, { cx: 960, gy: 762, fs: 28, lh: 36, fit: 596 });
+      btn(TX.cont, 775, 901, 369, 100, () => go('animales'), { fs: 40, fit: 157 });
+      return { hint: '<b>Toca «Continue»</b>.' };
+    },
+    animales() {
+      pic('juego-animales.jpg', 0, 102, W, 598);
+      tx(TX.selectAnimal, { cx: 960, gy: 66, fs: 30, lh: 36, fit: 226 });
+      hot(690, 125, 115, 165, () => go('buhoMural'), 'Búho');
+      return { hint: '<b>Toca el búho</b> (arriba, sobre la montaña). Brillan todos los animales, pero el Figma solo sigue el búho.' };
+    },
+    buhoMural() {
+      pic('juego-buho-mural.jpg', 0, 102, W, 598);
+      tx(TX.lookMural, { cx: 960, gy: 772, fs: 56, fw: 700, lh: 60, fit: 466 });
+      arrowUp(533, 935); arrowUp(1288, 933);
+      auto(() => go('ficha1'), T.mural);
+      return { hint: 'El mural enseña el búho. Pasa sola a su ficha en ' + seg(T.mural) + ' s (provisional).' };
+    },
+    ficha1() { return drawAnimal('juego-red-1.jpg', 3, 2, () => go('ficha2'), 'Toca el erizo</b> (abajo, en el centro) para añadirlo a la red. En el Figma esta segunda selección no tiene «Look at the mural!».'); },
+    ficha2() { return drawAnimal('juego-red-2.jpg', 1, 3, () => go('fin'), 'Toca cualquier animal</b>: el Figma salta aquí a «Mission complete!», sin decir cuántos hacen falta.'); },
+    fin() {
+      pic('juego-red-completa.jpg', 0, 102, W, 598);
+      tx(TX.done, { cx: 960, gy: 708, fs: 56, fw: 700, lh: 60, fit: 441 });
+      tx(TX.doneBody, { cx: 960, gy: 782, fs: 28, lh: 36, fit: 606 });
+      btn(TX.restart, 775, 901, 369, 100, toIdle, { fs: 40, fit: 129 });
+      return { hint: '<b>Toca «Restart»</b>. Supongo que vuelve al reposo.' };
+    }
+  };
+  function drawAnimal(img, nEats, nEaten, next, hintTxt) {
+    pic(img, 0, 102, W, 598);
+    tx(TX.selectAnimal, { cx: 960, gy: 66, fs: 30, lh: 36, fit: 226 });
+    if (img === 'juego-red-1.jpg') hot(700, 480, 205, 175, next, 'Erizo');
+    else hot(0, 102, W, 598, next, 'Animales del paisaje');
+    tx(TX.selected, { cx: 960, gy: 718, fs: 32, fw: 700, lh: 40, col: '#8f8f8f', fit: 230 });
+    box(161, 759, 1599, 282, { border: '3px solid #a0a0a0', borderRadius: '36px', boxSizing: 'border-box' });
+    dot(184, 780, 240, { background: '#a0a0a0' });
+    tx(TX.lorem, { x: 471, gy: 837, fs: 44, fw: 700, lh: 50, fit: 273 });
+    tx(TX.role, { x: 471, gy: 912, fs: 26, fw: 300, lh: 30, col: '#a3a3a3', fit: 197 });
+    tx(TX.lorem, { x: 471, gy: 944, fs: 30, fw: 700, lh: 36, fit: 182 });
+    box(810, 794, 3, 215, { background: '#a0a0a0' }); box(1259, 794, 3, 215, { background: '#a0a0a0' });
+    tx(TX.eats, { x: 878, gy: 815, fs: 26, fw: 300, lh: 30, col: '#a3a3a3', fit: 58 });
+    tx(TX.eatenBy, { x: 1327, gy: 815, fs: 26, fw: 300, lh: 30, col: '#a3a3a3' });
+    for (let i = 0; i < nEats; i++) tx(TX.lorem, { x: 878, gy: 861 + i * 41.5, fs: 30, fw: 700, lh: 36, fit: 182 });
+    for (let i = 0; i < nEaten; i++) tx(TX.lorem, { x: 1327, gy: 861 + i * 41.5, fs: 30, fw: 700, lh: 36, fit: 182 });
+    return { hint: '<b>' + hintTxt };
+  }
+  function closeLevel() { if (S.placed.length === 4) go('cadena'); else go('tablero'); }
+  function finishArea() {
+    if (!S.done.includes(S.area)) S.done = S.done.concat(S.area);
+    if (S.done.length === 4) go('zonasHechas'); else go('zonas');
+  }
+
+  // Qué hace «Adelante →» en las pantallas que esperan algo
+  const NEXT = {
+    reposo: () => { S = fresh('tablero'); go('tablero'); },
+    tablero: () => place(nextPill()),
+    nivel: closeLevel,
+    zonas: () => { S.area = TX.areas.find(a => !S.done.includes(a)); go('zona'); },
+    mural: finishArea,
+    fin: toIdle
+  };
+  const nextOf = id => { if (NEXT[id]) return NEXT[id](); const i = ORDER.findIndex(o => o[0] === id); i < ORDER.length - 1 ? go(ORDER[i + 1][0]) : toIdle(); };
+  function toIdle() { S = fresh(ORDER[0][0]); go(ORDER[0][0]); }
+
+  // ---------- inactividad (solo con el selector en «on»)
+  function armIdle() {
+    clearTimeout(idleTimer); idleTimer = null;
+    if (IDLE !== 'on' || S.screen === ORDER[0][0]) return;
+    idleTimer = setTimeout(() => { if (!paused) toIdle(); }, T.idle);
+  }
+
+  // ---------- navegación y revisión
+  const snap = () => JSON.parse(JSON.stringify(S));
+  function showHint() { hint.innerHTML = (paused ? '<b>En pausa</b> (Atrás / Adelante, o toca la pantalla para seguir). ' : '') + (current.hint || ''); }
+  function render() {
+    clearTimers();
+    scene.replaceChildren();
+    current = SCREENS[S.screen]() || {};
+    fitText();
+    stage.classList.toggle('tap', !!current.tap);
+    showHint(); armIdle();
+    cur = snap();
+    backBtn.disabled = !past.length;
+  }
+  function go(id) { if (cur) past.push(cur); future = []; S.screen = id; render(); }
+  function back() { if (!past.length) return; paused = true; future.push(cur); S = past.pop(); render(); }
+  function fwd() { paused = true; if (future.length) { past.push(cur); S = future.pop(); render(); } else nextOf(S.screen); }
+  function reset() { S = fresh(ORDER[0][0]); past = []; future = []; cur = null; paused = false; render(); }
+
+  stage.addEventListener('pointerdown', armIdle);
+  stage.addEventListener('click', () => { const was = paused; paused = false; if (current.tap) current.tap(); else if (was) render(); });
+  backBtn.addEventListener('click', back);
+  fwdBtn.addEventListener('click', fwd);
+  document.getElementById('restart').addEventListener('click', reset);
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('select')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); fwd(); }
+  });
+  const modeSel = document.getElementById('mode');
+  modeSel.value = IDLE;
+  modeSel.addEventListener('change', () => { IDLE = modeSel.value; try { localStorage.setItem(KEY + '-idle', IDLE); } catch (e) {} paused = false; render(); });
+  const jump = document.getElementById('jump');
+  ORDER.forEach(([id, label]) => { const o = document.createElement('option'); o.value = id; o.textContent = label; jump.appendChild(o); });
+  jump.addEventListener('change', () => { const v = jump.value; jump.value = ''; if (v) { paused = false; S = fresh(v); go(v); } });
+
+  // ---------- escalar la pantalla al hueco disponible
+  function fit() {
+    const cs = getComputedStyle(viewport);
+    const pl = parseFloat(cs.paddingLeft), pr = parseFloat(cs.paddingRight), pt = parseFloat(cs.paddingTop), pb = parseFloat(cs.paddingBottom);
+    const pw = viewport.clientWidth - pl - pr, ph = viewport.clientHeight - pt - pb;
+    SC = Math.max(0.01, Math.min(pw / W, ph / H));
+    stage.style.transform = `translate(${pl + (pw - W * SC) / 2}px, ${pt + (ph - H * SC) / 2}px) scale(${SC})`;
+  }
+  new ResizeObserver(fit).observe(viewport); fit();
+
+  // Las posiciones dependen del tamaño del texto: esperar a las fuentes antes de la primera pantalla.
+  const fonts = document.fonts && document.fonts.load
+    ? Promise.all(['300 30px Roboto', '400 30px Roboto', '500 30px Roboto', '700 40px Roboto', '500 30px "Noto Sans Arabic"'].map(f => document.fonts.load(f)))
+    : Promise.resolve();
+  const start = () => { calibrate(); render(); };
+  fonts.then(start, start);
+})();
+</script>
