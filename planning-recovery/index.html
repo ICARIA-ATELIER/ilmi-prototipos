@@ -154,16 +154,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 /* "Are you still there?" notice over the screen. */
 .still { position: absolute; inset: 0; background: rgba(255,255,255,.82); animation: fade .4s ease-out both; }
 .still.leaving { animation: out .3s ease-in forwards; }
-.still .btn { gap: 0; padding: 0 110px; }
-.still .btn.reply { border-radius: 70px 70px 0 70px; transform-origin: 100% 100%; }
-/* Avatar peeks up from the bottom edge, leaning 5° towards its bubble (Unhappy 03). */
-.avatar { position: absolute; left: 300px; top: 1380px; width: 442px; height: 1091px; background: url("img/avatar.png") center / 100% 100% no-repeat; pointer-events: none; transform-origin: 50% 100%; transform: rotate(5deg); animation: peek .8s cubic-bezier(.2,.9,.3,1.15) both; }
-.still.leaving .avatar { animation: unpeek .45s ease-in forwards; }
-@keyframes peek { from { transform: translateY(820px) rotate(0deg); } to { transform: rotate(5deg); } }
-@keyframes unpeek { from { transform: rotate(5deg); } to { transform: translateY(820px) rotate(0deg); } }
-.say { box-sizing: border-box; padding: 64px 120px 72px; border-radius: 160px 160px 160px 0; background: #fff; color: #0c0c0d; box-shadow: 0 16px 40px rgba(0,0,0,.18); transform-origin: 0 100%; }
-.say h3 { margin: 0 0 8px; font-weight: 700; font-size: 94px; line-height: 1.05; }
-.say p { margin: 0; font-weight: 600; font-size: 64px; line-height: 1.1; color: #333; white-space: nowrap; }
+/* Text only (Unhappy 02 in Figma; Montse, 16/11 — the avatar version was removed): over the veil, a white glow,
+   the question centred and Yes under it, positions and sizes as in Figma (Roboto there too). */
+.still .hello { width: 1600px; text-align: center; font-weight: 700; font-size: 128px; line-height: 136px; color: #000; pointer-events: none; }
+.still .btn.yes { width: 406px; padding: 0; gap: 0; justify-content: center; font-size: 80px; }
 
 /* motion */
 @keyframes pop { from { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } to { transform: scale(1); } }
@@ -575,7 +569,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       if (open) { close(); return; }
       label(); layout(); void m.offsetWidth;
       setOpen(true);
-      clearTimeout(stillTimer); stillTimer = null; // no avatar while the overlay is open (Montse, 12/11)
+      clearTimeout(stillTimer); stillTimer = null; // no inactivity notice while the overlay is open (Montse, 12/11)
       prevTap = current.tap; current.tap = close; // a tap anywhere else closes the menu
       stage.classList.add('tap');
       hint.innerHTML = 'Menú abierto sobre una capa negra al 50 %: <b>' + lang.textContent + '</b> (arriba) cambia el idioma y <b>Restart</b> (a la derecha) vuelve al inicio. Se cierra con la X o al tocar fuera. Mientras está abierto no sale el aviso de inactividad. Aspecto y tiempos provisionales.';
@@ -591,7 +585,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
   const WAITS = ['map', 'desc', 'question'];
   let stillTimer = null, stillEl = null;
-  let menuOpen = false; // the dot's overlay is open: the avatar does not show (Montse, 12/11)
+  let menuOpen = false; // the dot's overlay is open: the inactivity notice does not show (Montse, 12/11)
   function armStill() {
     clearTimeout(stillTimer); stillTimer = null;
     if (stillEl || menuOpen || !WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) return;
@@ -604,14 +598,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const o = stillEl = add(mk('div', 'still'));
     o.addEventListener('click', ev => ev.stopPropagation());
     const put = e => (o.appendChild(e), e);
-    // Unhappy 03, the only version since 12/11 (the text-only one was removed): the avatar pops up from the
-    // bottom edge and stays peeking; its bubble and Yes follow.
-    put(mk('div', 'avatar'));
-    const say = put(mk('div', 'abs say', '<h3>Hey!</h3><p>Are you still there?</p>'));
-    at(say, 870, 1420 - say.offsetHeight); anim(say, 'a-pop', 400);
-    // Yes is the visitor's reply bubble: right-aligned under the avatar's bubble, tail at the bottom right.
-    const yes = put(mk('button', 'abs btn call reply', 'Yes'));
-    at(yes, Math.round(870 + say.offsetWidth - yes.offsetWidth), 1420 + 64); anim(yes, 'a-fade', 600);
+    // Unhappy 02 (text only), the only version since 16/11 (Montse removed the avatar): a white glow, the question
+    // centred and Yes under it, as in Figma («Unhappy · No tap 02»).
+    const g = put(mk('div', 'glow')); g.style.width = '1242px'; g.style.height = '1006px'; at(g, 1299, 577);
+    const t = put(mk('div', 'abs hello', 'Hello?<br>Are you still there?')); at(t, 1120, 820); anim(t, 'a-fade');
+    const yes = put(mk('button', 'abs btn call yes', 'Yes'));
+    at(yes, 1717, 1202); anim(yes, 'a-fade', T.gap);
     yes.type = 'button';
     yes.addEventListener('click', ev => { ev.stopPropagation(); paused = false; hideStill(); });
     try { yes.focus({ preventScroll: true }); } catch (e) {}
