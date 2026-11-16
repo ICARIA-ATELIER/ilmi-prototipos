@@ -130,7 +130,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .screen{position:absolute;left:0;top:0;overflow:hidden;border-radius:10px;background:#111;touch-action:none;cursor:grab;outline:none}
 .screen:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
 .screen.drag{cursor:grabbing}
-.stage{position:absolute;left:0;top:0;width:1280px;height:800px;transform-origin:0 0;font-family:'Sustituta Roboto',system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
+.stage{--dot:#EDA481;--dotGlow:rgba(237,164,129,.75);position:absolute;left:0;top:0;width:1280px;height:800px;transform-origin:0 0;font-family:'Sustituta Roboto',system-ui,sans-serif;overflow:hidden;user-select:none;-webkit-user-select:none}
 .scene{position:absolute;inset:0;transition:filter .5s,transform .5s}
 .scene.blur{filter:blur(14px);transform:scale(1.05)}
 .visor{position:absolute;inset:0;transition:opacity .3s}
@@ -167,16 +167,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .reticle.on .vB .t{transform:translateY(5px)}.reticle.on .vB .b{transform:translateY(-5px)}
 .reticle.on .vB .l{transform:translateX(5px)}.reticle.on .vB .r{transform:translateX(-5px)}
 .hot{position:absolute;width:96px;height:96px;margin:-48px 0 0 -48px;pointer-events:none;transition:opacity .4s,transform .4s}
-.hot::before{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;box-sizing:border-box;background:var(--acc);
-  box-shadow:0 1px 7px rgba(0,0,0,.4),0 0 15px 3px rgba(237,164,129,.75);transition:transform .25s}
-.hot::after{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;box-sizing:border-box;border:4px solid var(--acc);
+.hot::before{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;box-sizing:border-box;background:var(--dot);
+  box-shadow:0 1px 7px rgba(0,0,0,.4),0 0 15px 3px var(--dotGlow);transition:transform .25s}
+.hot::after{content:"";position:absolute;left:50%;top:50%;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;box-sizing:border-box;border:4px solid var(--dot);
   animation:hotPulse 1.5s ease-out infinite}
 @keyframes hotPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(2.6);opacity:0}}
 .hot.in::before{animation:hotPop .35s cubic-bezier(.3,1.7,.5,1)}
 @keyframes hotPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 .hot.in::after,.hot.got::after{animation:none;opacity:0}
 .hot.got{opacity:.45;transform:scale(.7)}
-.ripple{position:absolute;left:640px;top:400px;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:4px solid var(--acc);opacity:0;pointer-events:none}
+.ripple{position:absolute;left:640px;top:400px;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:4px solid var(--dot);opacity:0;pointer-events:none}
 .ripple.go{animation:rip .6s ease-out}
 @keyframes rip{from{opacity:.95;transform:scale(1)}to{opacity:0;transform:scale(4)}}
 
@@ -219,6 +219,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .cSci{position:absolute;left:622px;top:314px;margin:0;font-size:36px;font-weight:600;line-height:39px;color:var(--acc);white-space:nowrap}
 .card .desc{position:absolute;left:622px;top:370.5px;width:351px;margin:0;font-size:28px;font-weight:600;line-height:33px;color:#fff}
 .cardHint{position:absolute;left:640px;top:692px;transform:translateX(-50%);color:#fff;font-size:35.5px;font-weight:700;line-height:39px;white-space:nowrap;text-shadow:0 1px 4px rgba(16,21,43,.7),0 2px 18px rgba(16,21,43,.5);pointer-events:none;opacity:0;transition:opacity .3s}
+/* Revisión del 16/11: lente nítida y sin lupa (1 y 2) y UI sin sombra (4). Las versiones anteriores quedan en «Variantes» */
+.stage.lensclear .lens{display:none}
+.stage.noshadow .ring,.stage.noshadow .reticle,.stage.noshadow .chev{filter:none}
+.stage.noshadow .attractTxt,.stage.noshadow .ins,.stage.noshadow .cardHint{text-shadow:none}
+.stage.noshadow .ready{box-shadow:none}
+.stage.noshadow .hot::before{box-shadow:0 0 15px 3px var(--dotGlow)}
 @media (prefers-reduced-motion: reduce){.chev,.hot::after,.ready.on,.fish .tail{animation:none!important}}
 </style>
 
@@ -241,7 +247,20 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <select id="ret" aria-label="Variantes: retícula">
           <option value="b">Retícula · rayas en el centro (v3, 10/11)</option>
           <option value="a">Retícula · objetivo (v1, 10/11)</option>
-          <option value="n">Retícula · sin marca (09/11)</option>
+          <option value="n">Retícula · solo círculo, sin cruceta (16/11)</option>
+        </select>
+        <select id="lensV" aria-label="Variantes: lente">
+          <option value="clear">Lente · nítida, sin lupa (16/11)</option>
+          <option value="lupa">Lente · esmerilada con lupa (10/11)</option>
+        </select>
+        <select id="shadowV" aria-label="Variantes: sombras">
+          <option value="none">Sombras · UI sin sombra (16/11)</option>
+          <option value="on">Sombras · con sombra (anterior)</option>
+        </select>
+        <select id="dotV" aria-label="Variantes: color del punto">
+          <option value="acc">Punto · naranja de la sala #EDA481</option>
+          <option value="cyan">Punto · azul eléctrico #33F1E8 (propuesta)</option>
+          <option value="orange">Punto · naranja vivo #FF7A1F (propuesta)</option>
         </select>
         <select id="ringV" aria-label="Variantes: anillo">
           <option value="acc">Anillo · se carga en naranja</option>
@@ -264,13 +283,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <ol>
           <li><b>1 · Inicio (atracción):</b> «Move the camera to explore» sobre la imagen de la cámara desenfocada y oscurecida (azul noche al 45 %). La cámara recorre sola los cuatro topes de giro; al llegar a cada uno, la flecha de ese lado se aplana en la línea recta del tope y la imagen rebota un poco. En la pieza real la imagen es la cámara en directo, así que este recorrido tendría que ser un vídeo o una animación en bucle. En cuanto alguien mueve la cámara, pasa a las instrucciones.</li>
           <li><b>2 · Instrucciones:</b> el visor con las cuatro flechas en ola y «Centre an dot and press», el texto del Figma (16/11), como «Move the camera to explore» pero en negrita. Si llegas a un tope de giro, la flecha de ese lado se convierte en la línea recta.</li>
-          <li><b>3 · Detectado:</b> el punto cuenta en cuanto queda a menos de 65 px del centro (variante «Detección»). La retícula pasa a naranja, el punto da un salto y lanza una onda, las flechas desaparecen y el anillo se carga mientras la lente enfoca. Si te sales, vuelven las flechas. Al llenarse el anillo pasa sola a «Listo».</li>
+          <li><b>3 · Detectado:</b> el punto cuenta en cuanto queda a menos de 65 px del centro (variante «Detección»). La retícula pasa a naranja, el punto da un salto y lanza una onda, las flechas desaparecen y el anillo se carga (con «Lente · esmerilada con lupa», además la lente enfoca y aumenta). Si te sales, vuelven las flechas. Al llenarse el anillo pasa sola a «Listo».</li>
           <li><b>4 · Listo:</b> el aviso «Press the shutter» en la píldora marrón oscura (gallery-accent/950) con texto claro (gallery-accent/50).</li>
           <li><b>Disparador:</b> en la pieza es un botón físico, el elemento mecánico de la cámara. Aquí es el botón «Disparador» de la barra o la barra espaciadora. Hace la foto cuando está listo y cierra la ficha. Sonaría un SFX de obturador.</li>
           <li><b>5 · Foto:</b> flash blanco y el mensaje «Got it» del Figma en la misma píldora; en las fotos siguientes rota con «Great shot» y «Nice find», los del vídeo. Después la imagen se desenfoca, el visor desaparece y los puntos quedan muy tenues.</li>
           <li><b>6 · Ficha (v3 de Figma, 16/11):</b> hexágono con la foto y borde melocotón, y panel azul noche con punta. Nombre y nombre científico en melocotón y descripción en blanco. Debajo, «Press the button to close». Fondo desenfocado y oscurecido al 40 %. Se cierra con el disparador.</li>
           <li><b>7 · Peces:</b> al cerrar la primera ficha entra un banco de peces por la izquierda y se queda nadando, anclado a la sala. No se pueden fotografiar. Ya no salen las flechas ni la instrucción, y el animal fotografiado queda pequeño y apagado.</li>
           <li><b>Puntos:</b> cuatro puntos naranjas de 24 px, uno por cada especie del vídeo (Squat lobster, Black hagfish, Ghostly grenadier y Snow crab), cada uno con su texto.</li>
+          <li><b>Comentarios del 16/11:</b> (1) y (2) la lente del visor ya no desenfoca ni aumenta: se ve la imagen tal cual. (3) nueva opción de retícula «solo círculo, sin cruceta». (4) la UI va sin sombras (anillo, retícula, flechas, textos y píldoras). Los puntos conservan su brillo de color. (5) el color del punto está en «Variantes»: el naranja de la sala y dos propuestas, a la espera de la imagen de referencia. Lo anterior se puede ver con «Lente · esmerilada con lupa» y «Sombras · con sombra».</li>
           <li><b>Revisión:</b> «← Atrás», «Adelante →» e «Ir a» llevan a cada momento del recorrido. «❚❚ Pausa» para el avance solo; arrastrar la imagen o usar el disparador también lo paran. Flechas del teclado: atrás y adelante.</li>
         </ol>
         <p>Todo es propuesta. Textos del vídeo y del Figma de Montse (v3, 16/11). Provisional: la foto de la ficha es la de la morena de la referencia para todas las especies, y el dwell de 1,2 s. Colores de la galería WR1 de ILMI World DS Lite (propuesta de KTF). Tipografía: Roboto en esta copia web (la Ilmi, propuesta de KTF, no se publica). El Figma usa la versión Beta 03 de la Ilmi; aquí va la v4 a ~0,88 × su tamaño para que ocupe lo mismo. Fondo: fotograma del vídeo con la UI temporal borrada (quedan manchas). No está la elección de idioma que sale en el vídeo después del inicio.</p>
@@ -634,6 +654,14 @@ initSel(durSel,String(dwell),'1.2');dwell=parseFloat(durSel.value);
 durSel.addEventListener('change',()=>{dwell=parseFloat(durSel.value);store.set('dwell',durSel.value)});
 initSel(tolSel,String(TOL),'65');TOL=parseFloat(tolSel.value);
 tolSel.addEventListener('change',()=>{TOL=parseFloat(tolSel.value);store.set('tol',tolSel.value)});
+/* Revisión del 16/11: lente, sombras y color del punto */
+const lensSel=$('lensV'),shadowSel=$('shadowV'),dotSel=$('dotV');
+const DOTS={acc:['#EDA481','rgba(237,164,129,.75)'],cyan:['#33F1E8','rgba(51,241,232,.7)'],orange:['#FF7A1F','rgba(255,122,31,.7)']};
+function applyLook(){stage.classList.toggle('lensclear',lensSel.value==='clear');stage.classList.toggle('noshadow',shadowSel.value==='none');
+  const d=DOTS[dotSel.value]||DOTS.acc;stage.style.setProperty('--dot',d[0]);stage.style.setProperty('--dotGlow',d[1])}
+initSel(lensSel,store.get('lente','clear'),'clear');initSel(shadowSel,store.get('sombra','none'),'none');initSel(dotSel,store.get('punto','acc'),'acc');
+[[lensSel,'lente'],[shadowSel,'sombra'],[dotSel,'punto']].forEach(([sel,k])=>sel.addEventListener('change',()=>{store.set(k,sel.value);applyLook()}));
+applyLook();
 
 /* Notas: se cierran con «✕ Cerrar», con Esc, volviendo a tocar «Notas» o tocando fuera */
 const notes=$('notes');
