@@ -71,13 +71,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
    dashed outline of the name and the turquoise (the same soft halo as the problem zone) are left. */
 .ring { width: 640px; height: 640px; border-radius: 50%; box-sizing: border-box; background: transparent; border: 6px dashed rgba(46,46,46,.42) !important;
   cursor: pointer; z-index: 4; transition: border-color .2s; }
-.ring.over { border-color: transparent !important; background: radial-gradient(closest-side, rgba(51,241,232,.42), rgba(51,241,232,.26) 55%, rgba(51,241,232,0)); }
+.ring.over, .ring.got { border-color: transparent !important; background: radial-gradient(closest-side, rgba(51,241,232,.42), rgba(51,241,232,.26) 55%, rgba(51,241,232,0)); }
+/* Solved zone (Montse, 17/11): the ring goes but a little of the turquoise stays on the zone. */
+.ring.got { opacity: .6; pointer-events: none; transition: opacity .4s ease; }
 .slot { position: absolute; box-sizing: border-box; border: 8px dashed #2e2e2e; border-radius: 90px 90px 90px 0; background: rgba(255,255,255,.45); cursor: pointer; z-index: 5; animation: fade .2s ease-out both; }
 .slot.over { border-color: #12a39c; background: rgba(51,241,232,.3); }
 .label.drag { z-index: 10; touch-action: none; cursor: grab; }
 .label.picked { transform: translateY(-14px) scale(1.04); box-shadow: 0 30px 50px rgba(0,0,0,.35), 0 0 0 10px rgba(51,241,232,.9); }
 .label.dragging { z-index: 25; cursor: grabbing; transform: scale(1.06); box-shadow: 0 30px 50px rgba(0,0,0,.35); }
-.label.placed { pointer-events: none; }
+.label.placed { pointer-events: none; z-index: 10; }
 .big.red { color: #e00000; }
 .small { width: 1500px; text-align: center; font-weight: 500; font-size: 46px; line-height: 1.1; color: #333; pointer-events: none; }
 
@@ -171,7 +173,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .gm.open .go { pointer-events: auto; opacity: 1; transform: none; transition: opacity .2s calc(.58s + var(--i) * 110ms), transform .3s cubic-bezier(.3,1.3,.5,1) calc(.58s + var(--i) * 110ms); }
 
 /* "Are you still there?" notice over the screen. */
-.still { position: absolute; inset: 0; background: rgba(255,255,255,.82); animation: fade .4s ease-out both; }
+/* z-index 50 (17/11, Montse): above every layer — problem names, the dot's menu and its overlay. */
+.still { position: absolute; inset: 0; z-index: 50; background: rgba(255,255,255,.82); animation: fade .4s ease-out both; }
 .still.leaving { animation: out .3s ease-in forwards; }
 /* Text only (Unhappy 02 in Figma; Montse, 16/11 — the avatar version was removed): over the veil, a white glow,
    the question centred and Yes under it, positions and sizes as in Figma (Roboto there too). */
@@ -261,7 +264,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // stillQ: the same on the question screen, longer to leave time to read the question and answers (Montse, 12/11).
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 10000, stillQ: 20000, puzzleDone: 900 };
+  // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900 };
 
   // Positions in the 3840×2160 screen, taken from the Figma prototype.
   // fb: angle (deg, 0 = right, 90 = down) from the zone centre to the main feedback bubble; side: where the second one sits next to it.
@@ -807,8 +811,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           b.classList.remove('call', 'drag'); b.classList.add('placed'); b.tabIndex = -1;
           glide(b, P[k].label[0] - b.offsetWidth / 2, P[k].label[1] - b.offsetHeight / 2, 260);
           sound('ok');
-          // 17/11 (Montse): once the name is in place, its ring goes.
-          const r = rings[k]; r.disabled = true; r.classList.remove('a-pop', 'over'); r.style.animationDelay = ''; anim(r, 'a-out'); setTimeout(() => r.remove(), 340);
+          // 17/11 (Montse): once the name is in place, its ring goes and a little turquoise stays on the zone.
+          const r = rings[k]; r.disabled = true; r.tabIndex = -1; r.classList.remove('a-pop', 'over'); r.style.animationDelay = ''; r.classList.add('got');
           if (!free.size) auto(NEXT.puzzle, T.puzzleDone);
         } else {
           sound('ko');
