@@ -62,6 +62,23 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .badge { position: absolute; width: 68px; height: 68px; pointer-events: none; }
 .label .badge { left: -22px; top: -18px; }
 
+/* 17/11 · Variante «Inicio · con puzzle» (Montse): after Start, a placeholder text screen (Spanish, in red) and a puzzle
+   where the four problem names are dragged (or tapped, then the zone tapped) onto their zones, each circled on the drawing.
+   While a name is held, every free zone shows a dashed outline of that name where it would sit; the one under the finger
+   lights up. Wrong zone or dropped outside: error sound and back to its place. Right: it lands on its map position and a
+   success sound plays. Ring, dashed outline and sounds are provisional. */
+.ring { width: 640px; height: 640px; border-radius: 50%; box-sizing: border-box; background: transparent; border: 10px solid rgba(46,46,46,.8) !important;
+  box-shadow: 0 0 0 6px rgba(255,255,255,.6), inset 0 0 0 6px rgba(255,255,255,.6); cursor: pointer; z-index: 4; transition: box-shadow .2s, border-color .2s, background-color .2s; }
+.ring.over { border-color: #12a39c !important; background: rgba(51,241,232,.14); box-shadow: 0 0 0 6px rgba(255,255,255,.7), 0 0 60px 16px rgba(51,241,232,.55); }
+.slot { position: absolute; box-sizing: border-box; border: 8px dashed #2e2e2e; border-radius: 90px 90px 90px 0; background: rgba(255,255,255,.45); cursor: pointer; z-index: 5; animation: fade .2s ease-out both; }
+.slot.over { border-color: #12a39c; background: rgba(51,241,232,.3); }
+.label.drag { z-index: 10; touch-action: none; cursor: grab; }
+.label.picked { transform: translateY(-14px) scale(1.04); box-shadow: 0 30px 50px rgba(0,0,0,.35), 0 0 0 10px rgba(51,241,232,.9); }
+.label.dragging { z-index: 25; cursor: grabbing; transform: scale(1.06); box-shadow: 0 30px 50px rgba(0,0,0,.35); }
+.label.placed { pointer-events: none; }
+.big.red { color: #e00000; }
+.small { width: 1500px; text-align: center; font-weight: 500; font-size: 46px; line-height: 1.1; color: #333; pointer-events: none; }
+
 .pill { height: 173px; border-radius: 177px; background: #fff; color: #1a1712; font-weight: 700; font-size: 43px; box-shadow: 0 16px 32px rgba(0,0,0,.13), 0 5px 10px rgba(0,0,0,.08); box-sizing: border-box; border: 1px solid #ebe6de !important; cursor: pointer; transition: opacity .3s ease; white-space: nowrap; }
 .pill.sel { background: linear-gradient(180deg, #e2e2e2, #cfcfcf); border: 16px solid #636363 !important; }
 .pill.wrong { border: 16px solid #c47474 !important; }
@@ -156,8 +173,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .still.leaving { animation: out .3s ease-in forwards; }
 /* Text only (Unhappy 02 in Figma; Montse, 16/11 — the avatar version was removed): over the veil, a white glow,
    the question centred and Yes under it, positions and sizes as in Figma (Roboto there too). */
-.still .hello { width: 1600px; text-align: center; font-weight: 700; font-size: 128px; line-height: 136px; color: #000; pointer-events: none; }
-.still .btn.yes { width: 406px; padding: 0; gap: 0; justify-content: center; font-size: 80px; }
+/* 17/11 (Montse): the text smaller than in Figma (128 → 88 px), and Yes to match. */
+.still .hello { width: 1600px; text-align: center; font-weight: 700; font-size: 88px; line-height: 96px; color: #000; pointer-events: none; }
+.still .btn.yes { width: 340px; height: 120px; padding: 0; gap: 0; justify-content: center; font-size: 64px; }
 
 /* motion */
 @keyframes pop { from { transform: scale(.2); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } to { transform: scale(1); } }
@@ -191,12 +209,18 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <select id="menuMode" aria-label="Variantes: Restart">
         <option value="goo">Restart · bolita líquida con capa (12/11)</option>
         <option value="tab">Restart · botón (anterior)</option>
+      </select>
+      <select id="startMode" aria-label="Variantes: Inicio">
+        <option value="puzzle">Inicio · con puzzle (17/11)</option>
+        <option value="map">Inicio · anterior</option>
       </select></span>
       <span class="ctl"><label for="jump">Ir a</label>
       <select id="jump">
         <option value="">Pantalla…</option>
         <option value="idle">Idle</option>
         <option value="intro">Intro</option>
+        <option value="text">Texto de prueba (con puzzle)</option>
+        <option value="puzzle">Puzzle: colocar los problemas (con puzzle)</option>
         <option value="map">Mapa de problemas</option>
         <option value="pressure">Human &amp; Livestock Pressure</option>
         <option value="pollution">Pollution</option>
@@ -234,7 +258,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // Timings (ms). still: time without a tap before "Are you still there?" on the map and the description;
   // stillQ: the same on the question screen, longer to leave time to read the question and answers (Montse, 12/11).
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 10000, stillQ: 20000 };
+  // puzzleDone (provisional): pause after the last name lands, before the map with its title.
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 10000, stillQ: 20000, puzzleDone: 900 };
 
   // Positions in the 3840×2160 screen, taken from the Figma prototype.
   // fb: angle (deg, 0 = right, 90 = down) from the zone centre to the main feedback bubble; side: where the second one sits next to it.
@@ -299,6 +324,31 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // «tab» = the previous Restart button. The «dot with a menu» version was removed on 12/11.
   let MENU = 'goo';
   try { const m = localStorage.getItem('pr-menu2'); if (['goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
+  // Inicio (17/11): «puzzle» = after Start, the placeholder text and the puzzle, then the map with its title (default);
+  // «map» = the previous start (the problems appear on the map by themselves).
+  let START = 'puzzle';
+  try { const v = localStorage.getItem('pr-inicio'); if (['puzzle', 'map'].includes(v)) START = v; } catch (e) {}
+
+  // Puzzle zones: a ring around each problem on the drawing (centres read off the drawing; the names land on P[k].label).
+  const RING = { pollution: [3023, 748], pressure: [3460, 1400], blocked: [2560, 1830], coastal: [600, 1830] }, RR = 320;
+  // Sounds, made in the browser (provisional): a low double buzz for a mistake, a short rising chime for a match.
+  let AC = null;
+  function audio() {
+    try { AC = AC || new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) { AC = null; }
+    return AC;
+  }
+  function tone(ac, f, t, dur, type, vol) {
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.value = f;
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(vol, t + .015); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + dur + .03);
+  }
+  function sound(kind) {
+    const ac = audio(); if (!ac) return;
+    const t = ac.currentTime + .02;
+    if (kind === 'ok') [[659.25, 0], [880, .09], [1318.5, .18]].forEach(([f, d]) => tone(ac, f, t + d, .3, 'sine', .25));
+    else { tone(ac, 185, t, .15, 'square', .09); tone(ac, 139, t + .17, .28, 'square', .09); }
+  }
   let LANG = 'en'; // the dot's menu always offers the other language
   // Review history for the back / forward buttons. While paused, screens don't advance on their own.
   let past = [], future = [], cur = null, paused = false;
@@ -583,14 +633,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
 
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
-  const WAITS = ['map', 'desc', 'question'];
+  const WAITS = ['map', 'desc', 'question', 'puzzle'];
   let stillTimer = null, stillEl = null;
   let menuOpen = false; // the dot's overlay is open: the inactivity notice does not show (Montse, 12/11)
   function armStill() {
     clearTimeout(stillTimer); stillTimer = null;
     if (stillEl || menuOpen || !WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) return;
     // 12/11: it also shows while paused (after Back / Forward); the pause only stops screens that advance on their own.
-    stillTimer = setTimeout(showStill, S.screen === 'question' ? T.stillQ : T.still);
+    // 17/11: the puzzle also gets the longer time (reading and thinking).
+    stillTimer = setTimeout(showStill, ['question', 'puzzle'].includes(S.screen) ? T.stillQ : T.still);
   }
   function showStill() {
     clearTimeout(stillTimer); stillTimer = null;
@@ -600,14 +651,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const put = e => (o.appendChild(e), e);
     // Unhappy 02 (text only), the only version since 16/11 (Montse removed the avatar): a white glow, the question
     // centred and Yes under it, as in Figma («Unhappy · No tap 02»).
-    const g = put(mk('div', 'glow')); g.style.width = '1242px'; g.style.height = '1006px'; at(g, 1299, 577);
-    const t = put(mk('div', 'abs hello', 'Hello?<br>Are you still there?')); at(t, 1120, 820); anim(t, 'a-fade');
+    // 17/11: smaller text (Montse), so the glow and Yes are smaller too, around the same centre.
+    const g = put(mk('div', 'glow')); g.style.width = '1100px'; g.style.height = '860px'; at(g, 1370, 660);
+    const t = put(mk('div', 'abs hello', 'Hello?<br>Are you still there?')); at(t, 1120, 900); anim(t, 'a-fade');
     const yes = put(mk('button', 'abs btn call yes', 'Yes'));
-    at(yes, 1717, 1202); anim(yes, 'a-fade', T.gap);
+    at(yes, 1750, 1160); anim(yes, 'a-fade', T.gap);
     yes.type = 'button';
     yes.addEventListener('click', ev => { ev.stopPropagation(); paused = false; hideStill(); });
     try { yes.focus({ preventScroll: true }); } catch (e) {}
-    hint.innerHTML = '<b>¿Sigues ahí?</b> Sale si nadie toca en ' + T.still / 1000 + ' s en el mapa o la descripción, y en ' + T.stillQ / 1000 + ' s en la pregunta, para dar tiempo a leerla. No sale con el menú de la bolita abierto. Toca <b>Yes</b> para seguir. <b>Pendiente:</b> qué pasa si nadie responde.';
+    hint.innerHTML = '<b>¿Sigues ahí?</b> Sale si nadie toca en ' + T.still / 1000 + ' s en el mapa o la descripción, y en ' + T.stillQ / 1000 + ' s en la pregunta y en el puzzle, para dar tiempo a leer. No sale con el menú de la bolita abierto. Toca <b>Yes</b> para seguir. <b>Pendiente:</b> qué pasa si nadie responde.';
   }
   function hideStill() {
     const o = stillEl; if (!o) return;
@@ -621,7 +673,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // ---------- what comes next from each screen (used by timers, taps and the forward button)
   const NEXT = {
     idle: () => go('intro'),
-    intro: () => go('mapIntro'),
+    intro: () => go(START === 'puzzle' ? 'text' : 'mapIntro'),
+    text: () => go('puzzle'),
+    puzzle: () => go('map'),
     mapIntro: () => go('map'),
     map: () => { const k = ORDER.find(x => !S.solved.has(x)); k ? go('desc', k) : go('done'); },
     desc: k => go('question', k),
@@ -662,11 +716,152 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       auto(NEXT.mapIntro, 100 + 3 * T.gap + 500);
       return { tap: NEXT.mapIntro, hint: 'Los problemas aparecen uno a uno y después se iluminan.' };
     },
+    // 17/11 · Variante con puzzle: placeholder text (Montse's own words, Spanish, in red), then Next.
+    text() {
+      bg('before');
+      glow(1919, 1000, 2300, 1300);
+      const t = add(mk('div', 'abs big red', 'Aquí vamos a explicar en qué consiste recuperar un manglar, esto es un texto de prueba ya que cliente pide que lo hagamos en algún lado y puede ser buena idea meterlo aquí.'));
+      t.lang = 'es'; t.style.width = '1900px'; place(t, 1919, 840, false); anim(t, 'a-fade');
+      const b = add(mk('button', 'abs btn call', 'Next' + ARROW)); b.type = 'button'; place(b, 1919, t.offsetTop + t.offsetHeight + 200, false); anim(b, 'a-fade', 240);
+      on(b, NEXT.text);
+      return { hint: 'Texto de prueba (en rojo, pendiente de contenido). Pulsa <b>Next</b>.' };
+    },
+    // 17/11 · Puzzle: drag each problem name onto its ringed zone (or tap the name, then the zone).
+    puzzle() {
+      bg('before');
+      const free = new Set(ORDER), L = {}, home = {}, rings = {};
+      let sel = null, drag = null, slots = [], lastDrag = 0;
+      // A tap on the drawing (not on a name or a zone) lets go of the picked name.
+      add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; pick(null); });
+      const CX = 1800;
+      glow(CX, 660, 2500, 1350);
+      const t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
+      const s = add(mk('div', 'abs sub', 'Place each problem in the area where you think it belongs.')); at(s, CX - 750, t.offsetTop + t.offsetHeight + 40); anim(s, 'a-fade', 120);
+      const sm = add(mk('div', 'abs small', 'Tap and drag')); at(sm, CX - 750, s.offsetTop + s.offsetHeight + 36); anim(sm, 'a-fade', 240);
+      ORDER.forEach((k, i) => {
+        const r = rings[k] = add(mk('button', 'abs ring')); r.type = 'button'; r.setAttribute('aria-label', 'Zona ' + (i + 1));
+        place(r, RING[k][0], RING[k][1], false); anim(r, 'a-pop', 300 + i * T.gap);
+        r.addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (sel) drop(sel, k); });
+      });
+      // The names, in order, in a 2 × 2 grid under the text.
+      ORDER.forEach(k => {
+        const b = L[k] = add(mk('button', 'abs label drag call' + (P[k].wide ? ' wide' : ''), P[k].name)); b.type = 'button';
+        b.setAttribute('aria-label', P[k].name + ': arrástralo a su zona, o tócalo y después toca la zona');
+      });
+      // Fixed width, so a name doesn't shrink when dragged near the screen edge (and lands exactly on its map spot).
+      // (+2 px: offsetWidth rounds down sub-pixel widths, which would wrap a one-line name.)
+      ORDER.forEach(k => { L[k].style.width = (L[k].offsetWidth + 2) + 'px'; });
+      const gap = 60, rows = [[ORDER[0], ORDER[1]], [ORDER[2], ORDER[3]]];
+      const colW = [0, 1].map(c => Math.max(...rows.map(r => L[r[c]].offsetWidth)));
+      let y = sm.offsetTop + sm.offsetHeight + 90;
+      rows.forEach((r, ri) => {
+        const h = Math.max(...r.map(k => L[k].offsetHeight));
+        r.forEach((k, c) => {
+          const b = L[k], cx = c ? CX + gap / 2 + colW[1] / 2 : CX - gap / 2 - colW[0] / 2;
+          home[k] = [Math.round(cx - b.offsetWidth / 2), Math.round(y + (h - b.offsetHeight) / 2)];
+          at(b, ...home[k]); anim(b, 'a-pop', 350 + (ri * 2 + c) * T.gap);
+          b.addEventListener('animationend', () => { b.classList.remove('a-pop', 'a-shake'); b.style.animationDelay = ''; });
+        });
+        y += h + 50;
+      });
+      const toStage = e => { const r = stage.getBoundingClientRect(), sc = r.width / W; return [(e.clientX - r.left) / sc, (e.clientY - r.top) / sc]; };
+      const glide = (b, x, y2, ms = 320) => {
+        b.style.transition = calm.matches ? 'none' : `left ${ms}ms cubic-bezier(.3,1.15,.5,1), top ${ms}ms cubic-bezier(.3,1.15,.5,1)`;
+        at(b, Math.round(x), Math.round(y2));
+        setTimeout(() => { b.style.transition = ''; }, ms + 20);
+      };
+      function showSlots(b) {
+        hideSlots();
+        for (const k of free) {
+          const sl = add(mk('div', 'slot')); sl.style.width = b.offsetWidth + 'px'; sl.style.height = b.offsetHeight + 'px';
+          at(sl, Math.round(P[k].label[0] - b.offsetWidth / 2), Math.round(P[k].label[1] - b.offsetHeight / 2));
+          sl.dataset.k = k; sl.addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (sel) drop(sel, k); });
+          slots.push(sl);
+        }
+      }
+      function hideSlots() { slots.forEach(sl => sl.remove()); slots = []; Object.values(rings).forEach(r => r.classList.remove('over')); }
+      function hover(k) { slots.forEach(sl => sl.classList.toggle('over', sl.dataset.k === k)); for (const z of ORDER) rings[z].classList.toggle('over', z === k); }
+      // Which free zone is under the finger: inside its ring or on its dashed outline (with a little margin).
+      function zoneAt(x, y2, b) {
+        let best = null, bd = Infinity;
+        for (const k of free) {
+          const dc = Math.hypot(x - RING[k][0], y2 - RING[k][1]);
+          const [lx, ly] = P[k].label, inSlot = Math.abs(x - lx) <= b.offsetWidth / 2 + 40 && Math.abs(y2 - ly) <= b.offsetHeight / 2 + 40;
+          if (dc <= RR + 40 || inSlot) { const d = inSlot ? Math.min(dc, Math.hypot(x - lx, y2 - ly)) : dc; if (d < bd) { bd = d; best = k; } }
+        }
+        return best;
+      }
+      function pick(key) {
+        if (sel) L[sel].classList.remove('picked');
+        sel = key;
+        if (key) { L[key].classList.add('picked'); showSlots(L[key]); } else hideSlots();
+      }
+      function drop(key, k) {
+        const b = L[key];
+        pick(null); hideSlots();
+        b.classList.remove('dragging');
+        if (k === key) {
+          free.delete(key);
+          b.classList.remove('call', 'drag'); b.classList.add('placed'); b.tabIndex = -1;
+          glide(b, P[k].label[0] - b.offsetWidth / 2, P[k].label[1] - b.offsetHeight / 2, 260);
+          sound('ok');
+          if (!free.size) auto(NEXT.puzzle, T.puzzleDone);
+        } else {
+          sound('ko');
+          glide(b, ...home[key]);
+          setTimeout(() => anim(b, 'a-shake'), 330);
+        }
+        showHint();
+      }
+      for (const k of ORDER) {
+        const b = L[k];
+        b.addEventListener('pointerdown', e => {
+          if (!free.has(k) || e.button > 0) return;
+          audio();
+          const [x, y2] = toStage(e);
+          drag = { b, sx: e.clientX, sy: e.clientY, gx: x - b.offsetLeft, gy: y2 - b.offsetTop, moved: false };
+          try { b.setPointerCapture(e.pointerId); } catch (err) {}
+        });
+        b.addEventListener('pointermove', e => {
+          if (!drag || drag.b !== b) return;
+          if (!drag.moved) {
+            if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 8) return;
+            drag.moved = true; pick(null); b.classList.remove('a-pop', 'a-shake'); b.style.transition = 'none'; b.classList.add('dragging'); showSlots(b);
+          }
+          const [x, y2] = toStage(e); at(b, Math.round(x - drag.gx), Math.round(y2 - drag.gy));
+          hover(zoneAt(x, y2, b));
+        });
+        b.addEventListener('pointerup', e => {
+          if (!drag || drag.b !== b) return;
+          const d = drag; drag = null;
+          if (!d.moved) return;
+          lastDrag = performance.now(); paused = false;
+          const [x, y2] = toStage(e); drop(k, zoneAt(x, y2, b));
+        });
+        b.addEventListener('pointercancel', () => {
+          if (!drag || drag.b !== b) return;
+          const moved = drag.moved; drag = null;
+          if (moved) { b.classList.remove('dragging'); hideSlots(); glide(b, ...home[k]); }
+        });
+        // A tap (or Enter) picks the name; a second tap lets it go. Then tapping a zone places it.
+        b.addEventListener('click', ev => {
+          ev.stopPropagation(); paused = false;
+          if (performance.now() - lastDrag < 400 || !free.has(k)) return;
+          audio(); pick(sel === k ? null : k);
+        });
+      }
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto. Textos en inglés: traducción provisional, pendiente de contenido.' };
+    },
     map() {
       bg('before'); zones();
+      // 17/11 · With the puzzle start, the map always has a title while problems remain (Montse).
+      if (START === 'puzzle' && !allSolved()) {
+        glow(1920, 420, 1900, 620);
+        const h = add(mk('div', 'abs big', 'Tap each one to find out what’s happening')); place(h, 1920, 420, false); anim(h, 'a-fade', 150);
+      }
       labels('map');
       return allSolved() ? { tap: NEXT.map, hint: 'Todo resuelto. <b>Toca la pantalla</b>.' }
-                         : { hint: '<b>Toca un problema</b> para ver qué le pasa.' };
+                         : { hint: '<b>Toca un problema</b> para ver qué le pasa.' + (START === 'puzzle' ? ' Con el inicio «con puzzle», el título sale siempre en el mapa mientras queden problemas (traducción provisional).' : '') };
     },
     desc(k) {
       const d = P[k];
@@ -827,6 +1022,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     try { localStorage.setItem('pr-menu2', MENU); } catch (e) {}
     render();
   });
+  const startMode = document.getElementById('startMode');
+  startMode.value = START;
+  startMode.addEventListener('change', () => {
+    START = startMode.value;
+    try { localStorage.setItem('pr-inicio', START); } catch (e) {}
+    paused = false;
+    if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'puzzle' ? 'text' : 'mapIntro');
+    else render();
+  });
   document.getElementById('jump').addEventListener('change', e => {
     const v = e.target.value; e.target.value = '';
     if (!v) return;
@@ -849,6 +1053,6 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   new ResizeObserver(fit).observe(viewport); fit();
 
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(render, render);
-  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'map', 'question'].includes(S.screen)) render(); });
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'text', 'map', 'question'].includes(S.screen)) render(); });
 })();
 </script>
