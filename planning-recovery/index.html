@@ -864,8 +864,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       bg('before'); zones();
       // 17/11 · With the puzzle start, the map always has a title while problems remain (Montse).
       if (START === 'puzzle' && !allSolved()) {
-        glow(1920, 420, 1900, 620);
-        const h = add(mk('div', 'abs big', 'Tap each one to find out what’s happening')); place(h, 1920, 420, false); anim(h, 'a-fade', 150);
+        // 17/11 (Montse): lower down, and «Now» added.
+        glow(1920, 900, 1900, 620);
+        const h = add(mk('div', 'abs big', 'Now tap each one to find out what’s happening')); place(h, 1920, 900, false); anim(h, 'a-fade', 150);
       }
       labels('map');
       return allSolved() ? { tap: NEXT.map, hint: 'Todo resuelto. <b>Toca la pantalla</b>.' }
