@@ -67,9 +67,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
    While a name is held, every free zone shows a dashed outline of that name where it would sit; the one under the finger
    lights up. Wrong zone or dropped outside: error sound and back to its place. Right: it lands on its map position and a
    success sound plays. Ring, dashed outline and sounds are provisional. */
-.ring { width: 640px; height: 640px; border-radius: 50%; box-sizing: border-box; background: transparent; border: 10px solid rgba(46,46,46,.8) !important;
-  box-shadow: 0 0 0 6px rgba(255,255,255,.6), inset 0 0 0 6px rgba(255,255,255,.6); cursor: pointer; z-index: 4; transition: box-shadow .2s, border-color .2s, background-color .2s; }
-.ring.over { border-color: #12a39c !important; background: rgba(51,241,232,.14); box-shadow: 0 0 0 6px rgba(255,255,255,.7), 0 0 60px 16px rgba(51,241,232,.55); }
+/* 17/11 (later, Montse): the rings are dashed and softer; with a name over a zone the ring loses its line and only the
+   dashed outline of the name and the turquoise (the same soft halo as the problem zone) are left. */
+.ring { width: 640px; height: 640px; border-radius: 50%; box-sizing: border-box; background: transparent; border: 6px dashed rgba(46,46,46,.42) !important;
+  cursor: pointer; z-index: 4; transition: border-color .2s; }
+.ring.over { border-color: transparent !important; background: radial-gradient(closest-side, rgba(51,241,232,.42), rgba(51,241,232,.26) 55%, rgba(51,241,232,0)); }
 .slot { position: absolute; box-sizing: border-box; border: 8px dashed #2e2e2e; border-radius: 90px 90px 90px 0; background: rgba(255,255,255,.45); cursor: pointer; z-index: 5; animation: fade .2s ease-out both; }
 .slot.over { border-color: #12a39c; background: rgba(51,241,232,.3); }
 .label.drag { z-index: 10; touch-action: none; cursor: grab; }
@@ -805,6 +807,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           b.classList.remove('call', 'drag'); b.classList.add('placed'); b.tabIndex = -1;
           glide(b, P[k].label[0] - b.offsetWidth / 2, P[k].label[1] - b.offsetHeight / 2, 260);
           sound('ok');
+          // 17/11 (Montse): once the name is in place, its ring goes.
+          const r = rings[k]; r.disabled = true; r.classList.remove('a-pop', 'over'); r.style.animationDelay = ''; anim(r, 'a-out'); setTimeout(() => r.remove(), 340);
           if (!free.size) auto(NEXT.puzzle, T.puzzleDone);
         } else {
           sound('ko');
