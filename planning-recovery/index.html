@@ -189,6 +189,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 @keyframes out { to { opacity: 0; transform: scale(.96); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-22px); } 40% { transform: translateX(20px); } 60% { transform: translateX(-14px); } 80% { transform: translateX(10px); } }
 .a-pop { animation: pop .5s cubic-bezier(.2,.9,.3,1) both; }
+.a-pop-slow { animation: pop .9s cubic-bezier(.2,.9,.3,1) both; } /* recovery bubbles (18/11, Montse: slower) */
 .a-rise { animation: rise .35s ease-out both; }
 .a-fade { animation: fade .6s ease-out both; }
 .a-slow { animation: fade 1.1s ease-out both; }
@@ -265,7 +266,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900 };
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000 };
+  // capGap (18/11, provisional): time between the recovery bubbles (was 300 ms).
 
   // Positions in the 3840×2160 screen, taken from the Figma prototype.
   // fb: angle (deg, 0 = right, 90 = down) from the zone centre to the main feedback bubble; side: where the second one sits next to it.
@@ -693,7 +695,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     wrongFb: (k, key) => { S.off[k].add(key); go('question', k); },
     done: () => go('recovery'),
     recovery: () => go('closing'),
-    closing: () => { S = fresh(); go('idle'); }
+    // 18/11 (Montse): «Play again» goes to the Intro (Start), like Restart, not to the idle screen.
+    closing: () => { S = fresh(); go('intro'); }
   };
 
   // ---------- screens
@@ -954,8 +957,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     recovery() {
       add(mk('div', 'layer ph'));
       const a = add(mk('div', 'layer after')); a.style.opacity = .6; anim(a, 'a-slow');
-      ['pollution', 'pressure', 'blocked', 'coastal'].forEach((k, i) => bubble('fact', null, P[k].caption.t, P[k].caption.c, 'a-pop', 300 + i * 2 * T.gap));
-      auto(NEXT.recovery, 300 + 3 * 2 * T.gap + 4000);
+      // 18/11 (Montse): the bubbles come out more slowly — one every T.capGap, each taking 0.9 s; then 4 s to read the last one.
+      ['pollution', 'pressure', 'blocked', 'coastal'].forEach((k, i) => bubble('fact', null, P[k].caption.t, P[k].caption.c, 'a-pop-slow', 300 + i * T.capGap));
+      auto(NEXT.recovery, 300 + 3 * T.capGap + 900 + 4000);
       return { tap: NEXT.recovery, hint: 'Las frases de recuperación salen una a una (textos pendientes de validar con contenido).' };
     },
     closing() {
