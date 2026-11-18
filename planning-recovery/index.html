@@ -131,6 +131,27 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .icard { box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 36px 90px 40px;
   border-radius: 0 128px 128px 128px; background: linear-gradient(180deg, #4b4b4b, #2e2e2e); color: #fff; text-align: center;
   font-weight: 500; font-size: 70px; line-height: 1.06; box-shadow: 0 8px 16px rgba(0,0,0,.28); pointer-events: none; transform-origin: 0 0; }
+/* 18/11 · Variante «Fondo · movimiento leve en las intros» (Montse): while the intro texts are out, small orderly
+   movement in the drawing. Intro 1: the dark river flows and its stain drifts downstream. Intro 2: the river goes on and
+   the camels with riders walk a little; the grazing ones rock. Simulated, look and timings provisional. */
+.fx { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; pointer-events: none; overflow: visible; }
+.fx path { fill: none; stroke-linecap: round; }
+.fx .glint { stroke: rgba(255,255,255,.7); stroke-width: 7; stroke-dasharray: 14 114; animation: flow 4s linear infinite; }
+.fx .current { stroke: rgba(30,30,30,.16); stroke-width: 5; stroke-dasharray: 40 136; animation: flow 5.5s linear infinite; }
+@keyframes flow { to { stroke-dashoffset: -256; } }
+.stain { position: absolute; left: 0; top: 0; width: 280px; height: 130px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(25,25,25,.34), rgba(25,25,25,.12) 60%, rgba(25,25,25,0));
+  offset-rotate: auto; animation: drift 18s linear infinite, swell 4.5s ease-in-out infinite; }
+@keyframes drift { 0% { offset-distance: 0%; opacity: 0; } 12% { opacity: 1; } 85% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+@keyframes swell { 0%, 100% { transform: scale(.85, .8); } 50% { transform: scale(1.15, 1.1); } }
+.cam { position: absolute; pointer-events: none; }
+.cam img { display: block; width: 100%; height: 100%; }
+.cam.graze { animation: graze 3.4s ease-in-out infinite; }
+.cam.walk { animation: walkL 11s ease-in-out .6s both; }
+.cam.walk img { animation: bob .8s ease-in-out infinite; }
+@keyframes graze { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
+@keyframes walkL { to { transform: translateX(-46px); } }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -231,7 +252,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(51,241,232,.9); opacity: .8; }
 .pill.call { --glow-blur: 46px; --glow-spread: 10px; }
 .glow.tq { background: radial-gradient(closest-side, rgba(51,241,232,.45), rgba(51,241,232,0)); }
-@media (prefers-reduced-motion: reduce) { .stage *, .stage, .call::after { animation: none !important; transition: none !important; } .call::after { opacity: .8; } .still.leaving { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage, .call::after { animation: none !important; transition: none !important; } .stain { display: none; } .call::after { opacity: .8; } .still.leaving { opacity: 0; } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="goo" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="16" result="bl"/><feColorMatrix in="bl" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></svg>
@@ -252,6 +273,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <option value="nueva">Juego · nueva interactividad (18/11)</option>
         <option value="puzzle">Juego · inicio con puzzle (17/11)</option>
         <option value="map">Juego · inicio anterior</option>
+      </select>
+      <select id="fxMode" aria-label="Variantes: fondo de las intros">
+        <option value="mov">Fondo · movimiento leve en las intros (18/11)</option>
+        <option value="quieto">Fondo · quieto</option>
       </select></span>
       <span class="ctl"><label for="jump">Ir a</label>
       <select id="jump">
@@ -393,6 +418,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // First screen after the attract screen (also where Restart and Play again go): the two new intros in the nueva
   // interactividad (18/11), the Intro with Start in the others.
   const first = () => (START === 'nueva' ? 'introA' : 'intro');
+  // Fondo (18/11): «mov» = small movement in the drawing behind the intro texts (default); «quieto» = still, as before.
+  let FX = 'mov';
+  try { const v = localStorage.getItem('pr-fondo'); if (['mov', 'quieto'].includes(v)) FX = v; } catch (e) {}
 
   // Puzzle zones: a ring around each problem on the drawing (centres read off the drawing; the names land on P[k].label).
   const RING = { pollution: [3023, 748], pressure: [3460, 1400], blocked: [2560, 1830], coastal: [600, 1830] }, RR = 320;
@@ -612,6 +640,50 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     return b;
   }
   const row = (k, o = {}) => pills(k, Object.assign({ at: ROW, order: ROWKEYS }, o));
+  // ---------- Variante «Fondo · movimiento leve en las intros» (18/11)
+  // The dark river of the drawing, upstream → downstream (stage px, read off the drawing): upper and lower branch.
+  const RIVER = [
+    [[3330, 436], [3032, 498], [2988, 563], [2963, 620], [2905, 666], [2825, 700], [2779, 758], [2721, 815], [2664, 850], [2561, 884], [2446, 896], [2320, 884], [2182, 877]],
+    [[3445, 958], [3273, 965], [3158, 976], [3055, 999], [3009, 1033], [2974, 1079], [2894, 1091], [2825, 1102], [2779, 1137], [2687, 1160], [2618, 1153]]
+  ];
+  // Smooth path through the points (Catmull-Rom as cubic Béziers).
+  const smooth = pts => pts.reduce((d, p, i) => {
+    if (!i) return 'M' + p[0] + ' ' + p[1];
+    const a = pts[i - 2] || pts[i - 1], b = pts[i - 1], c = p, e = pts[i + 1] || p;
+    const c1 = [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6], c2 = [c[0] - (e[0] - b[0]) / 6, c[1] - (e[1] - b[1]) / 6];
+    return d + ' C' + c1.map(Math.round).join(' ') + ' ' + c2.map(Math.round).join(' ') + ' ' + c.join(' ');
+  }, '');
+  function riverFx() {
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'fx'); svg.setAttribute('viewBox', '0 0 3840 2160'); svg.setAttribute('aria-hidden', 'true');
+    RIVER.forEach((pts, i) => {
+      const d = smooth(pts);
+      for (const [cls, delay] of [['current', -i * 1.7], ['glint', -i * 1.3], ['glint', -2 - i]]) {
+        const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); p.setAttribute('class', cls);
+        p.style.animationDelay = delay + 's'; svg.appendChild(p);
+      }
+      // The stain drifts downstream along the river, a few at a time.
+      for (let j = 0; j < 3; j++) {
+        const st = add(mk('div', 'stain')); st.style.offsetPath = `path('${d}')`;
+        st.style.animationDelay = `${-(j * 6 + i * 3)}s, ${-j * 1.5}s`;
+      }
+    });
+    stage.appendChild(svg);
+  }
+  // Camels: a patch of the drawing without the moving camels, and each camel on its own on top, in its exact place.
+  const CAMELS = { c1: [3257, 1222, 165, 108, 'graze'], c4: [3206, 1362, 163, 122, 'graze'], c2: [3463, 1215, 159, 154, 'walk'], c3: [3624, 1180, 161, 150, 'walk'], c7: [3541, 1383, 184, 170, 'walk'] };
+  function camelsFx(walk) {
+    const bgp = add(mk('div', 'cam')); at(bgp, 3170, 1144); bgp.style.width = '651px'; bgp.style.height = '445px';
+    bgp.innerHTML = '<img src="img/fondo-camellos.png" alt="">';
+    for (const [k, [x, y, w, h, how]] of Object.entries(CAMELS)) {
+      const c = add(mk('div', 'cam')); at(c, x, y); c.style.width = w + 'px'; c.style.height = h + 'px';
+      c.innerHTML = `<img src="img/camello-${k}.png" alt="">`;
+      if (how === 'graze') { c.classList.add('graze'); c.style.animationDelay = (k === 'c4' ? -1.7 : 0) + 's'; }
+      else if (walk) { c.classList.add('walk'); c.querySelector('img').style.animationDelay = { c2: '0s', c3: '-.27s', c7: '-.53s' }[k]; }
+    }
+  }
+  const backgroundFx = walk => { if (FX === 'mov') { riverFx(); camelsFx(walk); } };
+
   // Intro card (Figma «info-card-86''», v6): box as in Figma (visual position), square corner top left.
   function icard(text, x, y, w, h) {
     const c = add(mk('div', 'abs icard', text)); c.style.width = w + 'px'; c.style.minHeight = h + 'px'; at(c, x, y);
@@ -924,21 +996,23 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     // 6649): first screen after the attract screen. The texts come out one by one, top to bottom; then on by itself.
     introA() {
       bg('before');
+      backgroundFx(false); // variante «Fondo»: the river flows and its stain drifts; the grazing camels rock a little
       glow(1919, 960, 2600, 1500);
       const t = add(mk('div', 'abs big', 'This mangrove forest needs help.')); t.style.width = '2200px'; place(t, 1919, 790, false); anim(t, 'a-fade', T.introA[0]);
       anim(icard('Before restoring it, scientists must investigate what is causing the damage.', 1504, 888, 900, 486), 'a-rise', T.introA[1]);
       anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', T.introA[2]);
       auto(NEXT.introA, T.introA[3]);
-      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' };
+      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): el río oscuro fluye y su mancha baja con la corriente; los camellos que pastan se mueven un poco. Simulado.' : '') };
     },
     // Second one (754:6665): also on its own, then the puzzle. It takes the place of the red placeholder text.
     introB() {
       bg('before');
+      backgroundFx(true); // variante «Fondo»: the river goes on and the camels with riders walk a little
       glow(1986, 980, 2600, 1400);
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is like solving a mystery.')); t.style.width = '1400px'; place(t, 1986, 840, false); anim(t, 'a-fade', T.introB[0]);
       anim(icard('Scientists study the ecosystem, identify the threats, and choose actions that help nature recover.', 1691, 1080, 1152, 366), 'a-rise', T.introB[1]);
       auto(NEXT.introB, T.introB[2]);
-      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' };
+      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): sigue el río y los camellos con jinete caminan un poco hacia la izquierda. Simulado.' : '') };
     },
     intro() {
       bg('before');
@@ -1047,7 +1121,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       let busy = false, descEl = null, seq = 0;
       function showDesc(k, b) {
         busy = true; const id = ++seq;
-        for (const z of free) { L[z].classList.remove('call'); L[z].setAttribute('aria-disabled', 'true'); }
+        // 18/11 (later, Montse): the other problems disappear while the description is out, and come back after it.
+        for (const z of free) { L[z].classList.remove('call', 'a-pop'); L[z].style.opacity = '0'; L[z].style.pointerEvents = 'none'; L[z].setAttribute('aria-hidden', 'true'); }
         later(() => { if (busy && id === seq) descEl = describe(k, b); }, 220);
         auto(() => { if (id === seq) endDesc(); }, 220 + T.descShow);
         showHint();
@@ -1058,7 +1133,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         const c = descEl; descEl = null;
         if (c) { c.classList.remove('a-rise'); c.classList.add('a-out'); setTimeout(() => c.remove(), 340); }
         if (!free.size) { later(toChoose, 350); return; }
-        for (const z of free) { L[z].classList.add('call'); L[z].removeAttribute('aria-disabled'); }
+        later(() => { for (const z of free) { L[z].style.opacity = ''; L[z].style.pointerEvents = ''; L[z].removeAttribute('aria-hidden'); L[z].classList.add('call'); } }, 250);
         showHint();
       }
       function toChoose() {
@@ -1129,7 +1204,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres no brillan ni se pueden coger. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
@@ -1399,6 +1474,17 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     try { localStorage.setItem('pr-menu3', MENU); } catch (e) {}
     render();
     if (MENU === 'visible') hint.innerHTML = AV_INFO;
+  });
+  const fxMode = document.getElementById('fxMode');
+  fxMode.value = FX;
+  fxMode.addEventListener('change', () => {
+    FX = fxMode.value;
+    try { localStorage.setItem('pr-fondo', FX); } catch (e) {}
+    paused = false;
+    if (['introA', 'introB'].includes(S.screen)) render();
+    else if (START === 'nueva') go('introA'); // the movement is only behind the intro texts: show it from the start
+    else render();
+    if (START !== 'nueva') hint.innerHTML = 'El fondo con movimiento solo está en las intros de la <b>nueva interactividad</b> (variante «Juego»).';
   });
   const startMode = document.getElementById('startMode');
   startMode.value = START;
