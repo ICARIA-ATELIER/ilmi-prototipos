@@ -172,6 +172,23 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .gm .go.lang.en { font-family: var(--ui); font-size: 44px; }
 .gm.open .go { pointer-events: auto; opacity: 1; transform: none; transition: opacity .2s calc(.58s + var(--i) * 110ms), transform .3s cubic-bezier(.3,1.3,.5,1) calc(.58s + var(--i) * 110ms); }
 
+/* 18/11 · Opción A de accesibilidad (Montse eligió la A): idioma y Restart siempre visibles, sin menú escondido, uno
+   encima del otro en la esquina inferior izquierda (la misma en inglés y en árabe). Guía de accesibilidad de ILMI §13.3.1
+   en la 55" 4K (1 px ≈ 0,317 mm): zona táctil 240 × 240 px = 76 mm (pide ≥ 75 mm), 80 px = 25 mm entre los dos y hasta el
+   borde de abajo (pide ≥ 25 mm). Relleno oscuro + borde blanco, para que destaque ≥ 3:1 sobre fondos claros y oscuros.
+   Quieto: sin parpadeo. Aspecto provisional. */
+.av { left: 0; width: 240px; height: 240px; box-sizing: border-box; border-radius: 0 64px 64px 0; background: linear-gradient(180deg, #4b4b4b, #2e2e2e); color: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; font-weight: 700; font-size: 52px; line-height: 1; cursor: pointer; z-index: 30; box-shadow: 0 0 0 6px #fff, 0 8px 18px rgba(0,0,0,.3); }
+.av svg { width: 84px; height: 84px; flex: none; }
+.av.lang span { font-family: var(--ar); font-size: 58px; line-height: 1.2; }
+.av.lang.en span { font-family: var(--ui); font-size: 52px; line-height: 1; }
+/* Confirmación de Restart (opción A): como el aviso «¿Sigues ahí?» (velo blanco, aquí al 90 % para que no se lea lo de
+   debajo; texto centrado), con «Yes» y «No» de
+   240 px de alto (76 mm) y 160 px (51 mm) entre ellos, lejos del botón Restart para que un segundo toque no caiga encima. */
+.cf { position: absolute; inset: 0; z-index: 45; background: rgba(255,255,255,.9); animation: fade .3s ease-out both; }
+.cf.leaving { animation: out .25s ease-in forwards; }
+.cf .q { width: 1600px; text-align: center; font-weight: 700; font-size: 88px; line-height: 96px; color: #000; pointer-events: none; }
+.cf .btn { width: 440px; height: 240px; padding: 0; justify-content: center; font-size: 72px; border-radius: 120px; }
+
 /* "Are you still there?" notice over the screen. */
 /* z-index 50 (17/11, Montse): above every layer — problem names, the dot's menu and its overlay. */
 .still { position: absolute; inset: 0; z-index: 50; background: rgba(255,255,255,.82); animation: fade .4s ease-out both; }
@@ -212,7 +229,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
       <!-- Variantes (Montse, 12/11): every version she wants to keep is chosen here, one select per aspect. -->
       <span class="ctl"><label for="menuMode">Variantes</label>
-      <select id="menuMode" aria-label="Variantes: Restart">
+      <select id="menuMode" aria-label="Variantes: idioma y Restart">
+        <option value="visible">Restart · idioma y Restart siempre visibles, accesible (18/11)</option>
         <option value="goo">Restart · bolita líquida con capa (12/11)</option>
         <option value="tab">Restart · botón (anterior)</option>
       </select>
@@ -236,6 +254,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <option value="recovery">Recovery reveal</option>
         <option value="closing">Closing</option>
         <option value="still">Aviso «¿sigues ahí?»</option>
+        <option value="confirm">Confirmar Restart (variante accesible)</option>
       </select></span>
       <button id="restart" type="button">Reiniciar</button>
     </div>
@@ -260,14 +279,19 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   const LENS = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/><path d="M10 13l0 .01"/><path d="M10 10a1.5 1.5 0 1 0 -1.14 -2.474"/></svg>';
   const XICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
   const REDO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12.5 15.5A15 15 0 1 1 9 26" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M11 6.5v10h10" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Globo para el botón de idioma de la variante accesible (Tabler «world», MIT). Provisional: no está en el Figma.
+  const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></svg>';
 
   // Timings (ms). still: time without a tap before "Are you still there?" on the map and the description;
   // stillQ: the same on the question screen, longer to leave time to read the question and answers (Montse, 12/11).
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000 };
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000 };
   // capGap (18/11, provisional): time between the recovery bubbles (was 300 ms).
+  // holdover y confirm (18/11, variante accesible, provisionales): durante 0,5 s después de aparecer, la confirmación de
+  // Restart y el botón de idioma recién cambiado no aceptan toques (toques de arrastre: un segundo toque sin querer en el
+  // mismo sitio); la confirmación se cierra sola, como «No», a los 10 s sin tocar.
 
   // Positions in the 3840×2160 screen, taken from the Figma prototype.
   // fb: angle (deg, 0 = right, 90 = down) from the zone centre to the main feedback bubble; side: where the second one sits next to it.
@@ -330,8 +354,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // once an answer is chosen the halo name goes, and the feedback drops the question and answers.
   // Restart (12/11): «goo» = the blinking dot with a liquid opening (language + Restart over a black overlay), the default;
   // «tab» = the previous Restart button. The «dot with a menu» version was removed on 12/11.
-  let MENU = 'goo';
-  try { const m = localStorage.getItem('pr-menu2'); if (['goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
+  // 18/11: «visible» = opción A de accesibilidad (idioma y Restart siempre visibles, Restart con confirmación), la de por
+  // defecto; clave nueva (pr-menu3) para que se vea aunque antes se eligiera otra.
+  let MENU = 'visible';
+  try { const m = localStorage.getItem('pr-menu3'); if (['visible', 'goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
   // Inicio (17/11): «puzzle» = after Start, the placeholder text and the puzzle, then the map with its title (default);
   // «map» = the previous start (the problems appear on the map by themselves).
   let START = 'puzzle';
@@ -545,7 +571,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const b = add(mk('div', 'abs bubble clue', '<h3>' + LENS + 'Clue</h3><p>' + CLUES[k] + '</p>'));
     const w = b.offsetWidth, h = b.offsetHeight, gap = 28;
     const bx = btn.offsetLeft, by = btn.offsetTop, bw = btn.offsetWidth, bh = btn.offsetHeight;
-    const boxes = avoid.concat([btn, nt]).map(e => [e.offsetLeft, e.offsetTop, e.offsetWidth, e.offsetHeight]).concat([[0, 1700, 220, 200]]);
+    const boxes = avoid.concat([btn, nt]).map(e => [e.offsetLeft, e.offsetTop, e.offsetWidth, e.offsetHeight]).concat([MENU === 'visible' ? [0, 1480, 300, 640] : [0, 1700, 220, 200]]);
     const hit = (x, y) => boxes.reduce((s, [ex, ey, ew, eh]) => s + Math.max(0, Math.min(x + w, ex + ew) - Math.max(x, ex)) * Math.max(0, Math.min(y + h, ey + eh) - Math.max(y, ey)), 0);
     const low = by + bh / 2 > H / 2, east = bx + bw / 2 > W / 2;
     const vs = low ? ['up', 'down'] : ['down', 'up'], hs = east ? ['left', 'right'] : ['right', 'left'];
@@ -638,6 +664,66 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     });
     on(rs, () => { close(); S = fresh(); go('intro'); });
     return m;
+  }
+
+  // 18/11 · Opción A de accesibilidad (Montse eligió la A): idioma y Restart siempre visibles, uno encima del otro en la
+  // esquina inferior izquierda; nada escondido detrás de un toque. El de idioma enseña la otra lengua escrita en su propia
+  // escritura (como la bolita). Restart pide confirmación. Aspecto, icono del globo, textos y tiempos provisionales.
+  // Cada botón o capa recién aparecida se bloquea por separado (cambiar el idioma no bloquea Restart).
+  let cfEl = null;
+  const lock = el => { el.dataset.until = performance.now() + T.holdover; };
+  const locked = el => performance.now() < +(el.dataset.until || 0);
+  const AV_INFO = 'Variante <b>accesible</b> (opción A, 18/11): idioma y Restart siempre visibles abajo a la izquierda, 240 × 240 px = 76 mm en la 55" (la guía pide ≥ 75 mm), con 80 px = 25 mm entre ellos; relleno oscuro con borde blanco (contraste ≥ 3:1 sobre cualquier fondo) y sin parpadeo. Restart pide confirmación. <b>Fuera de la pantalla, pendiente:</b> marca en relieve en el marco, voz con el perfil de visión de la pulsera y altura ~1050 mm del suelo (depende de planos).';
+  function menuVisible() {
+    const other = () => (LANG === 'en' ? 'ar' : 'en');
+    const lang = add(mk('button', 'abs av lang', GLOBE + '<span></span>')); lang.type = 'button'; at(lang, 0, 1520);
+    const rs = add(mk('button', 'abs av', REDO + '<span>Restart</span>')); rs.type = 'button'; at(rs, 0, 1840);
+    rs.setAttribute('aria-label', 'Restart: empezar de nuevo (pide confirmación)');
+    const label = () => {
+      const o = other(), t = lang.querySelector('span');
+      t.textContent = o === 'ar' ? 'العربية' : 'English';
+      lang.classList.toggle('en', o === 'en');
+      if (o === 'ar') { t.lang = 'ar'; t.dir = 'rtl'; } else { t.removeAttribute('lang'); t.removeAttribute('dir'); }
+      lang.setAttribute('aria-label', 'Idioma: cambiar a ' + (o === 'ar' ? 'árabe' : 'inglés'));
+    };
+    label();
+    on(lang, () => {
+      if (locked(lang)) return;
+      LANG = other(); label(); lock(lang);
+      hint.innerHTML = 'Idioma: <b>' + (LANG === 'ar' ? 'árabe' : 'inglés') + '</b>. En el prototipo los textos siguen en inglés (faltan los textos en árabe); el botón ofrece ahora <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b> y no cambia de esquina. En la pieza, el cambio se diría en voz alta en la nueva lengua (pendiente de sonido). Durante 0,5 s no acepta otro toque, para que un toque doble no lo devuelva.';
+    });
+    on(rs, confirmRestart);
+  }
+  // «Start again?»: Yes vuelve a la Intro (como Restart); No, tocar fuera o 10 s sin tocar la cierran y sigue el juego.
+  // Mientras está abierta no sale el aviso de inactividad; al cerrarse vuelve a contar.
+  function confirmRestart() {
+    if (cfEl) return;
+    clearTimeout(stillTimer); stillTimer = null; menuOpen = true;
+    const o = cfEl = add(mk('div', 'cf'));
+    const put = e => (o.appendChild(e), e);
+    const g = put(mk('div', 'glow')); g.style.width = '1100px'; g.style.height = '860px'; at(g, 1370, 600);
+    put(at(mk('div', 'abs q', 'Start again?'), 1120, 860));
+    const yes = put(at(mk('button', 'abs btn', 'Yes'), 1400, 1080)); yes.type = 'button';
+    const no = put(at(mk('button', 'abs btn', 'No'), 2000, 1080)); no.type = 'button';
+    yes.setAttribute('aria-label', 'Yes: empezar de nuevo'); no.setAttribute('aria-label', 'No: seguir jugando');
+    let tm = null;
+    const close = () => {
+      clearTimeout(tm);
+      if (cfEl !== o) return;
+      cfEl = null; menuOpen = false;
+      o.classList.add('leaving'); setTimeout(() => o.remove(), 260);
+      showHint(); armStill();
+    };
+    tm = setTimeout(close, T.confirm);
+    lock(o);
+    o.addEventListener('click', ev => { ev.stopPropagation(); if (!locked(o)) close(); }); // tocar fuera = No
+    no.addEventListener('click', ev => { ev.stopPropagation(); if (!locked(o)) close(); });
+    yes.addEventListener('click', ev => {
+      ev.stopPropagation(); if (locked(o)) return;
+      clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go('intro');
+    });
+    try { no.focus({ preventScroll: true }); } catch (e) {}
+    hint.innerHTML = '<b>Start again?</b> (variante accesible) <b>Yes</b> vuelve a la Intro; <b>No</b> o tocar fuera la cierra y sigue el juego. Se cierra sola, como «No», a los ' + T.confirm / 1000 + ' s sin tocar, y vuelve a contar la inactividad. Los 0,5 s primeros no acepta toques. Textos y tiempos provisionales, pendientes de contenido.';
   }
 
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
@@ -986,9 +1072,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   function render() {
     clearTimers();
     stage.replaceChildren();
-    stillEl = null; menuOpen = false;
+    stillEl = null; menuOpen = false; cfEl = null;
     current = SCREENS[S.screen](S.p, S.k) || {};
-    if (!['idle', 'intro', 'closing'].includes(S.screen)) ({ goo: menuGoo, tab: restartTab }[MENU] || menuGoo)();
+    if (!['idle', 'intro', 'closing'].includes(S.screen)) ({ visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuVisible)();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armStill();
@@ -1032,8 +1118,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   menuMode.value = MENU;
   menuMode.addEventListener('change', () => {
     MENU = menuMode.value;
-    try { localStorage.setItem('pr-menu2', MENU); } catch (e) {}
+    try { localStorage.setItem('pr-menu3', MENU); } catch (e) {}
     render();
+    if (MENU === 'visible') hint.innerHTML = AV_INFO;
   });
   const startMode = document.getElementById('startMode');
   startMode.value = START;
@@ -1049,6 +1136,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     if (!v) return;
     paused = false;
     if (v === 'still') { if (!WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) { if (allSolved()) S = fresh(); go('map'); } showStill(); }
+    else if (v === 'confirm') {
+      // Solo existe en la variante accesible: si hay otra elegida, se cambia a esa.
+      if (MENU !== 'visible') { MENU = menuMode.value = 'visible'; try { localStorage.setItem('pr-menu3', MENU); } catch (e) {} }
+      if (['idle', 'intro', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
+      confirmRestart();
+    }
     else if (P[v]) { S.solved.delete(v); S.off[v].clear(); S.clue.delete(v); go('desc', v); }
     else if (['done', 'recovery', 'closing'].includes(v)) { ORDER.forEach(k => S.solved.add(k)); go(v); }
     else go(v);
