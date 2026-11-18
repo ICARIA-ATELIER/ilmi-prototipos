@@ -296,34 +296,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ctrls">
       <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
-      <!-- Variantes (Montse, 12/11): every version she wants to keep is chosen here, one select per aspect. -->
-      <span class="ctl"><label for="menuMode">Variantes</label>
-      <select id="menuMode" aria-label="Variantes: idioma y Restart">
-        <option value="solo">Restart · solo Restart, sin botón de idioma (18/11)</option>
-        <option value="visible">Restart · idioma y Restart siempre visibles, accesible (18/11)</option>
-        <option value="goo">Restart · bolita líquida con capa (12/11)</option>
-        <option value="tab">Restart · botón (anterior)</option>
-      </select>
-      <select id="startMode" aria-label="Variantes: juego">
-        <option value="nueva">Juego · nueva interactividad (18/11)</option>
-        <option value="puzzle">Juego · inicio con puzzle (17/11)</option>
-        <option value="map">Juego · inicio anterior</option>
-      </select>
-      <select id="fxMode" aria-label="Variantes: fondo de las intros">
-        <option value="mov">Fondo · movimiento leve en las intros (18/11)</option>
-        <option value="quieto">Fondo · quieto</option>
-      </select></span>
+      <!-- 18/11 (Montse): sin variantes; queda solo la versión cerrada (nueva interactividad, fondo con movimiento, solo Restart). Copia con variantes: _copia-v41-con-variantes.html -->
       <span class="ctl"><label for="jump">Ir a</label>
       <select id="jump">
         <option value="">Pantalla…</option>
         <option value="idle">Idle</option>
-        <option value="introA">Intro 1 · This mangrove forest needs help (nueva interactividad)</option>
-        <option value="introB">Intro 2 · Restoring a mangrove… (nueva interactividad)</option>
-        <option value="intro">Intro con Start</option>
-        <option value="text">Texto de prueba (con puzzle)</option>
-        <option value="puzzle">Puzzle: colocar los problemas (con puzzle)</option>
-        <option value="choose">Elegir un problema (nueva interactividad)</option>
-        <option value="map">Mapa de problemas</option>
+        <option value="introA">Intro 1 · This mangrove forest needs help</option>
+        <option value="introB">Intro 2 · Restoring a mangrove…</option>
+        <option value="puzzle">Puzzle: colocar los problemas</option>
+        <option value="choose">Elegir un problema</option>
         <option value="pressure">Human &amp; Livestock Pressure</option>
         <option value="pollution">Pollution</option>
         <option value="blocked">Blocked Tide</option>
@@ -445,14 +426,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 18/11 (más tarde, Montse: «solo me pintas el botón de restart… sí, en todo»): «solo» = la opción A sin el botón de
   // idioma: solo Restart, en el mismo sitio y con la misma confirmación. Es la de por defecto (clave nueva pr-menu4).
   let MENU = 'solo';
-  try { const m = localStorage.getItem('pr-menu4'); if (['solo', 'visible', 'goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
+  // 18/11 (Montse): sin variantes, fijo.
   // Inicio (17/11): «puzzle» = after Start, the placeholder text and the puzzle, then the map with its title (default);
   // «map» = the previous start (the problems appear on the map by themselves).
   // 18/11 · «nueva» = nueva interactividad (Montse): the puzzle shows each problem's description as it is placed; then
   // «Select a problem…», the chosen one stays alone and the four solutions always come out in the same place, in one row.
   // The rest (feedback, Clue, struck-through and used answers, closing) as before. Default; new key so it shows.
   let START = 'nueva';
-  try { const v = localStorage.getItem('pr-juego'); if (['nueva', 'puzzle', 'map'].includes(v)) START = v; } catch (e) {}
+  // 18/11 (Montse): sin variantes, fijo.
   // First screen after the attract screen (also where Restart and Play again go): the two new intros in the nueva
   // interactividad (18/11), the Intro with Start in the others.
   const first = () => (START === 'nueva' ? 'introA' : 'intro');
@@ -470,7 +451,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   // Fondo (18/11): «mov» = small movement in the drawing behind the intro texts (default); «quieto» = still, as before.
   let FX = 'mov';
-  try { const v = localStorage.getItem('pr-fondo'); if (['mov', 'quieto'].includes(v)) FX = v; } catch (e) {}
+  // 18/11 (Montse): sin variantes, fijo.
 
   // Puzzle zones: a ring around each problem on the drawing (centres read off the drawing; the names land on P[k].label).
   const RING = { pollution: [3023, 748], pressure: [3460, 1400], blocked: [2560, 1830], coastal: [600, 1830] }, RR = 320;
@@ -1025,7 +1006,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go(first());
     });
     try { no.focus({ preventScroll: true }); } catch (e) {}
-    hint.innerHTML = '<b>Start again?</b> (variante accesible) <b>Yes</b> vuelve a la Intro; <b>No</b> o tocar fuera la cierra y sigue el juego. Se cierra sola, como «No», a los ' + T.confirm / 1000 + ' s sin tocar, y vuelve a contar la inactividad. Los 0,5 s primeros no acepta toques. Textos y tiempos provisionales, pendientes de contenido.';
+    hint.innerHTML = '<b>Start again?</b> <b>Yes</b> vuelve a la Intro; <b>No</b> o tocar fuera la cierra y sigue el juego. Se cierra sola, como «No», a los ' + T.confirm / 1000 + ' s sin tocar, y vuelve a contar la inactividad. Los 0,5 s primeros no acepta toques. Textos y tiempos provisionales, pendientes de contenido.';
   }
 
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
@@ -1122,7 +1103,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       anim(icard('Before restoring it, scientists must investigate what is causing the damage.', 1504, 888, 900, 486), 'a-rise', T.introA[1]);
       anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', T.introA[2]);
       auto(NEXT.introA, T.introA[3]);
-      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante), uno detrás de otro: primero el río oscuro fluye y su mancha baja con la corriente (' + T.fxRiver / 1000 + ' s); después se calma y las grúas de abajo a la izquierda se ponen a cavar. Simulado.' : '') };
+      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b>, uno detrás de otro: primero el río oscuro fluye y su mancha baja con la corriente (' + T.fxRiver / 1000 + ' s); después se calma y las grúas de abajo a la izquierda se ponen a cavar. Simulado.' : '') };
     },
     // Second one (754:6665): also on its own, then the puzzle. It takes the place of the red placeholder text.
     introB() {
@@ -1132,7 +1113,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is like solving a mystery.')); t.style.width = '1400px'; place(t, 1986, 840, false); anim(t, 'a-fade', T.introB[0]);
       anim(icard('Scientists study the ecosystem, identify the threats, and choose actions that help nature recover.', 1691, 1080, 1152, 366), 'a-rise', T.introB[1]);
       auto(NEXT.introB, T.introB[2]);
-      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): ahora los camellos; los que llevan jinete caminan un poco hacia la izquierda y los que pastan se mecen. Simulado.' : '') };
+      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b>: ahora los camellos; los que llevan jinete caminan un poco hacia la izquierda y los que pastan se mecen. Simulado.' : '') };
     },
     intro() {
       bg('before');
@@ -1652,54 +1633,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 
   // review controls
   document.getElementById('restart').addEventListener('click', reset);
-  const menuMode = document.getElementById('menuMode');
-  menuMode.value = MENU;
-  menuMode.addEventListener('change', () => {
-    MENU = menuMode.value;
-    try { localStorage.setItem('pr-menu4', MENU); } catch (e) {}
-    render();
-    if (MENU === 'visible') hint.innerHTML = AV_INFO;
-    if (MENU === 'solo') hint.innerHTML = SOLO_INFO;
-  });
-  const fxMode = document.getElementById('fxMode');
-  fxMode.value = FX;
-  fxMode.addEventListener('change', () => {
-    FX = fxMode.value;
-    try { localStorage.setItem('pr-fondo', FX); } catch (e) {}
-    paused = false;
-    if (['introA', 'introB'].includes(S.screen)) render();
-    else if (START === 'nueva') go('introA'); // the movement is only behind the intro texts: show it from the start
-    else render();
-    if (START !== 'nueva') hint.innerHTML = 'El fondo con movimiento solo está en las intros de la <b>nueva interactividad</b> (variante «Juego»).';
-  });
-  const startMode = document.getElementById('startMode');
-  startMode.value = START;
-  startMode.addEventListener('change', () => {
-    START = startMode.value;
-    try { localStorage.setItem('pr-juego', START); } catch (e) {}
-    paused = false;
-    const NEW = ['choose', 'pick', 'nSel', 'nGreat', 'nFact', 'nRestore', 'nWrongTap', 'nWrongFb'], OLD = ['map', 'desc', 'question', 'sel', 'great', 'fact', 'wrongTap', 'wrongFb'];
-    if (START === 'nueva' && ['intro', 'text', 'mapIntro'].includes(S.screen)) go('introA');
-    else if (START !== 'nueva' && ['introA', 'introB'].includes(S.screen)) go('intro');
-    else if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'map' ? 'mapIntro' : (START === 'nueva' ? 'puzzle' : 'text'));
-    else if (START === 'nueva' && OLD.includes(S.screen)) go(allSolved() ? 'done' : 'choose');
-    else if (START !== 'nueva' && NEW.includes(S.screen)) go('map');
-    else render();
-  });
   document.getElementById('jump').addEventListener('change', e => {
     const v = e.target.value; e.target.value = '';
     if (!v) return;
     paused = false;
-    if (v === 'still') { if (!WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) { if (allSolved()) S = fresh(); go('map'); } showStill(); }
+    if (v === 'still') { if (!WAITS.includes(S.screen) || allSolved()) { if (allSolved()) S = fresh(); go('choose'); } showStill(); }
     else if (v === 'confirm') {
-      // Solo existe en las variantes accesibles («solo» y «visible»): si hay otra elegida, se cambia a «solo».
-      if (!['solo', 'visible'].includes(MENU)) { MENU = menuMode.value = 'solo'; try { localStorage.setItem('pr-menu4', MENU); } catch (e) {} }
-      if (['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
+      if (['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) { S = fresh(); go('choose'); } else render();
       confirmRestart();
     }
     else if (v === 'choose') {
-      // Solo existe en la nueva interactividad: si hay otra elegida, se cambia a esa.
-      if (START !== 'nueva') { START = startMode.value = 'nueva'; try { localStorage.setItem('pr-juego', START); } catch (e) {} }
       if (allSolved()) S = fresh();
       go('choose');
     }
