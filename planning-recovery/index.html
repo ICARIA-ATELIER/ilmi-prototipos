@@ -160,6 +160,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .crane.dig .body { animation: rumble .3s linear infinite; }
 @keyframes dig { 0%, 100% { transform: rotate(0deg); } 35% { transform: rotate(-4.5deg); } 70% { transform: rotate(1.5deg); } }
 @keyframes rumble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1px); } }
+/* 18/11 · Nueva interactividad (Figma v6, «Puzzle · 02»): the square corner of each name points to its zone. */
+.label.k-tr { border-radius: 90px 0 90px 90px; } .label.k-tl { border-radius: 0 90px 90px 90px; }
+.label.k-br { border-radius: 90px 90px 0 90px; } .label.k-bl { border-radius: 90px 90px 90px 0; }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -427,6 +430,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // First screen after the attract screen (also where Restart and Play again go): the two new intros in the nueva
   // interactividad (18/11), the Intro with Start in the others.
   const first = () => (START === 'nueva' ? 'introA' : 'intro');
+  // 18/11 · Nueva interactividad (Figma v6): each name has its square corner towards its zone.
+  const TAIL = { pressure: 'tr', pollution: 'tl', blocked: 'br', coastal: 'bl' };
+  const tailCls = k => (START === 'nueva' ? ' k-' + TAIL[k] : '');
   // Fondo (18/11): «mov» = small movement in the drawing behind the intro texts (default); «quieto» = still, as before.
   let FX = 'mov';
   try { const v = localStorage.getItem('pr-fondo'); if (['mov', 'quieto'].includes(v)) FX = v; } catch (e) {}
@@ -542,7 +548,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     ORDER.forEach((k, i) => {
       if (k === current || (mode === 'dim' && P[current].hideSolved && S.solved.has(k))) return;
       const d = P[k], solved = S.solved.has(k);
-      const b = mk('button', 'abs label' + (solved ? ' solved' : '') + (d.wide ? ' wide' : ''), (solved ? OK : '') + d.name);
+      const b = mk('button', 'abs label' + (solved ? ' solved' : '') + (d.wide ? ' wide' : '') + tailCls(k), (solved ? OK : '') + d.name);
       b.type = 'button';
       add(b); place(b, d.label[0], d.label[1], false);
       if (solved) { b.tabIndex = -1; b.setAttribute('aria-label', d.name + ', resuelto'); }
@@ -642,7 +648,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // back to the description before).
   function chosen(k, interactive = true) {
     const d = P[k];
-    const b = add(mk(interactive ? 'button' : 'div', 'abs label call' + (d.wide ? ' wide' : ''), d.name));
+    const b = add(mk(interactive ? 'button' : 'div', 'abs label call' + (d.wide ? ' wide' : '') + tailCls(k), d.name));
     place(b, d.label[0], d.label[1], false);
     if (interactive) { b.type = 'button'; b.setAttribute('aria-label', d.name + ': volver a elegir problema'); on(b, () => go('choose')); }
     else b.style.cursor = 'default';
@@ -1081,11 +1087,19 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       // A tap on the drawing (not on a name or a zone) lets go of the picked name.
       // Nueva interactividad: while a description is showing, a tap on the drawing takes it away.
       add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (busy) endDesc(); else pick(null); });
-      const CX = 1800;
+      const CX = 1800, NUEVA = START === 'nueva';
       glow(CX, 660, 2500, 1350);
-      const t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
-      const s = add(mk('div', 'abs sub', 'Place each problem in the area where you think it belongs.')); at(s, CX - 750, t.offsetTop + t.offsetHeight + 40); anim(s, 'a-fade', 120);
-      const sm = add(mk('div', 'abs small', 'Tap and drag')); at(sm, CX - 750, s.offsetTop + s.offsetHeight + 36); anim(sm, 'a-fade', 240);
+      let t, s, sm = null;
+      if (NUEVA) {
+        // 18/11 · New composition (Montse, Figma «↳ 18/11 · v6», «Puzzle · 02 · Start» 754:9528): title, «Tap and drag»
+        // under it (red in Figma) and the four names in one row.
+        t = add(mk('div', 'abs big', 'Identify the challenges')); t.style.width = '2000px'; place(t, 1947, 806, false); anim(t, 'a-fade');
+        s = add(mk('div', 'abs sub', 'Tap and drag')); s.style.color = '#fb1d1d'; place(s, 1947, 942, false); anim(s, 'a-fade', 120);
+      } else {
+        t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
+        s = add(mk('div', 'abs sub', 'Place each problem in the area where you think it belongs.')); at(s, CX - 750, t.offsetTop + t.offsetHeight + 40); anim(s, 'a-fade', 120);
+        sm = add(mk('div', 'abs small', 'Tap and drag')); at(sm, CX - 750, s.offsetTop + s.offsetHeight + 36); anim(sm, 'a-fade', 240);
+      }
       ORDER.forEach((k, i) => {
         const r = rings[k] = add(mk('button', 'abs ring')); r.type = 'button'; r.setAttribute('aria-label', 'Zona ' + (i + 1));
         place(r, RING[k][0], RING[k][1], false); anim(r, 'a-pop', 300 + i * T.gap);
@@ -1093,15 +1107,26 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       });
       // The names, in order, in a 2 × 2 grid under the text.
       ORDER.forEach(k => {
-        const b = L[k] = add(mk('button', 'abs label drag call' + (P[k].wide ? ' wide' : ''), P[k].name)); b.type = 'button';
+        const b = L[k] = add(mk('button', 'abs label drag call' + (P[k].wide ? ' wide' : '') + tailCls(k), P[k].name)); b.type = 'button';
         b.setAttribute('aria-label', P[k].name + ': arrástralo a su zona, o tócalo y después toca la zona');
       });
       // Fixed width, so a name doesn't shrink when dragged near the screen edge (and lands exactly on its map spot).
       // (+2 px: offsetWidth rounds down sub-pixel widths, which would wrap a one-line name.)
       ORDER.forEach(k => { L[k].style.width = (L[k].offsetWidth + 2) + 'px'; });
-      const gap = 60, rows = [[ORDER[0], ORDER[1]], [ORDER[2], ORDER[3]]];
+      const settle = b => b.addEventListener('animationend', () => { b.classList.remove('a-pop', 'a-shake'); b.style.animationDelay = ''; });
+      if (NUEVA) {
+        // One row, centred like the row in Figma (x 606–3185, middle at y 1264), 70 px between names (provisional:
+        // Roboto is wider than ilmi, so the gaps are evened out instead of copied).
+        const g = 70, total = ORDER.reduce((a, k) => a + L[k].offsetWidth, 0) + g * (ORDER.length - 1);
+        let x = Math.round(1896 - total / 2);
+        ORDER.forEach((k, i) => {
+          const b = L[k]; home[k] = [x, Math.round(1264 - b.offsetHeight / 2)]; x += b.offsetWidth + g;
+          at(b, ...home[k]); anim(b, 'a-pop', 350 + i * T.gap); settle(b);
+        });
+      }
+      const gap = 60, rows = NUEVA ? [] : [[ORDER[0], ORDER[1]], [ORDER[2], ORDER[3]]];
       const colW = [0, 1].map(c => Math.max(...rows.map(r => L[r[c]].offsetWidth)));
-      let y = sm.offsetTop + sm.offsetHeight + 90;
+      let y = NUEVA ? 0 : sm.offsetTop + sm.offsetHeight + 90;
       rows.forEach((r, ri) => {
         const h = Math.max(...r.map(k => L[k].offsetHeight));
         r.forEach((k, c) => {
@@ -1121,7 +1146,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       function showSlots(b) {
         hideSlots();
         for (const k of free) {
-          const sl = add(mk('div', 'slot')); sl.style.width = b.offsetWidth + 'px'; sl.style.height = b.offsetHeight + 'px';
+          const sl = add(mk('div', 'slot')); sl.style.width = b.offsetWidth + 'px'; sl.style.height = b.offsetHeight + 'px'; sl.style.borderRadius = getComputedStyle(b).borderRadius;
           at(sl, Math.round(P[k].label[0] - b.offsetWidth / 2), Math.round(P[k].label[1] - b.offsetHeight / 2));
           sl.dataset.k = k; sl.addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (sel) drop(sel, k); });
           slots.push(sl);
@@ -1172,7 +1197,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       }
       function toChoose() {
         if (leaving) return; leaving = true;
-        [t, s, sm, ...descs].forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); });
+        [t, s, sm, ...descs].filter(Boolean).forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); });
         later(NEXT.puzzle, 450);
       }
       function pick(key) {
@@ -1238,7 +1263,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> composición del Figma v6 («Identify the challenges», «Tap and drag» en rojo como en el Figma y los nombres en una fila). Al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
