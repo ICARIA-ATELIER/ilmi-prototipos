@@ -292,9 +292,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descRead: 5000 };
-  // descRead (18/11, nueva interactividad, provisional): after the last name lands, time to read its description before
-  // «Select a problem…» (a tap skips it).
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000 };
+  // descShow (18/11, nueva interactividad, provisional): how long a problem's description stays after its name lands in
+  // the puzzle; then it goes and the next name can be taken (a tap on the drawing takes it away sooner).
   // capGap (18/11, provisional): time between the recovery bubbles (was 300 ms).
   // holdover y confirm (18/11, variante accesible, provisionales): durante 0,5 s después de aparecer, la confirmación de
   // Restart y el botón de idioma recién cambiado no aceptan toques (toques de arrastre: un segundo toque sin querer en el
@@ -904,7 +904,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const free = new Set(ORDER), L = {}, home = {}, rings = {};
       let sel = null, drag = null, slots = [], lastDrag = 0;
       // A tap on the drawing (not on a name or a zone) lets go of the picked name.
-      add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; pick(null); });
+      // Nueva interactividad: while a description is showing, a tap on the drawing takes it away.
+      add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (busy) endDesc(); else pick(null); });
       const CX = 1800;
       glow(CX, 660, 2500, 1350);
       const t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
@@ -972,6 +973,26 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         at(c, Math.round(Math.min(W - 40 - c.offsetWidth, P[k].label[0] - b.offsetWidth / 2 + 120)), Math.round(top - 20 - c.offsetHeight));
         c.style.transformOrigin = '0 100%';
         descs.push(anim(c, 'a-rise'));
+        return c;
+      }
+      // 18/11 (later, Montse): the description shows for T.descShow and then goes; only then can another name be taken
+      // (meanwhile the names left don't glow and can't be picked up). After the last one, «Select a problem…».
+      let busy = false, descEl = null, seq = 0;
+      function showDesc(k, b) {
+        busy = true; const id = ++seq;
+        for (const z of free) { L[z].classList.remove('call'); L[z].setAttribute('aria-disabled', 'true'); }
+        later(() => { if (busy && id === seq) descEl = describe(k, b); }, 220);
+        auto(() => { if (id === seq) endDesc(); }, 220 + T.descShow);
+        showHint();
+      }
+      function endDesc() {
+        if (!busy) return;
+        busy = false;
+        const c = descEl; descEl = null;
+        if (c) { c.classList.remove('a-rise'); c.classList.add('a-out'); setTimeout(() => c.remove(), 340); }
+        if (!free.size) { later(toChoose, 350); return; }
+        for (const z of free) { L[z].classList.add('call'); L[z].removeAttribute('aria-disabled'); }
+        showHint();
       }
       function toChoose() {
         if (leaving) return; leaving = true;
@@ -994,15 +1015,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           sound('ok');
           // 17/11 (Montse): once the name is in place, its ring goes and a little turquoise stays on the zone.
           const r = rings[k]; r.disabled = true; r.tabIndex = -1; r.classList.remove('a-pop', 'over'); r.style.animationDelay = ''; r.classList.add('got');
-          // 18/11 · Nueva interactividad (Montse): its description comes out above the name once it lands, and stays.
-          if (START === 'nueva') later(() => describe(k, b), 220);
-          if (!free.size) {
-            if (START === 'nueva') {
-              // Time to read the last description, then «Select a problem…» (a tap skips the wait).
-              auto(toChoose, T.descRead);
-              current.tap = () => { toChoose(); return true; }; stage.classList.add('tap');
-            } else auto(NEXT.puzzle, T.puzzleDone);
-          }
+          // 18/11 · Nueva interactividad (Montse): its description comes out above the name once it lands, then goes.
+          if (START === 'nueva') showDesc(k, b);
+          else if (!free.size) auto(NEXT.puzzle, T.puzzleDone);
         } else {
           sound('ko');
           glide(b, ...home[key]);
@@ -1013,7 +1028,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       for (const k of ORDER) {
         const b = L[k];
         b.addEventListener('pointerdown', e => {
-          if (!free.has(k) || e.button > 0) return;
+          if (!free.has(k) || e.button > 0 || busy) return;
           audio();
           const [x, y2] = toStage(e);
           drag = { b, sx: e.clientX, sy: e.clientY, gx: x - b.offsetLeft, gy: y2 - b.offsetTop, moved: false };
@@ -1043,11 +1058,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         // A tap (or Enter) picks the name; a second tap lets it go. Then tapping a zone places it.
         b.addEventListener('click', ev => {
           ev.stopPropagation(); paused = false;
-          if (performance.now() - lastDrag < 400 || !free.has(k)) return;
+          if (performance.now() - lastDrag < 400 || !free.has(k) || busy) return;
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción y se queda; con los cuatro colocados, ' + T.descRead / 1000 + ' s para leer (o toca la pantalla) y pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres no brillan ni se pueden coger. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
