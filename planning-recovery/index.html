@@ -670,9 +670,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   // ---------- nueva interactividad (18/11)
   // Title once the puzzle is complete; it stays while a problem is chosen (Montse's mock-up). Translation provisional.
-  function chooseTitle(animate) {
+  // 18/11 (Montse): once a problem is chosen and its solutions are out, the title says «Select the best solution».
+  const SOL = 'Select the best solution';
+  function chooseTitle(animate, text = 'Select a problem to apply the best solution.') {
     glow(1800, 330, 2300, 720);
-    const t = add(mk('div', 'abs big', 'Select a problem to apply the best solution.')); place(t, 1800, 310, false);
+    const t = add(mk('div', 'abs big', text)); place(t, 1800, 310, false);
     if (animate) anim(t, 'a-fade', 150);
     return t;
   }
@@ -1388,7 +1390,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     // The chosen problem stays alone (the others leave) and the four solutions come out in the same row as always.
     pick(k, enter) {
       bg('before'); zones(k); halo(k);
-      const qt = chooseTitle(false);
+      const qt = chooseTitle(!!enter, SOL); // the new title fades in as the solutions come out
       if (enter) labels('gone', k);
       const nt = chosen(k);
       const ps = row(k, { pop: !!enter, click: key => key === P[k].correct ? go('nSel', k) : go('nWrongTap', k, key) });
@@ -1400,7 +1402,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     },
     nSel(k) {
       bg('before'); zones(k); halo(k);
-      chooseTitle(false); chosen(k, false);
+      chooseTitle(false, SOL); chosen(k, false);
       row(k, { sel: P[k].correct, fadeOthers: true });
       auto(() => NEXT.nSel(k), T.toFeedback);
       return { tap: () => NEXT.nSel(k), hint: 'Acierto: el mensaje aparece solo.' };
@@ -1408,7 +1410,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     nGreat(k) {
       const d = P[k];
       bg('before'); zones(k); halo(k);
-      chooseTitle(false); chosen(k, false);
+      chooseTitle(false, SOL); chosen(k, false);
       // The other answers leave as the message arrives (as before); the title stays.
       const ps = row(k, { sel: d.correct, fadeOthers: true });
       Object.keys(ps).filter(key => key !== d.correct).forEach(key => ps[key].classList.add('a-out'));
@@ -1420,7 +1422,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     nFact(k) {
       const d = P[k];
       bg('before'); zones(k); halo(k);
-      const qt = chooseTitle(false); chosen(k, false);
+      const qt = chooseTitle(false, SOL); chosen(k, false);
       const ps = row(k, { only: d.correct, sel: d.correct });
       const g = fbBubble('great', d.right.h, d.right.p, k);
       const f = fbBubble('fact', null, d.right.f, k, g, 'a-rise', 100);
@@ -1454,7 +1456,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     },
     nWrongTap(k, key) {
       bg('before'); zones(k); halo(k);
-      chooseTitle(false); chosen(k, false);
+      chooseTitle(false, SOL); chosen(k, false);
       row(k, { wrong: key, shake: true });
       auto(() => NEXT.nWrongTap(k, key), T.toFeedback);
       return { tap: () => NEXT.nWrongTap(k, key), hint: 'Fallo: el porqué aparece solo.' };
@@ -1464,7 +1466,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     nWrongFb(k, key) {
       const d = P[k], w = d.wrong[key];
       bg('before'); zones(k); halo(k);
-      chooseTitle(false); chosen(k, false);
+      chooseTitle(false, SOL); chosen(k, false);
       const ps = row(k, { wrong: key });
       Object.keys(ps).filter(x => x !== key).forEach(x => ps[x].classList.add('a-out'));
       const m = fbBubble('wrong', w.h, w.p, k, null, 'a-rise');
