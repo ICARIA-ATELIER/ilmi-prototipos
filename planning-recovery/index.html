@@ -126,6 +126,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   box-shadow: 0 0 46px 12px rgba(51,241,232,.6), inset 0 0 46px 12px rgba(51,241,232,.35); }
 .rcircle.on { animation: pop .5s cubic-bezier(.2,.9,.3,1) both, rpulse 1.6s ease-in-out .5s infinite; }
 @keyframes rpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
+/* 18/11 · Intro cards of the nueva interactividad (Figma v6 «info-card-86''»): dark like the problem names, square
+   corner top left, text 80 px ilmi → 70 px Roboto as the names. */
+.icard { box-sizing: border-box; display: flex; align-items: center; justify-content: center; padding: 36px 90px 40px;
+  border-radius: 0 128px 128px 128px; background: linear-gradient(180deg, #4b4b4b, #2e2e2e); color: #fff; text-align: center;
+  font-weight: 500; font-size: 70px; line-height: 1.06; box-shadow: 0 8px 16px rgba(0,0,0,.28); pointer-events: none; transform-origin: 0 0; }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -252,7 +257,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <select id="jump">
         <option value="">Pantalla…</option>
         <option value="idle">Idle</option>
-        <option value="intro">Intro</option>
+        <option value="introA">Intro 1 · This mangrove forest needs help (nueva interactividad)</option>
+        <option value="introB">Intro 2 · Restoring a mangrove… (nueva interactividad)</option>
+        <option value="intro">Intro con Start</option>
         <option value="text">Texto de prueba (con puzzle)</option>
         <option value="puzzle">Puzzle: colocar los problemas (con puzzle)</option>
         <option value="choose">Elegir un problema (nueva interactividad)</option>
@@ -298,7 +305,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500 };
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500,
+              introA: [300, 2500, 7500, 12500], introB: [300, 2500, 11000] };
+  // introA / introB (18/11, nueva interactividad, provisional): when each text comes out (title, cards) and, last, when
+  // the screen moves on by itself — roughly the time to read what came out before (8–9-year-olds, in English).
   // restore / restoreHold (18/11, nueva interactividad, provisional): after a right answer, how long the zone takes to
   // be restored inside its circle, and how long it stays before going back to choosing a problem.
   // descShow (18/11, nueva interactividad, provisional): how long a problem's description stays after its name lands in
@@ -380,6 +390,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // The rest (feedback, Clue, struck-through and used answers, closing) as before. Default; new key so it shows.
   let START = 'nueva';
   try { const v = localStorage.getItem('pr-juego'); if (['nueva', 'puzzle', 'map'].includes(v)) START = v; } catch (e) {}
+  // First screen after the attract screen (also where Restart and Play again go): the two new intros in the nueva
+  // interactividad (18/11), the Intro with Start in the others.
+  const first = () => (START === 'nueva' ? 'introA' : 'intro');
 
   // Puzzle zones: a ring around each problem on the drawing (centres read off the drawing; the names land on P[k].label).
   const RING = { pollution: [3023, 748], pressure: [3460, 1400], blocked: [2560, 1830], coastal: [600, 1830] }, RR = 320;
@@ -599,6 +612,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     return b;
   }
   const row = (k, o = {}) => pills(k, Object.assign({ at: ROW, order: ROWKEYS }, o));
+  // Intro card (Figma «info-card-86''», v6): box as in Figma (visual position), square corner top left.
+  function icard(text, x, y, w, h) {
+    const c = add(mk('div', 'abs icard', text)); c.style.width = w + 'px'; c.style.minHeight = h + 'px'; at(c, x, y);
+    return c;
+  }
   // Feedback under the row of solutions (FB): the main bubble, and the second one beside it.
   function fbBubble(kind, h, p, k, main, cls, delay) {
     const f = FB[k];
@@ -694,7 +712,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   function restartTab() {
     const b = add(mk('button', 'abs rs', REDO + '<span>Restart</span>')); b.type = 'button';
     b.setAttribute('aria-label', 'Restart: volver al inicio del juego');
-    on(b, () => { S = fresh(); go('intro'); });
+    on(b, () => { S = fresh(); go(first()); });
     return b;
   }
 
@@ -754,7 +772,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       LANG = other(); close();
       hint.innerHTML = 'Idioma: <b>' + (LANG === 'ar' ? 'árabe' : 'inglés') + '</b>. En el prototipo los textos siguen en inglés (faltan los textos en árabe); el menú ofrecerá ahora <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b>.';
     });
-    on(rs, () => { close(); S = fresh(); go('intro'); });
+    on(rs, () => { close(); S = fresh(); go(first()); });
     return m;
   }
 
@@ -812,7 +830,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     no.addEventListener('click', ev => { ev.stopPropagation(); if (!locked(o)) close(); });
     yes.addEventListener('click', ev => {
       ev.stopPropagation(); if (locked(o)) return;
-      clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go('intro');
+      clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go(first());
     });
     try { no.focus({ preventScroll: true }); } catch (e) {}
     hint.innerHTML = '<b>Start again?</b> (variante accesible) <b>Yes</b> vuelve a la Intro; <b>No</b> o tocar fuera la cierra y sigue el juego. Se cierra sola, como «No», a los ' + T.confirm / 1000 + ' s sin tocar, y vuelve a contar la inactividad. Los 0,5 s primeros no acepta toques. Textos y tiempos provisionales, pendientes de contenido.';
@@ -859,7 +877,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 
   // ---------- what comes next from each screen (used by timers, taps and the forward button)
   const NEXT = {
-    idle: () => go('intro'),
+    idle: () => go(first()),
+    // 18/11 · Nueva interactividad: two intro screens that run by themselves (Figma «↳ 18/11 · v6»), then the puzzle.
+    introA: () => go('introB'),
+    introB: () => go('puzzle'),
     intro: () => go(START === 'map' ? 'mapIntro' : 'text'),
     text: () => go('puzzle'),
     puzzle: () => go(START === 'nueva' ? 'choose' : 'map'),
@@ -884,7 +905,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     done: () => go('recovery'),
     recovery: () => go('closing'),
     // 18/11 (Montse): «Play again» goes to the Intro (Start), like Restart, not to the idle screen.
-    closing: () => { S = fresh(); go('intro'); }
+    closing: () => { S = fresh(); go(first()); }
   };
 
   // ---------- screens
@@ -898,6 +919,26 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const sc = add(mk('div', 'abs scan', 'Scan your wristband or tap to start<br><span class="ar">مرّر سوارك أو المس للبدء</span>')); at(sc, 3654 - sc.offsetWidth, 1815);
       place(add(mk('div', 'rfid')), 3830, 1893, false);
       return { tap: NEXT.idle, hint: '<b>Toca la pantalla</b> para empezar (o pasa la pulsera).' };
+    },
+    // 18/11 · Nueva interactividad (Montse, Figma «↳ 18/11 · v6», «Start · 02 · Introduction [28]» 754:6637 → 6642 →
+    // 6649): first screen after the attract screen. The texts come out one by one, top to bottom; then on by itself.
+    introA() {
+      bg('before');
+      glow(1919, 960, 2600, 1500);
+      const t = add(mk('div', 'abs big', 'This mangrove forest needs help.')); t.style.width = '2200px'; place(t, 1919, 790, false); anim(t, 'a-fade', T.introA[0]);
+      anim(icard('Before restoring it, scientists must investigate what is causing the damage.', 1504, 888, 900, 486), 'a-rise', T.introA[1]);
+      anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', T.introA[2]);
+      auto(NEXT.introA, T.introA[3]);
+      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' };
+    },
+    // Second one (754:6665): also on its own, then the puzzle. It takes the place of the red placeholder text.
+    introB() {
+      bg('before');
+      glow(1986, 980, 2600, 1400);
+      const t = add(mk('div', 'abs big', 'Restoring a mangrove is like solving a mystery.')); t.style.width = '1400px'; place(t, 1986, 840, false); anim(t, 'a-fade', T.introB[0]);
+      anim(icard('Scientists study the ecosystem, identify the threats, and choose actions that help nature recover.', 1691, 1080, 1152, 366), 'a-rise', T.introB[1]);
+      auto(NEXT.introB, T.introB[2]);
+      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' };
     },
     intro() {
       bg('before');
@@ -1311,7 +1352,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     stage.replaceChildren();
     stillEl = null; menuOpen = false; cfEl = null;
     current = SCREENS[S.screen](S.p, S.k) || {};
-    if (!['idle', 'intro', 'closing'].includes(S.screen)) ({ visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuVisible)();
+    if (!['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) ({ visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuVisible)();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armStill();
@@ -1366,7 +1407,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     try { localStorage.setItem('pr-juego', START); } catch (e) {}
     paused = false;
     const NEW = ['choose', 'pick', 'nSel', 'nGreat', 'nFact', 'nRestore', 'nWrongTap', 'nWrongFb'], OLD = ['map', 'desc', 'question', 'sel', 'great', 'fact', 'wrongTap', 'wrongFb'];
-    if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'map' ? 'mapIntro' : 'text');
+    if (START === 'nueva' && ['intro', 'text', 'mapIntro'].includes(S.screen)) go('introA');
+    else if (START !== 'nueva' && ['introA', 'introB'].includes(S.screen)) go('intro');
+    else if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'map' ? 'mapIntro' : (START === 'nueva' ? 'puzzle' : 'text'));
     else if (START === 'nueva' && OLD.includes(S.screen)) go(allSolved() ? 'done' : 'choose');
     else if (START !== 'nueva' && NEW.includes(S.screen)) go('map');
     else render();
@@ -1379,7 +1422,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     else if (v === 'confirm') {
       // Solo existe en la variante accesible: si hay otra elegida, se cambia a esa.
       if (MENU !== 'visible') { MENU = menuMode.value = 'visible'; try { localStorage.setItem('pr-menu3', MENU); } catch (e) {} }
-      if (['idle', 'intro', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
+      if (['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
       confirmRestart();
     }
     else if (v === 'choose') {
@@ -1405,6 +1448,6 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   new ResizeObserver(fit).observe(viewport); fit();
 
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(render, render);
-  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'text', 'map', 'question', 'choose', 'pick'].includes(S.screen)) render(); });
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'introA', 'introB', 'text', 'map', 'question', 'choose', 'pick'].includes(S.screen)) render(); });
 })();
 </script>
