@@ -791,7 +791,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       add(mk('div', 'layer ph'));
       glow(3400, 1880, 950, 420).classList.add('tq');
       const ar = add(mk('div', 'abs ar idle-ar', 'أشجار القرم')); at(ar, 2866 - ar.offsetWidth, 870);
-      const en = add(mk('div', 'abs idle-en', 'Let’s help the mangroves')); place(en, 2013, 1201, false);
+      // 18/11 (Montse): attract text «Let’s restore mangroves» (was «Let’s help the mangroves»).
+      const en = add(mk('div', 'abs idle-en', 'Let’s restore mangroves')); place(en, 2013, 1201, false);
       const sc = add(mk('div', 'abs scan', 'Scan your wristband or tap to start<br><span class="ar">مرّر سوارك أو المس للبدء</span>')); at(sc, 3654 - sc.offsetWidth, 1815);
       place(add(mk('div', 'rfid')), 3830, 1893, false);
       return { tap: NEXT.idle, hint: '<b>Toca la pantalla</b> para empezar (o pasa la pulsera).' };
