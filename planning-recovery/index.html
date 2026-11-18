@@ -299,6 +299,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <!-- Variantes (Montse, 12/11): every version she wants to keep is chosen here, one select per aspect. -->
       <span class="ctl"><label for="menuMode">Variantes</label>
       <select id="menuMode" aria-label="Variantes: idioma y Restart">
+        <option value="solo">Restart · solo Restart, sin botón de idioma (18/11)</option>
         <option value="visible">Restart · idioma y Restart siempre visibles, accesible (18/11)</option>
         <option value="goo">Restart · bolita líquida con capa (12/11)</option>
         <option value="tab">Restart · botón (anterior)</option>
@@ -331,7 +332,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <option value="recovery">Recovery reveal</option>
         <option value="closing">Closing</option>
         <option value="still">Aviso «¿sigues ahí?»</option>
-        <option value="confirm">Confirmar Restart (variante accesible)</option>
+        <option value="confirm">Confirmar Restart «Start again?»</option>
       </select></span>
       <button id="restart" type="button">Reiniciar</button>
     </div>
@@ -441,8 +442,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // «tab» = the previous Restart button. The «dot with a menu» version was removed on 12/11.
   // 18/11: «visible» = opción A de accesibilidad (idioma y Restart siempre visibles, Restart con confirmación), la de por
   // defecto; clave nueva (pr-menu3) para que se vea aunque antes se eligiera otra.
-  let MENU = 'visible';
-  try { const m = localStorage.getItem('pr-menu3'); if (['visible', 'goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
+  // 18/11 (más tarde, Montse: «solo me pintas el botón de restart… sí, en todo»): «solo» = la opción A sin el botón de
+  // idioma: solo Restart, en el mismo sitio y con la misma confirmación. Es la de por defecto (clave nueva pr-menu4).
+  let MENU = 'solo';
+  try { const m = localStorage.getItem('pr-menu4'); if (['solo', 'visible', 'goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
   // Inicio (17/11): «puzzle» = after Start, the placeholder text and the puzzle, then the map with its title (default);
   // «map» = the previous start (the problems appear on the map by themselves).
   // 18/11 · «nueva» = nueva interactividad (Montse): the puzzle shows each problem's description as it is placed; then
@@ -862,7 +865,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const b = add(mk('div', 'abs bubble clue', '<h3>' + LENS + 'Clue</h3><p>' + CLUES[k] + '</p>'));
     const w = b.offsetWidth, h = b.offsetHeight, gap = 28;
     const bx = btn.offsetLeft, by = btn.offsetTop, bw = btn.offsetWidth, bh = btn.offsetHeight;
-    const boxes = avoid.concat([btn, nt]).map(e => [e.offsetLeft, e.offsetTop, e.offsetWidth, e.offsetHeight]).concat([MENU === 'visible' ? [0, 1480, 300, 640] : [0, 1700, 220, 200]]);
+    const boxes = avoid.concat([btn, nt]).map(e => [e.offsetLeft, e.offsetTop, e.offsetWidth, e.offsetHeight]).concat([MENU === 'visible' ? [0, 1480, 300, 640] : (MENU === 'solo' ? [0, 1800, 300, 320] : [0, 1700, 220, 200])]);
     const hit = (x, y) => boxes.reduce((s, [ex, ey, ew, eh]) => s + Math.max(0, Math.min(x + w, ex + ew) - Math.max(x, ex)) * Math.max(0, Math.min(y + h, ey + eh) - Math.max(y, ey)), 0);
     const low = by + bh / 2 > H / 2, east = bx + bw / 2 > W / 2;
     const vs = low ? ['up', 'down'] : ['down', 'up'], hs = east ? ['left', 'right'] : ['right', 'left'];
@@ -983,6 +986,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       LANG = other(); label(); lock(lang);
       hint.innerHTML = 'Idioma: <b>' + (LANG === 'ar' ? 'árabe' : 'inglés') + '</b>. En el prototipo los textos siguen en inglés (faltan los textos en árabe); el botón ofrece ahora <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b> y no cambia de esquina. En la pieza, el cambio se diría en voz alta en la nueva lengua (pendiente de sonido). Durante 0,5 s no acepta otro toque, para que un toque doble no lo devuelva.';
     });
+    on(rs, confirmRestart);
+  }
+  // 18/11 · «solo» (Montse): como la opción A pero sin el botón de idioma; Restart se queda donde estaba (abajo a la
+  // izquierda, 240 × 240 px) y pide confirmación.
+  const SOLO_INFO = 'Variante <b>solo Restart</b> (Montse, 18/11): sin botón de idioma. Restart siempre visible abajo a la izquierda, en el mismo sitio y con el mismo aspecto que en la opción A (240 × 240 px = 76 mm en la 55"; la guía pide ≥ 75 mm), sin parpadeo, y pide confirmación. <b>Pendiente:</b> cómo cambia de idioma el visitante sin botón en pantalla.';
+  function menuSolo() {
+    const rs = add(mk('button', 'abs av', REDO + '<span>Restart</span>')); rs.type = 'button'; at(rs, 0, 1840);
+    rs.setAttribute('aria-label', 'Restart: empezar de nuevo (pide confirmación)');
     on(rs, confirmRestart);
   }
   // «Start again?»: Yes vuelve a la Intro (como Restart); No, tocar fuera o 10 s sin tocar la cierran y sigue el juego.
@@ -1601,7 +1612,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     stage.replaceChildren();
     stillEl = null; menuOpen = false; cfEl = null;
     current = SCREENS[S.screen](S.p, S.k) || {};
-    if (!['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) ({ visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuVisible)();
+    if (!['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) ({ solo: menuSolo, visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuSolo)();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armStill();
@@ -1645,9 +1656,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   menuMode.value = MENU;
   menuMode.addEventListener('change', () => {
     MENU = menuMode.value;
-    try { localStorage.setItem('pr-menu3', MENU); } catch (e) {}
+    try { localStorage.setItem('pr-menu4', MENU); } catch (e) {}
     render();
     if (MENU === 'visible') hint.innerHTML = AV_INFO;
+    if (MENU === 'solo') hint.innerHTML = SOLO_INFO;
   });
   const fxMode = document.getElementById('fxMode');
   fxMode.value = FX;
@@ -1680,8 +1692,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     paused = false;
     if (v === 'still') { if (!WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) { if (allSolved()) S = fresh(); go('map'); } showStill(); }
     else if (v === 'confirm') {
-      // Solo existe en la variante accesible: si hay otra elegida, se cambia a esa.
-      if (MENU !== 'visible') { MENU = menuMode.value = 'visible'; try { localStorage.setItem('pr-menu3', MENU); } catch (e) {} }
+      // Solo existe en las variantes accesibles («solo» y «visible»): si hay otra elegida, se cambia a «solo».
+      if (!['solo', 'visible'].includes(MENU)) { MENU = menuMode.value = 'solo'; try { localStorage.setItem('pr-menu4', MENU); } catch (e) {} }
       if (['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
       confirmRestart();
     }
