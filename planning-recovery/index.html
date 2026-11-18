@@ -117,6 +117,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .cta { height: 172px; padding: 0 90px; border-radius: 90px 0 90px 90px; background: linear-gradient(180deg, #4b4b4b, #2e2e2e); color: #fff; font-weight: 700; font-size: 38px; white-space: nowrap; cursor: pointer; box-shadow: 0 16px 30px rgba(0,0,0,.25); }
 .bubble { box-sizing: border-box; text-align: center; border-radius: 120px; box-shadow: 0 22px 44px rgba(0,0,0,.2); pointer-events: none; }
 .desc.t-tr { border-radius: 110px 0 110px 110px; }
+/* 18/11 · Nueva interactividad (Montse's mock-up): the description shows above the name just placed in the puzzle,
+   its square corner (bottom left) over the name. */
+.desc.t-bl { border-radius: 110px 110px 110px 0; pointer-events: none; }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -234,9 +237,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <option value="goo">Restart · bolita líquida con capa (12/11)</option>
         <option value="tab">Restart · botón (anterior)</option>
       </select>
-      <select id="startMode" aria-label="Variantes: Inicio">
-        <option value="puzzle">Inicio · con puzzle (17/11)</option>
-        <option value="map">Inicio · anterior</option>
+      <select id="startMode" aria-label="Variantes: juego">
+        <option value="nueva">Juego · nueva interactividad (18/11)</option>
+        <option value="puzzle">Juego · inicio con puzzle (17/11)</option>
+        <option value="map">Juego · inicio anterior</option>
       </select></span>
       <span class="ctl"><label for="jump">Ir a</label>
       <select id="jump">
@@ -245,6 +249,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <option value="intro">Intro</option>
         <option value="text">Texto de prueba (con puzzle)</option>
         <option value="puzzle">Puzzle: colocar los problemas (con puzzle)</option>
+        <option value="choose">Elegir un problema (nueva interactividad)</option>
         <option value="map">Mapa de problemas</option>
         <option value="pressure">Human &amp; Livestock Pressure</option>
         <option value="pollution">Pollution</option>
@@ -287,7 +292,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000 };
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descRead: 5000 };
+  // descRead (18/11, nueva interactividad, provisional): after the last name lands, time to read its description before
+  // «Select a problem…» (a tap skips it).
   // capGap (18/11, provisional): time between the recovery bubbles (was 300 ms).
   // holdover y confirm (18/11, variante accesible, provisionales): durante 0,5 s después de aparecer, la confirmación de
   // Restart y el botón de idioma recién cambiado no aceptan toques (toques de arrastre: un segundo toque sin querer en el
@@ -360,11 +367,31 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   try { const m = localStorage.getItem('pr-menu3'); if (['visible', 'goo', 'tab'].includes(m)) MENU = m; } catch (e) {}
   // Inicio (17/11): «puzzle» = after Start, the placeholder text and the puzzle, then the map with its title (default);
   // «map» = the previous start (the problems appear on the map by themselves).
-  let START = 'puzzle';
-  try { const v = localStorage.getItem('pr-inicio'); if (['puzzle', 'map'].includes(v)) START = v; } catch (e) {}
+  // 18/11 · «nueva» = nueva interactividad (Montse): the puzzle shows each problem's description as it is placed; then
+  // «Select a problem…», the chosen one stays alone and the four solutions always come out in the same place, in one row.
+  // The rest (feedback, Clue, struck-through and used answers, closing) as before. Default; new key so it shows.
+  let START = 'nueva';
+  try { const v = localStorage.getItem('pr-juego'); if (['nueva', 'puzzle', 'map'].includes(v)) START = v; } catch (e) {}
 
   // Puzzle zones: a ring around each problem on the drawing (centres read off the drawing; the names land on P[k].label).
   const RING = { pollution: [3023, 748], pressure: [3460, 1400], blocked: [2560, 1830], coastal: [600, 1830] }, RR = 320;
+  // Nueva interactividad (18/11): the four solutions always in the same place, one row, in the order of Montse's mock-up.
+  const ROWKEYS = ['PS', 'PRZ', 'RWF', 'CTS'];
+  const ROW = (() => {
+    const w = { PS: 583, PRZ: 562, RWF: 633, CTS: 477 }, gap = 50, cy = 1160, o = {};
+    let x = 1900 - (ROWKEYS.reduce((s, k) => s + w[k], 0) + gap * 3) / 2;
+    for (const k of ROWKEYS) { o[k] = [Math.round(x), cy - 87, w[k]]; x += w[k] + gap; }
+    return o;
+  })();
+  // Where the feedback goes under the row (provisional; pollution as in Montse's mock-up). x, y: corner of the main bubble
+  // (a: which side x is), tail: its square corner, towards the problem; fact: side of the second bubble, ftail its corner.
+  // clue: where the Clue button goes next to the chosen name.
+  const FB = {
+    pollution: { x: 1880, y: 1470, a: 'left', tail: 'tr', fact: 'right', ftail: 'tl', clue: 'right' },
+    pressure:  { x: 2700, y: 1330, a: 'right', tail: 'tr', fact: 'left', ftail: 'tr', clue: 'below' },
+    blocked:   { x: 2480, y: 1300, a: 'left', tail: 'bl', fact: 'left', ftail: 'br', clue: 'below' },
+    coastal:   { x: 1260, y: 1400, a: 'left', tail: 'bl', fact: 'right', ftail: 'bl', clue: 'below' }
+  };
   // Sounds, made in the browser (provisional): a low double buzz for a mistake, a short rising chime for a match.
   let AC = null;
   function audio() {
@@ -448,6 +475,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       if (mode === 'intro') anim(b, 'a-pop', 100 + i * T.gap);
       if (mode === 'map' && !solved) { b.classList.add('lit', 'call'); on(b, () => go('desc', k)); }
       if (mode === 'dim') { b.classList.add('dim'); if (!solved) on(b, () => go('desc', k)); }
+      // Nueva interactividad: «choose» = pick one (the unsolved ones glow); «gone» = the others leave once one is chosen.
+      if (mode === 'choose' && !solved) { b.classList.add('lit', 'call'); on(b, () => go('pick', k, 'enter')); }
+      if (mode === 'gone') { b.tabIndex = -1; b.classList.add('a-out'); }
       out.push(b);
     });
     return out;
@@ -467,9 +497,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   function pills(k, o = {}) {
     const d = P[k], out = {};
-    for (const key of Object.keys(PILLS)) {
-      if (o.only && key !== o.only) continue;
-      const [x, y, w] = d.pills[key];
+    // o.at / o.order: other positions and order (nueva interactividad: the fixed row); o.pop: they come out one by one.
+    (o.order || Object.keys(PILLS)).forEach((key, i) => {
+      if (o.only && key !== o.only) return;
+      const [x, y, w] = (o.at || d.pills)[key];
       // 12/11: «used» = the right answer of another problem already solved (grey + check);
       // «tried» = a wrong answer already tried on this problem (struck through). Both are disabled.
       const isUsed = used(k, key) && key !== o.wrong;
@@ -487,8 +518,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       if (o.dim) b.style.opacity = .3;
       if (o.click && !off) { b.classList.add('call'); on(b, () => o.click(key)); }
       if (!o.click) b.tabIndex = -1;
+      if (o.pop) anim(b, 'a-pop', 250 + i * T.gap);
       out[key] = b;
-    }
+    });
     return out;
   }
   // Feedback bubble next to its problem zone: the square corner (the tail) faces the zone.
@@ -523,6 +555,40 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     else nearZone(b, where.k, where.slot);
     return anim(b, cls, delay);
   }
+  // ---------- nueva interactividad (18/11)
+  // Title once the puzzle is complete; it stays while a problem is chosen (Montse's mock-up). Translation provisional.
+  function chooseTitle(animate) {
+    glow(1800, 330, 2300, 720);
+    const t = add(mk('div', 'abs big', 'Select a problem to apply the best solution.')); place(t, 1800, 310, false);
+    if (animate) anim(t, 'a-fade', 150);
+    return t;
+  }
+  // The chosen problem, alone at its place on the map, glowing. Tapping it goes back to choosing (as the name tag went
+  // back to the description before).
+  function chosen(k, interactive = true) {
+    const d = P[k];
+    const b = add(mk(interactive ? 'button' : 'div', 'abs label call' + (d.wide ? ' wide' : ''), d.name));
+    place(b, d.label[0], d.label[1], false);
+    if (interactive) { b.type = 'button'; b.setAttribute('aria-label', d.name + ': volver a elegir problema'); on(b, () => go('choose')); }
+    else b.style.cursor = 'default';
+    return b;
+  }
+  const row = (k, o = {}) => pills(k, Object.assign({ at: ROW, order: ROWKEYS }, o));
+  // Feedback under the row of solutions (FB): the main bubble, and the second one beside it.
+  function fbBubble(kind, h, p, k, main, cls, delay) {
+    const f = FB[k];
+    const b = add(mk('div', 'abs bubble ' + kind, (h ? '<h3>' + h + '</h3>' : '') + '<p>' + p + '</p>'));
+    const w = b.offsetWidth;
+    let x, y, tail;
+    if (!main) { x = f.a === 'right' ? f.x - w : f.x; y = f.y; tail = f.tail; }
+    else { x = f.fact === 'right' ? main.offsetLeft + main.offsetWidth + 48 : main.offsetLeft - 48 - w; y = main.offsetTop; tail = f.ftail; }
+    x = Math.max(40, Math.min(W - 40 - w, x));
+    b.classList.add('t-' + tail);
+    b.style.transformOrigin = (tail[1] === 'r' ? '100%' : '0') + ' ' + (tail[0] === 'b' ? '100%' : '0');
+    at(b, Math.round(x), Math.round(y));
+    return anim(b, cls, delay);
+  }
+
   const closingText = () => {
     glow(1919, 1020, 1900, 1250);
     const t = add(mk('div', 'abs big', 'Finding the problem is the first step to helping nature recover.')); place(t, 1919, 800, false);
@@ -536,11 +602,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // Clue (12/11): after the first wrong answer on a problem, a «Clue» button shows under the problem name, by the zone.
   // Tapping it opens the clue in a bubble that comes out of the button, and the magnifier turns into an X (Montse, 12/11).
   // Tapping the X (the same button) or anywhere outside the bubble closes it and the magnifier comes back.
-  function clue(k, nt, avoid) {
+  function clue(k, nt, avoid, where) {
     const b = add(mk('button', 'abs cluebtn call', '<span class="ic">' + LENS + '</span><span>Clue</span>')); b.type = 'button';
     const ic = b.querySelector('.ic');
     b.setAttribute('aria-label', 'Clue: ver la pista'); b.setAttribute('aria-expanded', 'false');
-    place(b, P[k].halo[0], nt.offsetTop + nt.offsetHeight + 40 + b.offsetHeight / 2);
+    if (where) where(b); // nueva interactividad: next to the chosen name, clear of the row of solutions
+    else place(b, P[k].halo[0], nt.offsetTop + nt.offsetHeight + 40 + b.offsetHeight / 2);
     anim(b, 'a-pop');
     const icon = svg => { ic.classList.remove('a-spin'); ic.innerHTML = svg; void ic.offsetWidth; ic.classList.add('a-spin'); };
     let bub = null;
@@ -727,7 +794,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
 
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
-  const WAITS = ['map', 'desc', 'question', 'puzzle'];
+  const WAITS = ['map', 'desc', 'question', 'puzzle', 'choose', 'pick'];
   let stillTimer = null, stillEl = null;
   let menuOpen = false; // the dot's overlay is open: the inactivity notice does not show (Montse, 12/11)
   function armStill() {
@@ -735,7 +802,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     if (stillEl || menuOpen || !WAITS.includes(S.screen) || (S.screen === 'map' && allSolved())) return;
     // 12/11: it also shows while paused (after Back / Forward); the pause only stops screens that advance on their own.
     // 17/11: the puzzle also gets the longer time (reading and thinking).
-    stillTimer = setTimeout(showStill, ['question', 'puzzle'].includes(S.screen) ? T.stillQ : T.still);
+    // 18/11: in the nueva interactividad, choosing a problem counts as the map (20 s) and the solutions as the question (30 s).
+    stillTimer = setTimeout(showStill, ['question', 'puzzle', 'pick'].includes(S.screen) ? T.stillQ : T.still);
   }
   function showStill() {
     clearTimeout(stillTimer); stillTimer = null;
@@ -767,9 +835,17 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // ---------- what comes next from each screen (used by timers, taps and the forward button)
   const NEXT = {
     idle: () => go('intro'),
-    intro: () => go(START === 'puzzle' ? 'text' : 'mapIntro'),
+    intro: () => go(START === 'map' ? 'mapIntro' : 'text'),
     text: () => go('puzzle'),
-    puzzle: () => go('map'),
+    puzzle: () => go(START === 'nueva' ? 'choose' : 'map'),
+    // nueva interactividad (18/11)
+    choose: () => { const k = ORDER.find(x => !S.solved.has(x)); k ? go('pick', k, 'enter') : go('done'); },
+    pick: k => { const w = ROWKEYS.find(x => x !== P[k].correct && !S.off[k].has(x) && !used(k, x)); w ? go('nWrongTap', k, w) : go('nSel', k); },
+    nSel: k => go('nGreat', k),
+    nGreat: k => go('nFact', k),
+    nFact: k => { S.solved.add(k); go(allSolved() ? 'done' : 'choose'); },
+    nWrongTap: (k, key) => go('nWrongFb', k, key),
+    nWrongFb: (k, key) => { S.off[k].add(key); go('pick', k); },
     mapIntro: () => go('map'),
     map: () => { const k = ORDER.find(x => !S.solved.has(x)); k ? go('desc', k) : go('done'); },
     desc: k => go('question', k),
@@ -887,6 +963,21 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         }
         return best;
       }
+      // Nueva interactividad: the description above the placed name, its square corner (bottom left) over the name.
+      const descs = [];
+      let leaving = false;
+      function describe(k, b) {
+        const d = P[k], c = add(mk('div', 'abs desc t-bl', d.desc.t)); c.style.width = d.desc.w + 'px';
+        const top = P[k].label[1] - b.offsetHeight / 2;
+        at(c, Math.round(Math.min(W - 40 - c.offsetWidth, P[k].label[0] - b.offsetWidth / 2 + 120)), Math.round(top - 20 - c.offsetHeight));
+        c.style.transformOrigin = '0 100%';
+        descs.push(anim(c, 'a-rise'));
+      }
+      function toChoose() {
+        if (leaving) return; leaving = true;
+        [t, s, sm, ...descs].forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); });
+        later(NEXT.puzzle, 450);
+      }
       function pick(key) {
         if (sel) L[sel].classList.remove('picked');
         sel = key;
@@ -903,7 +994,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           sound('ok');
           // 17/11 (Montse): once the name is in place, its ring goes and a little turquoise stays on the zone.
           const r = rings[k]; r.disabled = true; r.tabIndex = -1; r.classList.remove('a-pop', 'over'); r.style.animationDelay = ''; r.classList.add('got');
-          if (!free.size) auto(NEXT.puzzle, T.puzzleDone);
+          // 18/11 · Nueva interactividad (Montse): its description comes out above the name once it lands, and stays.
+          if (START === 'nueva') later(() => describe(k, b), 220);
+          if (!free.size) {
+            if (START === 'nueva') {
+              // Time to read the last description, then «Select a problem…» (a tap skips the wait).
+              auto(toChoose, T.descRead);
+              current.tap = () => { toChoose(); return true; }; stage.classList.add('tap');
+            } else auto(NEXT.puzzle, T.puzzleDone);
+          }
         } else {
           sound('ko');
           glide(b, ...home[key]);
@@ -948,7 +1047,80 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto. Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> al acertar sale encima su descripción y se queda; con los cuatro colocados, ' + T.descRead / 1000 + ' s para leer (o toca la pantalla) y pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+    },
+    // ---------- 18/11 · Nueva interactividad (Montse)
+    // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
+    choose() {
+      bg('before'); zones();
+      chooseTitle(true);
+      labels('choose');
+      return { hint: '<b>Elige un problema</b> para buscarle la solución. Los resueltos salen en gris con un check. Título: traducción provisional de «Selecciona un problema para aplicar la mejor solución».' };
+    },
+    // The chosen problem stays alone (the others leave) and the four solutions come out in the same row as always.
+    pick(k, enter) {
+      bg('before'); zones(k); halo(k);
+      const qt = chooseTitle(false);
+      if (enter) labels('gone', k);
+      const nt = chosen(k);
+      const ps = row(k, { pop: !!enter, click: key => key === P[k].correct ? go('nSel', k) : go('nWrongTap', k, key) });
+      if (S.off[k].size) clue(k, nt, [qt, ...Object.values(ps)], b => {
+        if (FB[k].clue === 'right') at(b, nt.offsetLeft + nt.offsetWidth + 40, Math.round(nt.offsetTop + (nt.offsetHeight - b.offsetHeight) / 2));
+        else place(b, P[k].label[0], nt.offsetTop + nt.offsetHeight + 40 + b.offsetHeight / 2);
+      });
+      return { hint: '<b>Elige una solución.</b> Salen siempre en el mismo sitio. Las que ya fallaste aquí salen tachadas; las que ya resolvieron otro problema, en gris con un check. Tras el primer fallo sale <b>Clue</b> junto al problema. Toca el nombre del problema para volver a elegir (propuesta, sin confirmar).' };
+    },
+    nSel(k) {
+      bg('before'); zones(k); halo(k);
+      chooseTitle(false); chosen(k, false);
+      row(k, { sel: P[k].correct, fadeOthers: true });
+      auto(() => NEXT.nSel(k), T.toFeedback);
+      return { tap: () => NEXT.nSel(k), hint: 'Acierto: el mensaje aparece solo.' };
+    },
+    nGreat(k) {
+      const d = P[k];
+      bg('before'); zones(k); halo(k);
+      chooseTitle(false); chosen(k, false);
+      // The other answers leave as the message arrives (as before); the title stays.
+      const ps = row(k, { sel: d.correct, fadeOthers: true });
+      Object.keys(ps).filter(key => key !== d.correct).forEach(key => ps[key].classList.add('a-out'));
+      fbBubble('great', d.right.h, d.right.p, k, null, 'a-rise');
+      auto(() => NEXT.nGreat(k), T.second);
+      return { tap: () => NEXT.nGreat(k), hint: 'El segundo mensaje y la zona restaurada salen casi a la vez.' };
+    },
+    nFact(k) {
+      const d = P[k];
+      bg('before'); zones(k); zone(k, 1, 'a-slow'); halo(k);
+      chooseTitle(false); chosen(k, false);
+      row(k, { only: d.correct, sel: d.correct });
+      const g = fbBubble('great', d.right.h, d.right.p, k);
+      const f = fbBubble('fact', null, d.right.f, k, g, 'a-rise', 100);
+      let leaving = false;
+      const finish = () => {
+        if (leaving) return; leaving = true;
+        g.classList.add('a-out'); later(() => f.classList.add('a-out'), 260); later(() => NEXT.nFact(k), 620);
+      };
+      auto(finish, T.readRight);
+      return { tap: () => { finish(); return true; }, hint: 'La zona se restaura y vuelve sola a elegir problema (o <b>toca la pantalla</b>).' };
+    },
+    nWrongTap(k, key) {
+      bg('before'); zones(k); halo(k);
+      chooseTitle(false); chosen(k, false);
+      row(k, { wrong: key, shake: true });
+      auto(() => NEXT.nWrongTap(k, key), T.toFeedback);
+      return { tap: () => NEXT.nWrongTap(k, key), hint: 'Fallo: el porqué aparece solo.' };
+    },
+    // As in Montse's mock-up: the title, the problem and the solutions stay; the feedback comes out under the row.
+    nWrongFb(k, key) {
+      const d = P[k], w = d.wrong[key];
+      bg('before'); zones(k); halo(k);
+      chooseTitle(false); chosen(k, false);
+      row(k, { wrong: key });
+      const m = fbBubble('wrong', w.h, w.p, k, null, 'a-rise');
+      later(() => fbBubble('fact', null, w.f, k, m, 'a-rise'), T.second);
+      auto(() => NEXT.nWrongFb(k, key), T.second + T.readWrong);
+      return { tap: () => NEXT.nWrongFb(k, key),
+               hint: 'El segundo mensaje sale casi a la vez y a los 5 s vuelve sola a las soluciones, con esa opción tachada y desactivada.' + (w.note ? ' <b>Pendiente:</b> ' + w.note : '') };
     },
     map() {
       bg('before'); zones();
@@ -1127,9 +1299,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   startMode.value = START;
   startMode.addEventListener('change', () => {
     START = startMode.value;
-    try { localStorage.setItem('pr-inicio', START); } catch (e) {}
+    try { localStorage.setItem('pr-juego', START); } catch (e) {}
     paused = false;
-    if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'puzzle' ? 'text' : 'mapIntro');
+    const NEW = ['choose', 'pick', 'nSel', 'nGreat', 'nFact', 'nWrongTap', 'nWrongFb'], OLD = ['map', 'desc', 'question', 'sel', 'great', 'fact', 'wrongTap', 'wrongFb'];
+    if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'map' ? 'mapIntro' : 'text');
+    else if (START === 'nueva' && OLD.includes(S.screen)) go(allSolved() ? 'done' : 'choose');
+    else if (START !== 'nueva' && NEW.includes(S.screen)) go('map');
     else render();
   });
   document.getElementById('jump').addEventListener('change', e => {
@@ -1143,7 +1318,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       if (['idle', 'intro', 'closing'].includes(S.screen)) { S = fresh(); go('map'); } else render();
       confirmRestart();
     }
-    else if (P[v]) { S.solved.delete(v); S.off[v].clear(); S.clue.delete(v); go('desc', v); }
+    else if (v === 'choose') {
+      // Solo existe en la nueva interactividad: si hay otra elegida, se cambia a esa.
+      if (START !== 'nueva') { START = startMode.value = 'nueva'; try { localStorage.setItem('pr-juego', START); } catch (e) {} }
+      if (allSolved()) S = fresh();
+      go('choose');
+    }
+    else if (P[v]) { S.solved.delete(v); S.off[v].clear(); S.clue.delete(v); START === 'nueva' ? go('pick', v, 'enter') : go('desc', v); }
     else if (['done', 'recovery', 'closing'].includes(v)) { ORDER.forEach(k => S.solved.add(k)); go(v); }
     else go(v);
   });
@@ -1160,6 +1341,6 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   new ResizeObserver(fit).observe(viewport); fit();
 
   (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(render, render);
-  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'text', 'map', 'question'].includes(S.screen)) render(); });
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'text', 'map', 'question', 'choose', 'pick'].includes(S.screen)) render(); });
 })();
 </script>
