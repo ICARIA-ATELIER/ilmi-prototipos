@@ -120,6 +120,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 /* 18/11 · Nueva interactividad (Montse's mock-up): the description shows above the name just placed in the puzzle,
    its square corner (bottom left) over the name. */
 .desc.t-bl { border-radius: 110px 110px 110px 0; pointer-events: none; }
+/* 18/11 (later, Montse): after a right answer, a moment with a circle on the zone, where it is seen being restored
+   (the restored drawing spreads out from the centre). Look and timings provisional. */
+.rcircle { position: absolute; border-radius: 50%; box-sizing: border-box; border: 10px solid #12a39c; pointer-events: none;
+  box-shadow: 0 0 46px 12px rgba(51,241,232,.6), inset 0 0 46px 12px rgba(51,241,232,.35); }
+.rcircle.on { animation: pop .5s cubic-bezier(.2,.9,.3,1) both, rpulse 1.6s ease-in-out .5s infinite; }
+@keyframes rpulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.035); } }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -292,7 +298,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 12/11: elements appear almost together, only slightly staggered (gap). Reading times and inactivity unchanged.
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
-  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000 };
+  const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500 };
+  // restore / restoreHold (18/11, nueva interactividad, provisional): after a right answer, how long the zone takes to
+  // be restored inside its circle, and how long it stays before going back to choosing a problem.
   // descShow (18/11, nueva interactividad, provisional): how long a problem's description stays after its name lands in
   // the puzzle; then it goes and the next name can be taken (a tap on the drawing takes it away sooner).
   // capGap (18/11, provisional): time between the recovery bubbles (was 300 ms).
@@ -460,6 +468,23 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   function zone(k, opacity, cls) { const c = P[k].zc || P[k].halo; const z = mk('div', 'zone'); z.style.setProperty('--cx', c[0] + 'px'); z.style.setProperty('--cy', c[1] + 'px'); z.style.opacity = opacity; return anim(add(z), cls); }
   function halo(k) { return place(add(mk('div', 'halo')), P[k].halo[0], P[k].halo[1], false); }
+  // Nueva interactividad (18/11): the restored drawing spreads out from the centre of the zone (radius 0 → 593 px).
+  function revealZone(k, ms, before) {
+    const c = P[k].zc || P[k].halo, z = mk('div', 'zone');
+    stage.insertBefore(z, before || null);
+    const set = r => { const m = `radial-gradient(circle ${Math.max(1, r)}px at ${c[0]}px ${c[1]}px, #000 68%, transparent 100%)`; z.style.webkitMaskImage = m; z.style.maskImage = m; };
+    if (calm.matches) { set(593); return z; }
+    set(1);
+    const t0 = performance.now();
+    const step = now => {
+      if (!z.isConnected) return;
+      const p = Math.min(1, (now - t0) / ms), e = 1 - Math.pow(1 - p, 3);
+      set(593 * e);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    return z;
+  }
   function glow(cx, cy, w, h) { const g = add(mk('div', 'glow')); g.style.width = w + 'px'; g.style.height = h + 'px'; return place(g, cx, cy, false); }
 
   function labels(mode, current) {
@@ -843,7 +868,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     pick: k => { const w = ROWKEYS.find(x => x !== P[k].correct && !S.off[k].has(x) && !used(k, x)); w ? go('nWrongTap', k, w) : go('nSel', k); },
     nSel: k => go('nGreat', k),
     nGreat: k => go('nFact', k),
-    nFact: k => { S.solved.add(k); go(allSolved() ? 'done' : 'choose'); },
+    nFact: k => go('nRestore', k),
+    nRestore: k => { S.solved.add(k); go(allSolved() ? 'done' : 'choose'); },
     nWrongTap: (k, key) => go('nWrongFb', k, key),
     nWrongFb: (k, key) => { S.off[k].add(key); go('pick', k); },
     mapIntro: () => go('map'),
@@ -1103,20 +1129,41 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       auto(() => NEXT.nGreat(k), T.second);
       return { tap: () => NEXT.nGreat(k), hint: 'El segundo mensaje y la zona restaurada salen casi a la vez.' };
     },
+    // 18/11 (later, Montse): the zone is no longer restored here, but in its own moment right after (nRestore).
     nFact(k) {
       const d = P[k];
-      bg('before'); zones(k); zone(k, 1, 'a-slow'); halo(k);
-      chooseTitle(false); chosen(k, false);
-      row(k, { only: d.correct, sel: d.correct });
+      bg('before'); zones(k); halo(k);
+      const qt = chooseTitle(false); chosen(k, false);
+      const ps = row(k, { only: d.correct, sel: d.correct });
       const g = fbBubble('great', d.right.h, d.right.p, k);
       const f = fbBubble('fact', null, d.right.f, k, g, 'a-rise', 100);
       let leaving = false;
       const finish = () => {
         if (leaving) return; leaving = true;
-        g.classList.add('a-out'); later(() => f.classList.add('a-out'), 260); later(() => NEXT.nFact(k), 620);
+        g.classList.add('a-out'); later(() => f.classList.add('a-out'), 260);
+        // The title, the answer and the halo go too, so the next moment shows only the zone.
+        [qt, ...Object.values(ps), ...stage.querySelectorAll('.glow, .halo')].forEach(e => e.classList.add('a-out'));
+        later(() => NEXT.nFact(k), 620);
       };
       auto(finish, T.readRight);
-      return { tap: () => { finish(); return true; }, hint: 'La zona se restaura y vuelve sola a elegir problema (o <b>toca la pantalla</b>).' };
+      return { tap: () => { finish(); return true; }, hint: 'Los mensajes se quedan unos segundos y después la zona se restaura (o <b>toca la pantalla</b>).' };
+    },
+    // 18/11 (later, Montse): a moment with a circle on the zone, where the drawing is seen changing to restored;
+    // then back to choosing a problem.
+    nRestore(k) {
+      const d = P[k], c = d.zc || d.halo, R = 430;
+      bg('before'); zones(k);
+      const ring = add(mk('div', 'rcircle')); ring.style.width = ring.style.height = 2 * R + 'px'; place(ring, c[0], c[1], false); ring.classList.add('on');
+      const nt = chosen(k, false); nt.classList.remove('call');
+      later(() => revealZone(k, T.restore, ring), 300);
+      let leaving = false;
+      const finish = () => {
+        if (leaving) return; leaving = true;
+        ring.classList.remove('on'); ring.classList.add('a-out');
+        later(() => NEXT.nRestore(k), 400);
+      };
+      auto(finish, 300 + T.restore + T.restoreHold);
+      return { tap: () => { finish(); return true; }, hint: 'La zona se restaura dentro del círculo (en la pieza, aquí se vería la animación) y vuelve sola a elegir problema (o <b>toca la pantalla</b>). Aspecto y tiempos provisionales.' };
     },
     nWrongTap(k, key) {
       bg('before'); zones(k); halo(k);
@@ -1125,12 +1172,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       auto(() => NEXT.nWrongTap(k, key), T.toFeedback);
       return { tap: () => NEXT.nWrongTap(k, key), hint: 'Fallo: el porqué aparece solo.' };
     },
-    // As in Montse's mock-up: the title, the problem and the solutions stay; the feedback comes out under the row.
+    // The title, the problem and the chosen answer stay; the feedback comes out under the row.
+    // 18/11 (later, Montse): with the feedback, the answers not chosen are hidden.
     nWrongFb(k, key) {
       const d = P[k], w = d.wrong[key];
       bg('before'); zones(k); halo(k);
       chooseTitle(false); chosen(k, false);
-      row(k, { wrong: key });
+      const ps = row(k, { wrong: key });
+      Object.keys(ps).filter(x => x !== key).forEach(x => ps[x].classList.add('a-out'));
       const m = fbBubble('wrong', w.h, w.p, k, null, 'a-rise');
       later(() => fbBubble('fact', null, w.f, k, m, 'a-rise'), T.second);
       auto(() => NEXT.nWrongFb(k, key), T.second + T.readWrong);
@@ -1316,7 +1365,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     START = startMode.value;
     try { localStorage.setItem('pr-juego', START); } catch (e) {}
     paused = false;
-    const NEW = ['choose', 'pick', 'nSel', 'nGreat', 'nFact', 'nWrongTap', 'nWrongFb'], OLD = ['map', 'desc', 'question', 'sel', 'great', 'fact', 'wrongTap', 'wrongFb'];
+    const NEW = ['choose', 'pick', 'nSel', 'nGreat', 'nFact', 'nRestore', 'nWrongTap', 'nWrongFb'], OLD = ['map', 'desc', 'question', 'sel', 'great', 'fact', 'wrongTap', 'wrongFb'];
     if (['text', 'puzzle', 'mapIntro'].includes(S.screen)) go(START === 'map' ? 'mapIntro' : 'text');
     else if (START === 'nueva' && OLD.includes(S.screen)) go(allSolved() ? 'done' : 'choose');
     else if (START !== 'nueva' && NEW.includes(S.screen)) go('map');
