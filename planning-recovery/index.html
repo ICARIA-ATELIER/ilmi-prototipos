@@ -173,6 +173,19 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 /* 18/11 · Nueva interactividad (Figma v6, «Puzzle · 02»): the square corner of each name points to its zone. */
 .label.k-tr { border-radius: 90px 0 90px 90px; } .label.k-tl { border-radius: 0 90px 90px 90px; }
 .label.k-br { border-radius: 90px 90px 0 90px; } .label.k-bl { border-radius: 90px 90px 90px 0; }
+/* 18/11 (Montse, final) · Pill size from Figma v6 754:9528, the reference for every screen of the variant: Pressure
+   711 × 203, the others 156 high and as wide as in Figma; padding 37 / 83, radius 104, shadow 0 7 14; text set per pill
+   in v6size() (ilmi 74 / 63 → Roboto 62 / 55, so each name fits its Figma width). Turquoise glow as in Figma: 31 px
+   around, blur 43, 60 %. */
+.label.v6 { padding: 37px 83px; box-shadow: 0 7px 14px rgba(0,0,0,.28); }
+.label.v6.k-tr { border-radius: 104px 0 104px 104px; } .label.v6.k-tl { border-radius: 0 104px 104px 104px; }
+.label.v6.k-br { border-radius: 104px 104px 0 104px; } .label.v6.k-bl { border-radius: 104px 104px 104px 0; }
+.label.v6.solved { padding: 37px 83px; }
+.label.v6.call::after { --glow-blur: 43px; --glow-spread: 31px; opacity: .65; }
+/* 18/11 (Montse): in the puzzle, a name already placed is lighter and less visible than the ones still to place
+   (after its description has gone). Proposal. */
+.label.v6.done { background: linear-gradient(180deg, #d9d9d9, #c6c6c6); color: #444; box-shadow: 0 4px 10px rgba(0,0,0,.12); opacity: .8;
+  transition: opacity .35s ease, background .35s ease, color .35s ease; }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -443,6 +456,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 18/11 · Nueva interactividad (Figma v6): each name has its square corner towards its zone.
   const TAIL = { pressure: 'tr', pollution: 'tl', blocked: 'br', coastal: 'bl' };
   const tailCls = k => (START === 'nueva' ? ' k-' + TAIL[k] : '');
+  // 18/11 (Montse, final): size of each pill in the variant, from Figma v6 754:9528 — [width, min height, text px, line px].
+  const V6 = { pressure: [711, 203, 62, 60], pollution: [394, 156, 55, 60], blocked: [492, 156, 55, 60], coastal: [562, 156, 55, 60] };
+  function v6size(b, k) {
+    if (START !== 'nueva') return b;
+    const [w, h, fs, lh] = V6[k]; b.classList.add('v6');
+    b.style.width = w + 'px'; b.style.maxWidth = 'none'; b.style.minHeight = h + 'px';
+    if (!b.classList.contains('solved')) { b.style.fontSize = fs + 'px'; b.style.lineHeight = lh + 'px'; }
+    return b;
+  }
   // Fondo (18/11): «mov» = small movement in the drawing behind the intro texts (default); «quieto» = still, as before.
   let FX = 'mov';
   try { const v = localStorage.getItem('pr-fondo'); if (['mov', 'quieto'].includes(v)) FX = v; } catch (e) {}
@@ -560,7 +582,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const d = P[k], solved = S.solved.has(k);
       const b = mk('button', 'abs label' + (solved ? ' solved' : '') + (d.wide ? ' wide' : '') + tailCls(k), (solved ? OK : '') + d.name);
       b.type = 'button';
-      add(b); place(b, d.label[0], d.label[1], false);
+      add(v6size(b, k)); place(b, d.label[0], d.label[1], false);
       if (solved) { b.tabIndex = -1; b.setAttribute('aria-label', d.name + ', resuelto'); }
       if (mode === 'intro' || mode === 'end') b.tabIndex = -1;
       if (mode === 'intro') anim(b, 'a-pop', 100 + i * T.gap);
@@ -659,7 +681,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   function chosen(k, interactive = true) {
     const d = P[k];
     const b = add(mk(interactive ? 'button' : 'div', 'abs label call' + (d.wide ? ' wide' : '') + tailCls(k), d.name));
-    place(b, d.label[0], d.label[1], false);
+    v6size(b, k); place(b, d.label[0], d.label[1], false);
     if (interactive) { b.type = 'button'; b.setAttribute('aria-label', d.name + ': volver a elegir problema'); on(b, () => go('choose')); }
     else b.style.cursor = 'default';
     return b;
@@ -1138,7 +1160,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       if (NUEVA) {
         // 18/11 · New composition (Montse, Figma «↳ 18/11 · v6», «Puzzle · 02 · Start» 754:9528): title, «Tap and drag»
         // under it (red in Figma) and the four names in one row.
-        t = add(mk('div', 'abs big', 'Identify the challenges')); t.style.width = '2000px'; place(t, 1947, 806, false); anim(t, 'a-fade');
+        // 18/11 (Montse, final): title at 84 px (Roboto Bold 83.72 / 82.3 in Figma), centred on its Figma box.
+        t = add(mk('div', 'abs big', 'Identify the challenges')); t.style.width = '2000px'; t.style.fontSize = '83.72px'; t.style.lineHeight = '82.3px';
+        place(t, 1920, 832, false); anim(t, 'a-fade');
         s = add(mk('div', 'abs sub', 'Tap and drag')); s.style.color = '#fb1d1d'; place(s, 1947, 942, false); anim(s, 'a-fade', 120);
       } else {
         t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
@@ -1157,19 +1181,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       });
       // Fixed width, so a name doesn't shrink when dragged near the screen edge (and lands exactly on its map spot).
       // (+2 px: offsetWidth rounds down sub-pixel widths, which would wrap a one-line name.)
-      ORDER.forEach(k => { L[k].style.width = (L[k].offsetWidth + 2) + 'px'; });
+      if (NUEVA) ORDER.forEach(k => v6size(L[k], k)); // Figma size of the pills (18/11)
+      else ORDER.forEach(k => { L[k].style.width = (L[k].offsetWidth + 2) + 'px'; });
       const settle = b => b.addEventListener('animationend', () => { b.classList.remove('a-pop', 'a-shake'); b.style.animationDelay = ''; });
       if (NUEVA) {
-        // 18/11 (Montse): final height, 80 px higher than the first version (middle at y 1184 instead of 1264), so the row
-        // no longer runs into one of the problem positions.
-        // One row, centred like the row in Figma (x 606–3185, middle at y 1184), 70 px between names (provisional:
-        // Roboto is wider than ilmi, so the gaps are evened out instead of copied).
-        // The row ends where it ends in Figma (x 3185), clear of the Pressure circle; Roboto names are wider than ilmi, so
-        // it starts a little further left than in Figma.
-        const g = 60, total = ORDER.reduce((a, k) => a + L[k].offsetWidth, 0) + g * (ORDER.length - 1);
-        let x = Math.round(3185 - total);
+        // 18/11 (Montse, final): the pills have the Figma size (V6), so they go exactly where they are in Figma
+        // (754:9528, corrected so the row doesn't run into one of the problem positions).
+        const FIG = { pressure: [720, 1099], pollution: [1533, 1124], blocked: [1994, 1119], coastal: [2546, 1119] };
         ORDER.forEach((k, i) => {
-          const b = L[k]; home[k] = [x, Math.round(1184 - b.offsetHeight / 2)]; x += b.offsetWidth + g;
+          const b = L[k]; home[k] = FIG[k];
           at(b, ...home[k]); anim(b, 'a-pop', 350 + i * T.gap); settle(b);
         });
       }
@@ -1231,8 +1251,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       // 18/11 (later, Montse): the description shows for T.descShow and then goes; only then can another name be taken
       // (meanwhile the names left don't glow and can't be picked up). After the last one, «Select a problem…».
       let busy = false, descEl = null, seq = 0;
+      let lastK = null;
       function showDesc(k, b) {
-        busy = true; const id = ++seq;
+        busy = true; const id = ++seq; lastK = k;
         // 18/11 (later, Montse): the other problems disappear while the description is out, and come back after it.
         for (const z of free) { L[z].classList.remove('call', 'a-pop'); L[z].style.opacity = '0'; L[z].style.pointerEvents = 'none'; L[z].setAttribute('aria-hidden', 'true'); }
         focusOn(k);
@@ -1246,6 +1267,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         const c = descEl; descEl = null;
         if (c) { c.classList.remove('a-rise'); c.classList.add('a-out'); setTimeout(() => c.remove(), 340); }
         unfocus();
+        // 18/11 (Montse): once its description has gone, a placed name turns light, so the ones still to place stand out.
+        if (NUEVA && lastK) L[lastK].classList.add('done');
         if (!free.size) { later(toChoose, 450); return; }
         later(() => { for (const z of free) { L[z].style.opacity = ''; L[z].style.pointerEvents = ''; L[z].removeAttribute('aria-hidden'); L[z].classList.add('call'); } }, 250);
         showHint();
