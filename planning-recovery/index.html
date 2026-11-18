@@ -152,6 +152,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 @keyframes graze { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-8px); } }
 @keyframes walkL { to { transform: translateX(-46px); } }
 @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4px); } }
+/* 18/11 (later, Montse): in order — first the stain for a while, then the diggers, then the camels. */
+.fxwrap { position: absolute; left: 0; top: 0; width: 3840px; height: 2160px; pointer-events: none; transition: opacity 1.2s ease; }
+.crane .body, .crane .arm { position: absolute; left: 0; top: 0; width: 100%; height: 100%; }
+.crane .arm { transform-origin: var(--px) var(--py); }
+.crane.dig .arm { animation: dig 3.2s ease-in-out infinite; }
+.crane.dig .body { animation: rumble .3s linear infinite; }
+@keyframes dig { 0%, 100% { transform: rotate(0deg); } 35% { transform: rotate(-4.5deg); } 70% { transform: rotate(1.5deg); } }
+@keyframes rumble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1px); } }
 .bubble h3, .bubble p { margin: 0; }
 .bubble.t-tl { border-top-left-radius: 0; } .bubble.t-tr { border-top-right-radius: 0; }
 .bubble.t-bl { border-bottom-left-radius: 0; } .bubble.t-br { border-bottom-right-radius: 0; }
@@ -331,7 +339,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
   const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500,
-              introA: [300, 2500, 7500, 12500], introB: [300, 2500, 11000] };
+              introA: [300, 2500, 7500, 12500], introB: [300, 2500, 11000], fxRiver: 6000 };
+  // fxRiver (18/11, variante «Fondo», provisional): how long the river and its stain move in intro 1 before the diggers.
   // introA / introB (18/11, nueva interactividad, provisional): when each text comes out (title, cards) and, last, when
   // the screen moves on by itself — roughly the time to read what came out before (8–9-year-olds, in English).
   // restore / restoreHold (18/11, nueva interactividad, provisional): after a right answer, how long the zone takes to
@@ -654,6 +663,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     return d + ' C' + c1.map(Math.round).join(' ') + ' ' + c2.map(Math.round).join(' ') + ' ' + c.join(' ');
   }, '');
   function riverFx() {
+    const wrap = add(mk('div', 'fxwrap')); // so the river can fade out as a whole (the stains animate their own opacity)
     const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
     svg.setAttribute('class', 'fx'); svg.setAttribute('viewBox', '0 0 3840 2160'); svg.setAttribute('aria-hidden', 'true');
     RIVER.forEach((pts, i) => {
@@ -664,11 +674,26 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       }
       // The stain drifts downstream along the river, a few at a time.
       for (let j = 0; j < 3; j++) {
-        const st = add(mk('div', 'stain')); st.style.offsetPath = `path('${d}')`;
+        const st = wrap.appendChild(mk('div', 'stain')); st.style.offsetPath = `path('${d}')`;
         st.style.animationDelay = `${-(j * 6 + i * 3)}s, ${-j * 1.5}s`;
       }
     });
-    stage.appendChild(svg);
+    wrap.appendChild(svg);
+    return wrap;
+  }
+  // Diggers (bottom left): a patch of the drawing without them, and each one in two pieces, body and arm, in its exact
+  // place; the arm turns on the boom's foot as if digging.
+  const CRANES = { g1: [413, 1681, 347, 232, 144, 133, 0], g2: [195, 1902, 377, 257, 161, 154, -1.4] };
+  function cranesFx() {
+    const p = add(mk('div', 'cam')); at(p, 159, 1645); p.style.width = '637px'; p.style.height = '515px';
+    p.innerHTML = '<img src="img/fondo-gruas.png" alt="">';
+    return Object.entries(CRANES).map(([k, [x, y, w, h, px, py, delay]]) => {
+      const c = add(mk('div', 'cam crane')); at(c, x, y); c.style.width = w + 'px'; c.style.height = h + 'px';
+      c.style.setProperty('--px', px + 'px'); c.style.setProperty('--py', py + 'px');
+      c.innerHTML = `<img class="body" src="img/grua-${k}-cuerpo.png" alt=""><img class="arm" src="img/grua-${k}-brazo.png" alt="">`;
+      c.querySelector('.arm').style.animationDelay = delay + 's';
+      return c;
+    });
   }
   // Camels: a patch of the drawing without the moving camels, and each camel on its own on top, in its exact place.
   const CAMELS = { c1: [3257, 1222, 165, 108, 'graze'], c4: [3206, 1362, 163, 122, 'graze'], c2: [3463, 1215, 159, 154, 'walk'], c3: [3624, 1180, 161, 150, 'walk'], c7: [3541, 1383, 184, 170, 'walk'] };
@@ -682,7 +707,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       else if (walk) { c.classList.add('walk'); c.querySelector('img').style.animationDelay = { c2: '0s', c3: '-.27s', c7: '-.53s' }[k]; }
     }
   }
-  const backgroundFx = walk => { if (FX === 'mov') { riverFx(); camelsFx(walk); } };
+  // 18/11 (later, Montse): one thing at a time. Intro 1: the river and its stain for T.fxRiver, then they calm down and
+  // the diggers start digging until the end of the screen. Intro 2: the camels.
+  function backgroundFx(screen) {
+    if (FX !== 'mov') return;
+    if (screen === 'A') {
+      const river = riverFx(), cranes = cranesFx();
+      later(() => { river.style.opacity = '0'; }, T.fxRiver);
+      later(() => cranes.forEach(c => c.classList.add('dig')), T.fxRiver + 600);
+    } else camelsFx(true);
+  }
 
   // Intro card (Figma «info-card-86''», v6): box as in Figma (visual position), square corner top left.
   function icard(text, x, y, w, h) {
@@ -996,23 +1030,23 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     // 6649): first screen after the attract screen. The texts come out one by one, top to bottom; then on by itself.
     introA() {
       bg('before');
-      backgroundFx(false); // variante «Fondo»: the river flows and its stain drifts; the grazing camels rock a little
+      backgroundFx('A'); // variante «Fondo»: first the river and its stain, then the diggers
       glow(1919, 960, 2600, 1500);
       const t = add(mk('div', 'abs big', 'This mangrove forest needs help.')); t.style.width = '2200px'; place(t, 1919, 790, false); anim(t, 'a-fade', T.introA[0]);
       anim(icard('Before restoring it, scientists must investigate what is causing the damage.', 1504, 888, 900, 486), 'a-rise', T.introA[1]);
       anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', T.introA[2]);
       auto(NEXT.introA, T.introA[3]);
-      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): el río oscuro fluye y su mancha baja con la corriente; los camellos que pastan se mueven un poco. Simulado.' : '') };
+      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante), uno detrás de otro: primero el río oscuro fluye y su mancha baja con la corriente (' + T.fxRiver / 1000 + ' s); después se calma y las grúas de abajo a la izquierda se ponen a cavar. Simulado.' : '') };
     },
     // Second one (754:6665): also on its own, then the puzzle. It takes the place of the red placeholder text.
     introB() {
       bg('before');
-      backgroundFx(true); // variante «Fondo»: the river goes on and the camels with riders walk a little
+      backgroundFx('B'); // variante «Fondo»: the camels (with riders they walk a little; the grazing ones rock)
       glow(1986, 980, 2600, 1400);
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is like solving a mystery.')); t.style.width = '1400px'; place(t, 1986, 840, false); anim(t, 'a-fade', T.introB[0]);
       anim(icard('Scientists study the ecosystem, identify the threats, and choose actions that help nature recover.', 1691, 1080, 1152, 366), 'a-rise', T.introB[1]);
       auto(NEXT.introB, T.introB[2]);
-      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): sigue el río y los camellos con jinete caminan un poco hacia la izquierda. Simulado.' : '') };
+      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b> (variante): ahora los camellos; los que llevan jinete caminan un poco hacia la izquierda y los que pastan se mecen. Simulado.' : '') };
     },
     intro() {
       bg('before');
