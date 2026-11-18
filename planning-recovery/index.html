@@ -160,6 +160,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .crane.dig .body { animation: rumble .3s linear infinite; }
 @keyframes dig { 0%, 100% { transform: rotate(0deg); } 35% { transform: rotate(-4.5deg); } 70% { transform: rotate(1.5deg); } }
 @keyframes rumble { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1px); } }
+/* 18/11 (later, Montse) · Puzzle: while a description is out, a light veil over the rest of the drawing (the zone stays
+   clear) and something moves in the zone. Blocked Tide: water running to the culvert and piling up against it. */
+.focusveil { position: absolute; inset: 0; pointer-events: none; background: rgba(255,255,255,.55);
+  -webkit-mask-image: radial-gradient(circle 560px at var(--cx) var(--cy), transparent 55%, #000 100%);
+          mask-image: radial-gradient(circle 560px at var(--cx) var(--cy), transparent 55%, #000 100%); }
+.fxwrap.fast .cam.walk { animation-duration: 4.5s; animation-delay: .1s; }
+.fx .tide { stroke: rgba(30,30,30,.32); stroke-width: 7; stroke-dasharray: 34 70; animation: tide 2s linear infinite; }
+@keyframes tide { to { stroke-dashoffset: -208; } }
+.fx .ripple { fill: none; stroke: rgba(30,30,30,.4); stroke-width: 5; transform-box: fill-box; transform-origin: center; animation: ripple 2.1s ease-out infinite; }
+@keyframes ripple { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
 /* 18/11 · Nueva interactividad (Figma v6, «Puzzle · 02»): the square corner of each name points to its zone. */
 .label.k-tr { border-radius: 90px 0 90px 90px; } .label.k-tl { border-radius: 0 90px 90px 90px; }
 .label.k-br { border-radius: 90px 90px 0 90px; } .label.k-bl { border-radius: 90px 90px 90px 0; }
@@ -263,7 +273,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(51,241,232,.9); opacity: .8; }
 .pill.call { --glow-blur: 46px; --glow-spread: 10px; }
 .glow.tq { background: radial-gradient(closest-side, rgba(51,241,232,.45), rgba(51,241,232,0)); }
-@media (prefers-reduced-motion: reduce) { .stage *, .stage, .call::after { animation: none !important; transition: none !important; } .stain { display: none; } .call::after { opacity: .8; } .still.leaving { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage, .call::after { animation: none !important; transition: none !important; } .stain, .fx .ripple { display: none; } .call::after { opacity: .8; } .still.leaving { opacity: 0; } }
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="goo" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="16" result="bl"/><feColorMatrix in="bl" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></svg>
@@ -713,6 +723,41 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       else if (walk) { c.classList.add('walk'); c.querySelector('img').style.animationDelay = { c2: '0s', c3: '-.27s', c7: '-.53s' }[k]; }
     }
   }
+  // Blocked Tide: the water comes from the right towards the small culvert under the road and piles up against it
+  // (currents running to the culvert, ripples at its mouth). Points read off the drawing.
+  const TIDE = [
+    [[2974, 2079], [2871, 2051], [2790, 2021], [2721, 1998], [2664, 1980]],
+    [[2974, 2136], [2871, 2101], [2779, 2062], [2711, 2023], [2669, 1998]]
+  ];
+  function blockedFx() {
+    const ns = 'http://www.w3.org/2000/svg', svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('class', 'fx'); svg.setAttribute('viewBox', '0 0 3840 2160'); svg.setAttribute('aria-hidden', 'true');
+    TIDE.forEach((pts, i) => {
+      const p = document.createElementNS(ns, 'path'); p.setAttribute('d', smooth(pts)); p.setAttribute('class', 'tide');
+      p.style.animationDelay = (-i * .7) + 's'; svg.appendChild(p);
+    });
+    for (let j = 0; j < 3; j++) {
+      const e = document.createElementNS(ns, 'ellipse');
+      e.setAttribute('cx', 2652); e.setAttribute('cy', 1975); e.setAttribute('rx', 70); e.setAttribute('ry', 36); e.setAttribute('class', 'ripple');
+      e.style.animationDelay = (j * .7) + 's'; svg.appendChild(e);
+    }
+    stage.appendChild(svg);
+  }
+  // Puzzle (nueva interactividad): what moves in each zone while its description is out.
+  function problemFx(k) {
+    if (k === 'pollution') riverFx();
+    else if (k === 'pressure') camelsFx(true);
+    else if (k === 'coastal') cranesFx().forEach(c => c.classList.add('dig'));
+    else if (k === 'blocked') blockedFx();
+  }
+  // Runs fn and gathers everything it added to the stage in one layer (to place it under the veil and fade it out).
+  function fxGroup(fn) {
+    const before = new Set(stage.children);
+    fn();
+    const g = mk('div', 'fxwrap fast');
+    [...stage.children].filter(c => !before.has(c)).forEach(c => g.appendChild(c));
+    return g;
+  }
   // 18/11 (later, Montse): one thing at a time. Intro 1: the river and its stain for T.fxRiver, then they calm down and
   // the diggers start digging until the end of the screen. Intro 2: the camels.
   function backgroundFx(screen) {
@@ -1088,7 +1133,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       // Nueva interactividad: while a description is showing, a tap on the drawing takes it away.
       add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (busy) endDesc(); else pick(null); });
       const CX = 1800, NUEVA = START === 'nueva';
-      glow(CX, 660, 2500, 1350);
+      const gl = glow(CX, 660, 2500, 1350);
       let t, s, sm = null;
       if (NUEVA) {
         // 18/11 · New composition (Montse, Figma «↳ 18/11 · v6», «Puzzle · 02 · Start» 754:9528): title, «Tap and drag»
@@ -1168,10 +1213,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const descs = [];
       let leaving = false;
       function describe(k, b) {
-        const d = P[k], c = add(mk('div', 'abs desc t-bl', d.desc.t)); c.style.width = d.desc.w + 'px';
-        const top = P[k].label[1] - b.offsetHeight / 2;
-        at(c, Math.round(Math.min(W - 40 - c.offsetWidth, P[k].label[0] - b.offsetWidth / 2 + 120)), Math.round(top - 20 - c.offsetHeight));
-        c.style.transformOrigin = '0 100%';
+        const top = P[k].label[1] - b.offsetHeight / 2, left = P[k].label[0] - b.offsetWidth / 2;
+        // 18/11 (later): Pressure's goes to the left of its name (square corner bottom right, towards the name), so it
+        // doesn't cover the camels that move in its zone; the others above their name, as in Montse's mock-up.
+        const side = NUEVA && k === 'pressure';
+        const d = P[k], c = add(mk('div', 'abs desc' + (side ? '' : ' t-bl'), d.desc.t)); c.style.width = d.desc.w + 'px';
+        if (side) at(c, Math.round(left - 20 - c.offsetWidth), Math.round(top + 60 - c.offsetHeight));
+        else at(c, Math.round(Math.min(W - 40 - c.offsetWidth, left + 120)), Math.round(top - 20 - c.offsetHeight));
+        c.style.transformOrigin = side ? '100% 100%' : '0 100%';
         descs.push(anim(c, 'a-rise'));
         return c;
       }
@@ -1182,6 +1231,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         busy = true; const id = ++seq;
         // 18/11 (later, Montse): the other problems disappear while the description is out, and come back after it.
         for (const z of free) { L[z].classList.remove('call', 'a-pop'); L[z].style.opacity = '0'; L[z].style.pointerEvents = 'none'; L[z].setAttribute('aria-hidden', 'true'); }
+        focusOn(k);
         later(() => { if (busy && id === seq) descEl = describe(k, b); }, 220);
         auto(() => { if (id === seq) endDesc(); }, 220 + T.descShow);
         showHint();
@@ -1191,7 +1241,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         busy = false;
         const c = descEl; descEl = null;
         if (c) { c.classList.remove('a-rise'); c.classList.add('a-out'); setTimeout(() => c.remove(), 340); }
-        if (!free.size) { later(toChoose, 350); return; }
+        unfocus();
+        if (!free.size) { later(toChoose, 450); return; }
         later(() => { for (const z of free) { L[z].style.opacity = ''; L[z].style.pointerEvents = ''; L[z].removeAttribute('aria-hidden'); L[z].classList.add('call'); } }, 250);
         showHint();
       }
@@ -1200,7 +1251,41 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         [t, s, sm, ...descs].filter(Boolean).forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); });
         later(NEXT.puzzle, 450);
       }
+      // 18/11 (later, Montse): the title and «Tap and drag» go after the first interaction with a name.
+      let touched = false;
+      function firstTouch() {
+        if (touched || !NUEVA) return; touched = true;
+        // (inline opacity too, so they also go with reduced motion, where the a-out animation is off)
+        [t, s, gl].forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); e.style.transition = 'opacity .3s ease'; e.style.opacity = '0'; });
+      }
+      // 18/11 (later, Montse): while a description is out, everything else hides (names, circles, title) to focus on that
+      // problem, and something moves in its zone to show it: the stain on the river, the camels, the diggers, the water
+      // piling up against the road. A light veil over the rest of the drawing (proposal). All simulated, provisional.
+      let focused = null;
+      function focusOn(k) {
+        if (!NUEVA) return;
+        firstTouch();
+        const hidden = [];
+        const hide = e => {
+          if (!e || e.style.opacity === '0') return;
+          e.classList.remove('a-pop'); e.style.animationDelay = ''; e.style.transition = 'opacity .35s ease'; e.style.opacity = '0'; hidden.push(e);
+        };
+        ORDER.forEach(z => { if (z !== k) { hide(L[z]); hide(rings[z]); } });
+        const g = fxGroup(() => problemFx(k));
+        const veil = mk('div', 'focusveil'); veil.style.setProperty('--cx', RING[k][0] + 'px'); veil.style.setProperty('--cy', RING[k][1] + 'px');
+        const ref = stage.querySelector('.ring'); stage.insertBefore(g, ref); stage.insertBefore(veil, ref);
+        [g, veil].forEach(e => { e.style.transition = 'opacity .4s ease'; e.style.opacity = '0'; });
+        requestAnimationFrame(() => requestAnimationFrame(() => { g.style.opacity = ''; veil.style.opacity = ''; }));
+        focused = { hidden, g, veil };
+      }
+      function unfocus() {
+        if (!focused) return;
+        const { hidden, g, veil } = focused; focused = null;
+        [g, veil].forEach(e => { e.style.opacity = '0'; setTimeout(() => e.remove(), 450); });
+        hidden.forEach(e => { e.style.opacity = ''; });
+      }
       function pick(key) {
+        if (key) firstTouch();
         if (sel) L[sel].classList.remove('picked');
         sel = key;
         if (key) { L[key].classList.add('picked'); showSlots(L[key]); } else hideSlots();
@@ -1239,7 +1324,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           if (!drag || drag.b !== b) return;
           if (!drag.moved) {
             if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) < 8) return;
-            drag.moved = true; pick(null); b.classList.remove('a-pop', 'a-shake'); b.style.transition = 'none'; b.classList.add('dragging'); showSlots(b);
+            drag.moved = true; pick(null); firstTouch(); b.classList.remove('a-pop', 'a-shake'); b.style.transition = 'none'; b.classList.add('dragging'); showSlots(b);
           }
           const [x, y2] = toStage(e); at(b, Math.round(x - drag.gx), Math.round(y2 - drag.gy));
           hover(zoneAt(x, y2, b));
