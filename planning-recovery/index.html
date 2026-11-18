@@ -1160,12 +1160,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       ORDER.forEach(k => { L[k].style.width = (L[k].offsetWidth + 2) + 'px'; });
       const settle = b => b.addEventListener('animationend', () => { b.classList.remove('a-pop', 'a-shake'); b.style.animationDelay = ''; });
       if (NUEVA) {
-        // One row, centred like the row in Figma (x 606–3185, middle at y 1264), 70 px between names (provisional:
+        // 18/11 (Montse): final height, 80 px higher than the first version (middle at y 1184 instead of 1264), so the row
+        // no longer runs into one of the problem positions.
+        // One row, centred like the row in Figma (x 606–3185, middle at y 1184), 70 px between names (provisional:
         // Roboto is wider than ilmi, so the gaps are evened out instead of copied).
-        const g = 70, total = ORDER.reduce((a, k) => a + L[k].offsetWidth, 0) + g * (ORDER.length - 1);
-        let x = Math.round(1896 - total / 2);
+        // The row ends where it ends in Figma (x 3185), clear of the Pressure circle; Roboto names are wider than ilmi, so
+        // it starts a little further left than in Figma.
+        const g = 60, total = ORDER.reduce((a, k) => a + L[k].offsetWidth, 0) + g * (ORDER.length - 1);
+        let x = Math.round(3185 - total);
         ORDER.forEach((k, i) => {
-          const b = L[k]; home[k] = [x, Math.round(1264 - b.offsetHeight / 2)]; x += b.offsetWidth + g;
+          const b = L[k]; home[k] = [x, Math.round(1184 - b.offsetHeight / 2)]; x += b.offsetWidth + g;
           at(b, ...home[k]); anim(b, 'a-pop', 350 + i * T.gap); settle(b);
         });
       }
