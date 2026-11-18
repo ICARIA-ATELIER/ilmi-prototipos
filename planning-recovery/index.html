@@ -292,34 +292,34 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="goo" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="16" result="bl"/><feColorMatrix in="bl" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></svg>
 <div class="app">
   <header class="bar">
-    <div class="ttl"><strong>Planning Recovery</strong><span>WR2-408-IA01 · prototipo de flujo, baja fidelidad</span></div>
+    <div class="ttl"><strong>Planning Recovery</strong><span>WR2-408-IA01 · flow prototype, low fidelity</span></div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ctrls">
-      <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
+      <span class="ctl"><button id="back" type="button" aria-label="Previous step">← Back</button><button id="fwd" type="button" aria-label="Next step">Next →</button></span>
       <!-- 18/11 (Montse): sin variantes; queda solo la versión cerrada (nueva interactividad, fondo con movimiento, solo Restart). Copia con variantes: _copia-v41-con-variantes.html -->
-      <span class="ctl"><label for="jump">Ir a</label>
+      <span class="ctl"><label for="jump">Go to</label>
       <select id="jump">
-        <option value="">Pantalla…</option>
+        <option value="">Screen…</option>
         <option value="idle">Idle</option>
         <option value="introA">Intro 1 · This mangrove forest needs help</option>
         <option value="introB">Intro 2 · Restoring a mangrove…</option>
-        <option value="puzzle">Puzzle: colocar los problemas</option>
-        <option value="choose">Elegir un problema</option>
+        <option value="puzzle">Puzzle: place the problems</option>
+        <option value="choose">Choose a problem</option>
         <option value="pressure">Human &amp; Livestock Pressure</option>
         <option value="pollution">Pollution</option>
         <option value="blocked">Blocked Tide</option>
         <option value="coastal">Coastal Erosion</option>
-        <option value="done">Good job (todo resuelto)</option>
+        <option value="done">Good job (all solved)</option>
         <option value="recovery">Recovery reveal</option>
         <option value="closing">Closing</option>
-        <option value="still">Aviso «¿sigues ahí?»</option>
-        <option value="confirm">Confirmar Restart «Start again?»</option>
+        <option value="still">Inactivity prompt “Are you still there?”</option>
+        <option value="confirm">Restart confirmation “Start again?”</option>
       </select></span>
-      <button id="restart" type="button">Reiniciar</button>
+      <button id="restart" type="button">Reset</button>
     </div>
   </header>
   <main class="viewport" id="viewport">
-    <div class="stage" id="stage" aria-label="Pantalla del interactivo, 3840 × 2160"></div>
+    <div class="stage" id="stage" aria-label="Interactive screen, 3840 × 2160"></div>
   </main>
 </div>
 
@@ -398,7 +398,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       q: { t: 'Which solution matches the problem?', c: [2243, 804] },
       pills: { PRZ: [1634, 1041, 562], RWF: [2246, 1041, 633], PS: [1663, 1264, 583], CTS: [2318, 1263, 477] }, correct: 'PS', fb: [280, 10], side: 'below',
       right: { h: 'Nice work!', p: 'Mangroves need stable mud and sand to grow.', f: 'Mangroves help trap sediment and protect the coast.' },
-      wrong: { PRZ: { h: 'Good idea!', p: 'But the shoreline itself is disappearing.', f: 'Roots need stable ground beneath them.', note: '«Good idea!» es un fallo pero suena a acierto: pendiente de hablar con contenido.' },
+      wrong: { PRZ: { h: 'Good idea!', p: 'But the shoreline itself is disappearing.', f: 'Roots need stable ground beneath them.', note: '“Good idea!” is a wrong answer but sounds like a right one: pending discussion with content.' },
                CTS: { h: 'Keep searching!', p: 'There are no signs of pollution here.', f: 'The problem is losing sediment, not dirty water.' },
                RWF: { h: 'Almost!', p: 'Water flow is fine, but the mud is disappearing.', f: 'Young mangroves need sediment to take root.' } },
       caption: { t: 'More habitat has been protected.', c: [800, 1300] } }
@@ -567,7 +567,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const b = mk('button', 'abs label' + (solved ? ' solved' : '') + (d.wide ? ' wide' : '') + tailCls(k), (solved ? OK : '') + d.name);
       b.type = 'button';
       add(v6size(b, k)); place(b, d.label[0], d.label[1], false);
-      if (solved) { b.tabIndex = -1; b.setAttribute('aria-label', d.name + ', resuelto'); }
+      if (solved) { b.tabIndex = -1; b.setAttribute('aria-label', d.name + ', solved'); }
       if (mode === 'intro' || mode === 'end') b.tabIndex = -1;
       if (mode === 'intro') anim(b, 'a-pop', 100 + i * T.gap);
       if (mode === 'map' && !solved) { b.classList.add('lit', 'call'); on(b, () => go('desc', k)); }
@@ -582,7 +582,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   function nameTag(k, interactive = true) {
     const b = add(mk(interactive ? 'button' : 'div', 'abs name', P[k].name));
     place(b, P[k].halo[0], P[k].halo[1]);
-    if (interactive) { b.type = 'button'; b.setAttribute('aria-label', P[k].name + ': volver a la descripción'); on(b, () => go('desc', k)); }
+    if (interactive) { b.type = 'button'; b.setAttribute('aria-label', P[k].name + ': back to the description'); on(b, () => go('desc', k)); }
     else b.style.pointerEvents = 'none';
     return b;
   }
@@ -606,7 +606,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const b = add(mk('button', 'abs pill', '<span class="t">' + PILLS[key] + '</span>')); b.type = 'button'; b.style.width = w + 'px'; at(b, x, y);
       if (off) {
         b.classList.add(isUsed ? 'used' : 'tried'); b.disabled = true;
-        b.setAttribute('aria-label', PILLS[key] + (isUsed ? ', ya usada en otro problema' : ', ya probada en este problema'));
+        b.setAttribute('aria-label', PILLS[key] + (isUsed ? ', already used for another problem' : ', already tried for this problem'));
         if (isUsed) b.insertAdjacentHTML('beforeend', USED);
       }
       if (o.sel === key) { b.classList.add('sel'); b.insertAdjacentHTML('beforeend', OK); }
@@ -668,7 +668,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const d = P[k];
     const b = add(mk(interactive ? 'button' : 'div', 'abs label call' + (d.wide ? ' wide' : '') + tailCls(k), d.name));
     v6size(b, k); place(b, d.label[0], d.label[1], false);
-    if (interactive) { b.type = 'button'; b.setAttribute('aria-label', d.name + ': volver a elegir problema'); on(b, () => go('choose')); }
+    if (interactive) { b.type = 'button'; b.setAttribute('aria-label', d.name + ': back to choosing a problem'); on(b, () => go('choose')); }
     else b.style.cursor = 'default';
     return b;
   }
@@ -813,7 +813,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   function clue(k, nt, avoid, where) {
     const b = add(mk('button', 'abs cluebtn call', '<span class="ic">' + LENS + '</span><span>Clue</span>')); b.type = 'button';
     const ic = b.querySelector('.ic');
-    b.setAttribute('aria-label', 'Clue: ver la pista'); b.setAttribute('aria-expanded', 'false');
+    b.setAttribute('aria-label', 'Clue: show the clue'); b.setAttribute('aria-expanded', 'false');
     if (where) where(b); // nueva interactividad: next to the chosen name, clear of the row of solutions
     else place(b, P[k].halo[0], nt.offsetTop + nt.offsetHeight + 40 + b.offsetHeight / 2);
     anim(b, 'a-pop');
@@ -824,7 +824,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const old = bub; bub = null;
       old.classList.remove('a-grow'); old.classList.add('a-out'); setTimeout(() => old.remove(), 320);
       icon(LENS); b.classList.remove('open');
-      b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', 'Clue: ver la pista');
+      b.setAttribute('aria-expanded', 'false'); b.setAttribute('aria-label', 'Clue: show the clue');
       if (current.tap === close) current.tap = null;
       stage.classList.remove('tap');
     };
@@ -834,7 +834,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       bub.style.pointerEvents = 'auto';
       bub.addEventListener('click', ev => ev.stopPropagation()); // a tap on the clue itself keeps it open
       icon(XICON); b.classList.add('open');
-      b.setAttribute('aria-expanded', 'true'); b.setAttribute('aria-label', 'Cerrar la pista');
+      b.setAttribute('aria-expanded', 'true'); b.setAttribute('aria-label', 'Close the clue');
       current.tap = close; // a tap anywhere else on the screen closes it
       stage.classList.add('tap');
     });
@@ -876,7 +876,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // Restart tab on the left edge: back to the start of the game (screen 28 in Figma).
   function restartTab() {
     const b = add(mk('button', 'abs rs', REDO + '<span>Restart</span>')); b.type = 'button';
-    b.setAttribute('aria-label', 'Restart: volver al inicio del juego');
+    b.setAttribute('aria-label', 'Restart: back to the start of the game');
     on(b, () => { S = fresh(); go(first()); });
     return b;
   }
@@ -913,7 +913,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     const setOpen = v => {
       open = menuOpen = v; m.classList.toggle('open', v); ov.classList.toggle('open', v);
       x.setAttribute('aria-expanded', String(v));
-      x.setAttribute('aria-label', v ? 'Cerrar el menú' : 'Menú: idioma y Restart');
+      x.setAttribute('aria-label', v ? 'Close the menu' : 'Menu: language and Restart');
       [lang, rs].forEach(b => { b.tabIndex = v ? 0 : -1; });
     };
     const close = () => {
@@ -931,11 +931,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       clearTimeout(stillTimer); stillTimer = null; // no inactivity notice while the overlay is open (Montse, 12/11)
       prevTap = current.tap; current.tap = close; // a tap anywhere else closes the menu
       stage.classList.add('tap');
-      hint.innerHTML = 'Menú abierto sobre una capa negra al 50 %: <b>' + lang.textContent + '</b> (arriba) cambia el idioma y <b>Restart</b> (a la derecha) vuelve al inicio. Se cierra con la X o al tocar fuera. Mientras está abierto no sale el aviso de inactividad. Aspecto y tiempos provisionales.';
+      hint.innerHTML = 'Bubble menu open over a 50% black layer: <b>' + lang.textContent + '</b> (top) changes the language and <b>Restart</b> (right) goes back to the start. It closes with the X or by tapping outside. While it is open, the inactivity prompt does not appear. Look and timings provisional.';
     });
     on(lang, () => {
       LANG = other(); close();
-      hint.innerHTML = 'Idioma: <b>' + (LANG === 'ar' ? 'árabe' : 'inglés') + '</b>. En el prototipo los textos siguen en inglés (faltan los textos en árabe); el menú ofrecerá ahora <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b>.';
+      hint.innerHTML = 'Language: <b>' + (LANG === 'ar' ? 'Arabic' : 'English') + '</b>. In the prototype the texts stay in English (the Arabic texts are missing); the menu will now offer <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b>.';
     });
     on(rs, () => { close(); S = fresh(); go(first()); });
     return m;
@@ -948,33 +948,33 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   let cfEl = null;
   const lock = el => { el.dataset.until = performance.now() + T.holdover; };
   const locked = el => performance.now() < +(el.dataset.until || 0);
-  const AV_INFO = 'Variante <b>accesible</b> (opción A, 18/11): idioma y Restart siempre visibles abajo a la izquierda, 240 × 240 px = 76 mm en la 55" (la guía pide ≥ 75 mm), con 80 px = 25 mm entre ellos; relleno oscuro con borde blanco (contraste ≥ 3:1 sobre cualquier fondo) y sin parpadeo. Restart pide confirmación. <b>Fuera de la pantalla, pendiente:</b> marca en relieve en el marco, voz con el perfil de visión de la pulsera y altura ~1050 mm del suelo (depende de planos).';
+  const AV_INFO = '<b>Accessible</b> variant (option A, 18/11): language and Restart always visible at the bottom left, 240 × 240 px = 76 mm on the 55" (the guide asks for ≥ 75 mm), with 80 px = 25 mm between them; dark fill with a white border (contrast ≥ 3:1 on any background) and no blinking. Restart asks for confirmation. <b>Off-screen, pending:</b> raised mark on the frame, voice using the wristband’s vision profile, and height ~1050 mm from the floor (depends on the drawings).';
   function menuVisible() {
     const other = () => (LANG === 'en' ? 'ar' : 'en');
     const lang = add(mk('button', 'abs av lang', GLOBE + '<span></span>')); lang.type = 'button'; at(lang, 0, 1520);
     const rs = add(mk('button', 'abs av', REDO + '<span>Restart</span>')); rs.type = 'button'; at(rs, 0, 1840);
-    rs.setAttribute('aria-label', 'Restart: empezar de nuevo (pide confirmación)');
+    rs.setAttribute('aria-label', 'Restart: start again (asks for confirmation)');
     const label = () => {
       const o = other(), t = lang.querySelector('span');
       t.textContent = o === 'ar' ? 'العربية' : 'English';
       lang.classList.toggle('en', o === 'en');
       if (o === 'ar') { t.lang = 'ar'; t.dir = 'rtl'; } else { t.removeAttribute('lang'); t.removeAttribute('dir'); }
-      lang.setAttribute('aria-label', 'Idioma: cambiar a ' + (o === 'ar' ? 'árabe' : 'inglés'));
+      lang.setAttribute('aria-label', 'Language: switch to ' + (o === 'ar' ? 'Arabic' : 'English'));
     };
     label();
     on(lang, () => {
       if (locked(lang)) return;
       LANG = other(); label(); lock(lang);
-      hint.innerHTML = 'Idioma: <b>' + (LANG === 'ar' ? 'árabe' : 'inglés') + '</b>. En el prototipo los textos siguen en inglés (faltan los textos en árabe); el botón ofrece ahora <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b> y no cambia de esquina. En la pieza, el cambio se diría en voz alta en la nueva lengua (pendiente de sonido). Durante 0,5 s no acepta otro toque, para que un toque doble no lo devuelva.';
+      hint.innerHTML = 'Language: <b>' + (LANG === 'ar' ? 'Arabic' : 'English') + '</b>. In the prototype the texts stay in English (the Arabic texts are missing); the button now offers <b>' + (LANG === 'ar' ? 'English' : 'العربية') + '</b> and does not change corner. In the exhibit, the change would be announced aloud in the new language (sound pending). For 0.5 s it ignores further taps, so a double tap does not switch it back.';
     });
     on(rs, confirmRestart);
   }
   // 18/11 · «solo» (Montse): como la opción A pero sin el botón de idioma; Restart se queda donde estaba (abajo a la
   // izquierda, 240 × 240 px) y pide confirmación.
-  const SOLO_INFO = 'Variante <b>solo Restart</b> (Montse, 18/11): sin botón de idioma. Restart siempre visible abajo a la izquierda, en el mismo sitio y con el mismo aspecto que en la opción A (240 × 240 px = 76 mm en la 55"; la guía pide ≥ 75 mm), sin parpadeo, y pide confirmación. <b>Pendiente:</b> cómo cambia de idioma el visitante sin botón en pantalla.';
+  const SOLO_INFO = '<b>Restart only</b> variant (Montse, 18/11): no language button. Restart always visible at the bottom left, in the same place and with the same look as in option A (240 × 240 px = 76 mm on the 55"; the guide asks for ≥ 75 mm), no blinking, and it asks for confirmation. <b>Pending:</b> how visitors change the language without an on-screen button.';
   function menuSolo() {
     const rs = add(mk('button', 'abs av', REDO + '<span>Restart</span>')); rs.type = 'button'; at(rs, 0, 1840);
-    rs.setAttribute('aria-label', 'Restart: empezar de nuevo (pide confirmación)');
+    rs.setAttribute('aria-label', 'Restart: start again (asks for confirmation)');
     on(rs, confirmRestart);
   }
   // «Start again?»: Yes vuelve a la Intro (como Restart); No, tocar fuera o 10 s sin tocar la cierran y sigue el juego.
@@ -988,7 +988,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     put(at(mk('div', 'abs q', 'Start again?'), 1120, 860));
     const yes = put(at(mk('button', 'abs btn', 'Yes'), 1400, 1080)); yes.type = 'button';
     const no = put(at(mk('button', 'abs btn', 'No'), 2000, 1080)); no.type = 'button';
-    yes.setAttribute('aria-label', 'Yes: empezar de nuevo'); no.setAttribute('aria-label', 'No: seguir jugando');
+    yes.setAttribute('aria-label', 'Yes: start again'); no.setAttribute('aria-label', 'No: keep playing');
     let tm = null;
     const close = () => {
       clearTimeout(tm);
@@ -1006,7 +1006,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go(first());
     });
     try { no.focus({ preventScroll: true }); } catch (e) {}
-    hint.innerHTML = '<b>Start again?</b> <b>Yes</b> vuelve a la Intro; <b>No</b> o tocar fuera la cierra y sigue el juego. Se cierra sola, como «No», a los ' + T.confirm / 1000 + ' s sin tocar, y vuelve a contar la inactividad. Los 0,5 s primeros no acepta toques. Textos y tiempos provisionales, pendientes de contenido.';
+    hint.innerHTML = '<b>Start again?</b> <b>Yes</b> goes back to the Intro; <b>No</b> or tapping outside closes it and the game continues. It closes by itself, like “No”, after ' + T.confirm / 1000 + ' s without a tap, and the inactivity count starts again. It ignores taps for the first 0.5 s. Texts and timings provisional, pending content.';
   }
 
   // "Are you still there?": shows when nobody taps for T.still on a screen that is waiting for a tap.
@@ -1037,7 +1037,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     yes.type = 'button';
     yes.addEventListener('click', ev => { ev.stopPropagation(); paused = false; hideStill(); });
     try { yes.focus({ preventScroll: true }); } catch (e) {}
-    hint.innerHTML = '<b>¿Sigues ahí?</b> Sale si nadie toca en ' + T.still / 1000 + ' s en el mapa o la descripción, y en ' + T.stillQ / 1000 + ' s en la pregunta y en el puzzle, para dar tiempo a leer. No sale con el menú de la bolita abierto. Toca <b>Yes</b> para seguir. <b>Pendiente:</b> qué pasa si nadie responde.';
+    hint.innerHTML = '<b>Are you still there?</b> Appears if nobody taps for ' + T.still / 1000 + ' s on the map or the description, and for ' + T.stillQ / 1000 + ' s on the question and the puzzle, to leave time to read. It does not appear while the bubble menu is open. Tap <b>Yes</b> to continue. <b>Pending:</b> what happens if nobody answers.';
   }
   function hideStill() {
     const o = stillEl; if (!o) return;
@@ -1091,7 +1091,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const en = add(mk('div', 'abs idle-en', 'Let’s restore mangroves')); place(en, 2013, 1201, false);
       const sc = add(mk('div', 'abs scan', 'Scan your wristband or tap to start<br><span class="ar">مرّر سوارك أو المس للبدء</span>')); at(sc, 3654 - sc.offsetWidth, 1815);
       place(add(mk('div', 'rfid')), 3830, 1893, false);
-      return { tap: NEXT.idle, hint: '<b>Toca la pantalla</b> para empezar (o pasa la pulsera).' };
+      return { tap: NEXT.idle, hint: '<b>Tap the screen</b> to start (or scan the wristband).' };
     },
     // 18/11 · Nueva interactividad (Montse, Figma «↳ 18/11 · v6», «Start · 02 · Introduction [28]» 754:6637 → 6642 →
     // 6649): first screen after the attract screen. The texts come out one by one, top to bottom; then on by itself.
@@ -1103,7 +1103,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       anim(icard('Before restoring it, scientists must investigate what is causing the damage.', 1504, 888, 900, 486), 'a-rise', T.introA[1]);
       anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', T.introA[2]);
       auto(NEXT.introA, T.introA[3]);
-      return { tap: NEXT.introA, hint: 'Sale sola tras el reposo: el título y las dos tarjetas aparecen uno a uno, de arriba abajo, y pasa sola a la siguiente (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b>, uno detrás de otro: primero el río oscuro fluye y su mancha baja con la corriente (' + T.fxRiver / 1000 + ' s); después se calma y las grúas de abajo a la izquierda se ponen a cavar. Simulado.' : '') };
+      return { tap: NEXT.introA, hint: 'Appears by itself after the idle screen: the title and the two cards appear one by one, top to bottom, and it moves on to the next screen by itself (or <b>tap the screen</b>). Timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>, one after the other: first the dark river flows and its stain drifts down with the current (' + T.fxRiver / 1000 + ' s); then it settles and the diggers at the bottom left start digging. Simulated.' : '') };
     },
     // Second one (754:6665): also on its own, then the puzzle. It takes the place of the red placeholder text.
     introB() {
@@ -1113,7 +1113,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is like solving a mystery.')); t.style.width = '1400px'; place(t, 1986, 840, false); anim(t, 'a-fade', T.introB[0]);
       anim(icard('Scientists study the ecosystem, identify the threats, and choose actions that help nature recover.', 1691, 1080, 1152, 366), 'a-rise', T.introB[1]);
       auto(NEXT.introB, T.introB[2]);
-      return { tap: NEXT.introB, hint: 'También sale sola: el título y después la tarjeta; luego pasa sola al puzzle (o <b>toca la pantalla</b>). Tiempos provisionales.' + (FX === 'mov' ? ' <b>Fondo con movimiento</b>: ahora los camellos; los que llevan jinete caminan un poco hacia la izquierda y los que pastan se mecen. Simulado.' : '') };
+      return { tap: NEXT.introB, hint: 'Also appears by itself: the title and then the card; then it moves on to the puzzle by itself (or <b>tap the screen</b>). Timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: now the camels; the ones with riders walk a little to the left and the grazing ones sway. Simulated.' : '') };
     },
     intro() {
       bg('before');
@@ -1122,13 +1122,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const s = add(mk('div', 'abs sub', 'Find out what’s wrong, and fix it.')); at(s, 1919 - 750, t.offsetTop + t.offsetHeight + 60); anim(s, 'a-fade', 120);
       const b = add(mk('button', 'abs btn call', 'Start' + ARROW)); b.type = 'button'; place(b, 1919, s.offsetTop + s.offsetHeight + 180, false); anim(b, 'a-fade', 240);
       on(b, NEXT.intro);
-      return { hint: 'Pulsa <b>Start</b>.' };
+      return { hint: 'Tap <b>Start</b>.' };
     },
     mapIntro() {
       bg('before'); zones();
       labels('intro');
       auto(NEXT.mapIntro, 100 + 3 * T.gap + 500);
-      return { tap: NEXT.mapIntro, hint: 'Los problemas aparecen uno a uno y después se iluminan.' };
+      return { tap: NEXT.mapIntro, hint: 'The problems appear one by one and then light up.' };
     },
     // 17/11 · Variante con puzzle: placeholder text (Montse's own words, Spanish, in red), then Next.
     text() {
@@ -1138,7 +1138,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       t.lang = 'es'; t.style.width = '1900px'; place(t, 1919, 840, false); anim(t, 'a-fade');
       const b = add(mk('button', 'abs btn call', 'Next' + ARROW)); b.type = 'button'; place(b, 1919, t.offsetTop + t.offsetHeight + 200, false); anim(b, 'a-fade', 240);
       on(b, NEXT.text);
-      return { hint: 'Texto de prueba (en rojo, pendiente de contenido). Pulsa <b>Next</b>.' };
+      return { hint: 'Placeholder text (in red, pending content). Tap <b>Next</b>.' };
     },
     // 17/11 · Puzzle: drag each problem name onto its ringed zone (or tap the name, then the zone).
     puzzle() {
@@ -1165,14 +1165,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         sm = add(mk('div', 'abs small', 'Tap and drag')); at(sm, CX - 750, s.offsetTop + s.offsetHeight + 36); anim(sm, 'a-fade', 240);
       }
       ORDER.forEach((k, i) => {
-        const r = rings[k] = add(mk('button', 'abs ring')); r.type = 'button'; r.setAttribute('aria-label', 'Zona ' + (i + 1));
+        const r = rings[k] = add(mk('button', 'abs ring')); r.type = 'button'; r.setAttribute('aria-label', 'Zone ' + (i + 1));
         place(r, RING[k][0], RING[k][1], false); anim(r, 'a-pop', 300 + i * T.gap);
         r.addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (sel) drop(sel, k); });
       });
       // The names, in order, in a 2 × 2 grid under the text.
       ORDER.forEach(k => {
         const b = L[k] = add(mk('button', 'abs label drag call' + (P[k].wide ? ' wide' : '') + tailCls(k), P[k].name)); b.type = 'button';
-        b.setAttribute('aria-label', P[k].name + ': arrástralo a su zona, o tócalo y después toca la zona');
+        b.setAttribute('aria-label', P[k].name + ': drag it to its zone, or tap it and then tap the zone');
       });
       // Fixed width, so a name doesn't shrink when dragged near the screen edge (and lands exactly on its map spot).
       // (+2 px: offsetWidth rounds down sub-pixel widths, which would wrap a one-line name.)
@@ -1370,7 +1370,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> composición del Figma v6 («Identify the challenges», «Tap and drag» debajo y los nombres en una fila). Al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Drag each problem to its zone</b> (or tap it and then tap the zone). When you pick one up, the free spots show a dashed outline. Wrong zone or outside: error sound and it goes back to its place. Right: it settles into its place on the map and a success sound plays.' + (START === 'nueva' ? ' <b>New interactivity:</b> layout from Figma v6 (“Identify the challenges”, “Tap and drag” below it and the names in a row). When placed correctly, its description appears above it for ' + T.descShow / 1000 + ' s (provisional) and then disappears; while it is showing, the other names are hidden and come back when it goes. Tapping the drawing removes it sooner. With all four placed, it moves on to choosing a problem.' : '') + ' English texts: provisional translation, pending content.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
@@ -1378,7 +1378,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       bg('before'); zones();
       chooseTitle(true);
       labels('choose');
-      return { hint: '<b>Elige un problema</b> para buscarle la solución. Los resueltos salen en gris con un check. Título: traducción provisional de «Selecciona un problema para aplicar la mejor solución».' };
+      return { hint: '<b>Choose a problem</b> to find its solution. Solved ones appear in grey with a check. Title: provisional translation of “Selecciona un problema para aplicar la mejor solución”.' };
     },
     // The chosen problem stays alone (the others leave) and the four solutions come out in the same row as always.
     pick(k, enter) {
@@ -1391,14 +1391,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         if (FB[k].clue === 'right') at(b, nt.offsetLeft + nt.offsetWidth + 40, Math.round(nt.offsetTop + (nt.offsetHeight - b.offsetHeight) / 2));
         else place(b, P[k].label[0], nt.offsetTop + nt.offsetHeight + 40 + b.offsetHeight / 2);
       });
-      return { hint: '<b>Elige una solución.</b> Salen siempre en el mismo sitio. Las que ya fallaste aquí salen tachadas; las que ya resolvieron otro problema, en gris con un check. Tras el primer fallo sale <b>Clue</b> junto al problema. Toca el nombre del problema para volver a elegir (propuesta, sin confirmar).' };
+      return { hint: '<b>Choose a solution.</b> They always appear in the same place. The ones already tried here and wrong are crossed out; the ones that already solved another problem are grey with a check. After the first wrong answer, <b>Clue</b> appears next to the problem. Tap the problem name to choose again (proposal, not confirmed).' };
     },
     nSel(k) {
       bg('before'); zones(k); halo(k);
       chooseTitle(false, SOL); chosen(k, false);
       row(k, { sel: P[k].correct, fadeOthers: true });
       auto(() => NEXT.nSel(k), T.toFeedback);
-      return { tap: () => NEXT.nSel(k), hint: 'Acierto: el mensaje aparece solo.' };
+      return { tap: () => NEXT.nSel(k), hint: 'Right answer: the message appears by itself.' };
     },
     nGreat(k) {
       const d = P[k];
@@ -1409,7 +1409,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       Object.keys(ps).filter(key => key !== d.correct).forEach(key => ps[key].classList.add('a-out'));
       fbBubble('great', d.right.h, d.right.p, k, null, 'a-rise');
       auto(() => NEXT.nGreat(k), T.second);
-      return { tap: () => NEXT.nGreat(k), hint: 'El segundo mensaje y la zona restaurada salen casi a la vez.' };
+      return { tap: () => NEXT.nGreat(k), hint: 'The second message and the restored zone appear almost at the same time.' };
     },
     // 18/11 (later, Montse): the zone is no longer restored here, but in its own moment right after (nRestore).
     nFact(k) {
@@ -1428,7 +1428,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         later(() => NEXT.nFact(k), 620);
       };
       auto(finish, T.readRight);
-      return { tap: () => { finish(); return true; }, hint: 'Los mensajes se quedan unos segundos y después la zona se restaura (o <b>toca la pantalla</b>).' };
+      return { tap: () => { finish(); return true; }, hint: 'The messages stay for a few seconds and then the zone is restored (or <b>tap the screen</b>).' };
     },
     // 18/11 (later, Montse): a moment with a circle on the zone, where the drawing is seen changing to restored;
     // then back to choosing a problem.
@@ -1445,14 +1445,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         later(() => NEXT.nRestore(k), 400);
       };
       auto(finish, 300 + T.restore + T.restoreHold);
-      return { tap: () => { finish(); return true; }, hint: 'La zona se restaura dentro del círculo (en la pieza, aquí se vería la animación) y vuelve sola a elegir problema (o <b>toca la pantalla</b>). Aspecto y tiempos provisionales.' };
+      return { tap: () => { finish(); return true; }, hint: 'The zone is restored inside the circle (in the exhibit, the animation would play here) and it goes back to choosing a problem by itself (or <b>tap the screen</b>). Look and timings provisional.' };
     },
     nWrongTap(k, key) {
       bg('before'); zones(k); halo(k);
       chooseTitle(false, SOL); chosen(k, false);
       row(k, { wrong: key, shake: true });
       auto(() => NEXT.nWrongTap(k, key), T.toFeedback);
-      return { tap: () => NEXT.nWrongTap(k, key), hint: 'Fallo: el porqué aparece solo.' };
+      return { tap: () => NEXT.nWrongTap(k, key), hint: 'Wrong answer: the reason appears by itself.' };
     },
     // The title, the problem and the chosen answer stay; the feedback comes out under the row.
     // 18/11 (later, Montse): with the feedback, the answers not chosen are hidden.
@@ -1466,7 +1466,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       later(() => fbBubble('fact', null, w.f, k, m, 'a-rise'), T.second);
       auto(() => NEXT.nWrongFb(k, key), T.second + T.readWrong);
       return { tap: () => NEXT.nWrongFb(k, key),
-               hint: 'El segundo mensaje sale casi a la vez y a los 5 s vuelve sola a las soluciones, con esa opción tachada y desactivada.' + (w.note ? ' <b>Pendiente:</b> ' + w.note : '') };
+               hint: 'The second message appears almost at the same time, and after 5 s it goes back to the solutions by itself, with that option crossed out and disabled.' + (w.note ? ' <b>Pending:</b> ' + w.note : '') };
     },
     map() {
       bg('before'); zones();
@@ -1477,8 +1477,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         const h = add(mk('div', 'abs big', 'Now tap each one to find out what’s happening')); place(h, 1920, 900, false); anim(h, 'a-fade', 150);
       }
       labels('map');
-      return allSolved() ? { tap: NEXT.map, hint: 'Todo resuelto. <b>Toca la pantalla</b>.' }
-                         : { hint: '<b>Toca un problema</b> para ver qué le pasa.' + (START === 'puzzle' ? ' Con el inicio «con puzzle», el título sale siempre en el mapa mientras queden problemas (traducción provisional).' : '') };
+      return allSolved() ? { tap: NEXT.map, hint: 'All solved. <b>Tap the screen</b>.' }
+                         : { hint: '<b>Tap a problem</b> to see what is wrong with it.' + (START === 'puzzle' ? ' With the “with puzzle” start, the title always shows on the map while problems remain (provisional translation).' : '') };
     },
     desc(k) {
       const d = P[k];
@@ -1492,20 +1492,20 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         on(b, () => NEXT.desc(k));
       };
       later(showCta, T.cta);
-      return { tap: () => { showCta(); return true; }, hint: 'La descripción y, casi a la vez, el botón. <b>Toca otro problema</b> para ver su descripción.' };
+      return { tap: () => { showCta(); return true; }, hint: 'The description and, almost at the same time, the button. <b>Tap another problem</b> to see its description.' };
     },
     question(k) {
       bg('before'); zones(k); halo(k); const nt = nameTag(k); const [, qt] = question(k);
       const ps = pills(k, { click: key => key === P[k].correct ? go('sel', k) : go('wrongTap', k, key) });
       if (S.off[k].size) clue(k, nt, [qt, ...Object.values(ps)]);
-      return { hint: '<b>Elige una solución.</b> Las que ya fallaste aquí salen tachadas; las que ya resolvieron otro problema, en gris con un check. Tras el primer fallo sale <b>Clue</b> junto a la zona: la pista sale del botón y la lupa pasa a ser una X; se cierra con la X o al tocar fuera. Toca el nombre del problema para volver a su descripción.' };
+      return { hint: '<b>Choose a solution.</b> The ones already tried here and wrong are crossed out; the ones that already solved another problem are grey with a check. After the first wrong answer, <b>Clue</b> appears next to the zone: the clue comes out of the button and the magnifier turns into an X; it closes with the X or by tapping outside. Tap the problem name to go back to its description.' };
     },
     sel(k) {
       bg('before'); zones(k); halo(k);
       question(k);
       pills(k, { sel: P[k].correct, fadeOthers: true });
       auto(() => NEXT.sel(k), T.toFeedback);
-      return { tap: () => NEXT.sel(k), hint: 'Acierto: el mensaje aparece solo.' };
+      return { tap: () => NEXT.sel(k), hint: 'Right answer: the message appears by itself.' };
     },
     great(k) {
       const d = P[k];
@@ -1515,7 +1515,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       [...q, ...Object.keys(ps).filter(key => key !== d.correct).map(key => ps[key])].forEach(e => e.classList.add('a-out'));
       bubble('great', d.right.h, d.right.p, { k, slot: 0 }, 'a-rise');
       auto(() => NEXT.great(k), T.second);
-      return { tap: () => NEXT.great(k), hint: 'El segundo mensaje y la zona restaurada salen casi a la vez.' };
+      return { tap: () => NEXT.great(k), hint: 'The second message and the restored zone appear almost at the same time.' };
     },
     fact(k) {
       const d = P[k];
@@ -1528,14 +1528,14 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         g.classList.add('a-out'); later(() => f.classList.add('a-out'), 260); later(() => NEXT.fact(k), 620);
       };
       auto(finish, T.readRight);
-      return { tap: () => { finish(); return true; }, hint: 'La zona se restaura y vuelve sola al mapa (o <b>toca la pantalla</b>).' };
+      return { tap: () => { finish(); return true; }, hint: 'The zone is restored and it goes back to the map by itself (or <b>tap the screen</b>).' };
     },
     wrongTap(k, key) {
       bg('before'); zones(k); halo(k);
       question(k);
       pills(k, { wrong: key, shake: true });
       auto(() => NEXT.wrongTap(k, key), T.toFeedback);
-      return { tap: () => NEXT.wrongTap(k, key), hint: 'Fallo: el porqué aparece solo.' };
+      return { tap: () => NEXT.wrongTap(k, key), hint: 'Wrong answer: the reason appears by itself.' };
     },
     wrongFb(k, key) {
       const d = P[k], w = d.wrong[key];
@@ -1547,7 +1547,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       later(() => bubble('fact', null, w.f, { k, main: m }, 'a-rise'), T.second);
       auto(() => NEXT.wrongFb(k, key), T.second + T.readWrong);
       return { tap: () => NEXT.wrongFb(k, key),
-               hint: 'El segundo mensaje sale casi a la vez y a los 5 s vuelve sola a la pregunta, con esa opción tachada y desactivada.' + (w.note ? ' <b>Pendiente:</b> ' + w.note : '') };
+               hint: 'The second message appears almost at the same time, and after 5 s it goes back to the question by itself, with that option crossed out and disabled.' + (w.note ? ' <b>Pending:</b> ' + w.note : '') };
     },
     done() {
       bg('before'); zones();
@@ -1557,7 +1557,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       ls.forEach((b, i) => later(() => b.classList.add('a-out'), 800 + i * T.gap));
       later(() => t.classList.add('a-out'), 800 + ls.length * T.gap + 300);
       auto(NEXT.done, 800 + ls.length * T.gap + 700);
-      return { tap: NEXT.done, hint: '«Good job!» (texto provisional, pendiente de contenido) y los problemas desaparecen uno a uno.' };
+      return { tap: NEXT.done, hint: '“Good job!” (provisional text, pending content) and the problems disappear one by one.' };
     },
     recovery() {
       add(mk('div', 'layer ph'));
@@ -1565,7 +1565,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       // 18/11 (Montse): the bubbles come out more slowly — one every T.capGap, each taking 0.9 s; then 4 s to read the last one.
       ['pollution', 'pressure', 'blocked', 'coastal'].forEach((k, i) => bubble('fact', null, P[k].caption.t, P[k].caption.c, 'a-pop-slow', 300 + i * T.capGap));
       auto(NEXT.recovery, 300 + 3 * T.capGap + 900 + 4000);
-      return { tap: NEXT.recovery, hint: 'Las frases de recuperación salen una a una (textos pendientes de validar con contenido).' };
+      return { tap: NEXT.recovery, hint: 'The recovery sentences appear one by one (texts pending validation with content).' };
     },
     closing() {
       add(mk('div', 'layer ph'));
@@ -1579,7 +1579,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       later(() => { t.style.visibility = ''; anim(t, 'a-fade'); }, gone + 100);
       later(() => { s.style.visibility = ''; anim(s, 'a-fade'); }, gone + 100 + 2 * T.gap);
       later(() => { b.style.visibility = ''; anim(b, 'a-pop'); }, gone + 100 + 4 * T.gap);
-      return { hint: 'Las frases se van una a una; después salen el cierre, la pregunta y por último <b>Play again</b>.' };
+      return { hint: 'The sentences leave one by one; then the closing text, the question and finally <b>Play again</b> appear.' };
     }
   };
 
@@ -1587,7 +1587,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   const snap = () => ({ screen: S.screen, p: S.p, k: S.k, solved: [...S.solved], clue: [...S.clue], off: Object.fromEntries(ORDER.map(x => [x, [...S.off[x]]])) });
   function load(s) { S.screen = s.screen; S.p = s.p; S.k = s.k; S.solved = new Set(s.solved); S.clue = new Set(s.clue || []); for (const x of ORDER) S.off[x] = new Set(s.off[x]); }
   let current = { tap: null };
-  function showHint() { hint.innerHTML = (paused ? '<b>En pausa</b> (usa Atrás / Adelante o toca la pantalla para seguir). ' : '') + (current.hint || ''); }
+  function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (Back / Next, or tap the screen to continue). ' : '') + (current.hint || ''); }
   function render() {
     clearTimers();
     stage.replaceChildren();
