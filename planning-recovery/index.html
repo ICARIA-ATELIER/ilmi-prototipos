@@ -1165,7 +1165,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         // 18/11 (Montse, final): title at 84 px (Roboto Bold 83.72 / 82.3 in Figma), centred on its Figma box.
         t = add(mk('div', 'abs big', 'Identify the challenges')); t.style.width = '2000px'; t.style.fontSize = '83.72px'; t.style.lineHeight = '82.3px';
         place(t, 1920, 832, false); anim(t, 'a-fade');
-        s = add(mk('div', 'abs sub', 'Tap and drag')); s.style.color = '#fb1d1d'; place(s, 1947, 942, false); anim(s, 'a-fade', 120);
+        // 18/11 (Montse, closed): «Tap and drag» no longer in red (it was red in Figma), black like the title.
+        s = add(mk('div', 'abs sub', 'Tap and drag')); place(s, 1947, 942, false); anim(s, 'a-fade', 120);
       } else {
         t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
         s = add(mk('div', 'abs sub', 'Place each problem in the area where you think it belongs.')); at(s, CX - 750, t.offsetTop + t.offsetHeight + 40); anim(s, 'a-fade', 120);
@@ -1377,7 +1378,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> composición del Figma v6 («Identify the challenges», «Tap and drag» en rojo como en el Figma y los nombres en una fila). Al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
+      return { hint: '<b>Arrastra cada problema a su zona</b> (o tócalo y después toca la zona). Al cogerlo, los sitios libres salen con línea discontinua. Zona equivocada o fuera: sonido de error y vuelve a su sitio. Acierto: se coloca en su sitio del mapa y suena un acierto.' + (START === 'nueva' ? ' <b>Nueva interactividad:</b> composición del Figma v6 («Identify the challenges», «Tap and drag» debajo y los nombres en una fila). Al acertar sale encima su descripción ' + T.descShow / 1000 + ' s (provisional) y desaparece; mientras está, los demás nombres se ocultan y vuelven cuando se va. Tocar el dibujo la quita antes. Con los cuatro colocados, pasa a elegir un problema.' : '') + ' Textos en inglés: traducción provisional, pendiente de contenido.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
