@@ -146,6 +146,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .ipill.on span { animation: fade .35s ease-out .25s both; }
 .inum.on { animation: shrinkin .55s cubic-bezier(.2,.8,.3,1) both; }   /* 19/11 (Montse): the number comes big and shrinks to its size */
 .inum.beat { animation: beat .32s ease-in-out both; }
+/* 19/11 noche (Montse, Figma «03 · Introduction 3» 807:13869 changed «para que no parecieran botones»): no pill any more.
+   Each step is its grey number + its text alone (Ilmi Bold 96, #343330, -1 % in Figma → Roboto 700 at 0.79×), on a
+   soft white glow (1127 × 280, the same radial white as the big one). Same movement: number big → its size, then
+   its text comes out of it. */
+.istep { font-weight: 700; font-size: 76px; line-height: 96px; color: #343330; letter-spacing: -.01em; text-align: center;
+  white-space: nowrap; pointer-events: none; }
+.istep.on { animation: unroll .5s cubic-bezier(.25,.8,.3,1) both, fade .45s ease-out both; }
 /* 19/11 (Montse, Figma v7 «02 · Introduction 2–4», puzzle and the new «10 · Choose a problem»): each step gets its
    heading, a big grey number (193 px; 1 and 2 at 64 % in Figma, 3 at 100 %) and, for steps 1 and 3, its text (Ilmi
    SemiBold 113 #343330 in Figma → Roboto 600 at 0.79×). Same movement as the three steps: number big → its size, then
@@ -1175,19 +1182,21 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is<br>like solving a mystery')); t.style.width = '1600px'; t.style.lineHeight = '115.64px';
       at(t, 1987 - 800, 724); anim(t, 'a-fade', t0);
       const s = add(mk('div', 'abs isub', 'Scientists follow three steps:')); at(s, Math.round(1987.5 - s.offsetWidth / 2), 1010); anim(s, 'a-fade', tSub);
-      // [number, text, circle x, y, pill x, y, w, h, text width] — px from Figma.
+      // [number, text, circle x, y, text box x, y, w, h, glow x, y] — px from Figma (807:13869, 19/11 noche).
+      // In Figma the third circle says «2»: taken as a slip, it shows «3».
       const STEPS = [
-        ['1', 'Study the ecosystem', 686, 1248, 770, 1290, 650, 156, 515],
-        ['2', 'Identify the threats', 1583, 1248, 1644, 1290, 612, 156, 465],
-        ['3', 'Choose action that help nature recover', 2462, 1236, 2523, 1278, 763, 204, 626]
+        ['1', 'Study the ecosystem', 470, 1419, 616, 1434, 707, 96, 376, 1338],
+        ['2', 'Identify the threats', 1472, 1407, 1647, 1422, 648, 96, 1378, 1326],
+        ['3', 'Choose action that<br>help nature recover', 2505, 1407, 2663, 1388, 690, 192, 2411, 1326]
       ];
-      const nums = STEPS.map(([n, txt, cx, cy, px, py, pw, ph, tw], i) => {
-        const p = add(mk('div', 'abs ipill', '<span>' + txt + '</span>')); p.style.width = pw + 'px'; p.style.height = ph + 'px'; at(p, px, py);
-        p.firstChild.style.width = tw + 'px'; if (i < 2) p.firstChild.style.whiteSpace = 'nowrap';
+      const nums = STEPS.map(([n, txt, cx, cy, tx, ty, tw, th, gx, gy], i) => {
+        const t0i = tSteps + i * beat;
+        const g = add(mk('div', 'glow')); g.style.width = '1127px'; g.style.height = '280px'; at(g, gx, gy); anim(g, 'a-fade', t0i);
+        const p = add(mk('div', 'abs istep', txt)); at(p, Math.round(tx + tw / 2 - p.offsetWidth / 2), Math.round(ty + th / 2 - p.offsetHeight / 2));
         const c = add(mk('div', 'abs inum', n)); at(c, cx, cy);
         p.style.visibility = c.style.visibility = 'hidden';
-        later(() => { c.style.visibility = ''; c.classList.add('on'); }, tSteps + i * beat);
-        later(() => { p.style.visibility = ''; p.classList.add('on'); }, tSteps + i * beat + tText);   // its text once the number has landed
+        later(() => { c.style.visibility = ''; c.classList.add('on'); }, t0i);
+        later(() => { p.style.visibility = ''; p.classList.add('on'); }, t0i + tText);   // its text once the number has landed
         return c;
       });
       // Once the three are out, the numbers beat once more, 1-2-3 (0.35 s apart), a second after the last text.
