@@ -146,6 +146,17 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .ipill.on span { animation: fade .35s ease-out .25s both; }
 .inum.on { animation: shrinkin .55s cubic-bezier(.2,.8,.3,1) both; }   /* 19/11 (Montse): the number comes big and shrinks to its size */
 .inum.beat { animation: beat .32s ease-in-out both; }
+/* 19/11 (Montse, Figma v7 «02 · Introduction 2–4», puzzle and the new «10 · Choose a problem»): each step gets its
+   heading, a big grey number (193 px; 1 and 2 at 64 % in Figma, 3 at 100 %) and, for steps 1 and 3, its text (Ilmi
+   SemiBold 113 #343330 in Figma → Roboto 600 at 0.79×). Same movement as the three steps: number big → its size, then
+   its text comes out of it. */
+.snum { position: absolute; width: 193px; height: 193px; pointer-events: none; }
+.snum .inum { width: 193px; height: 193px; font-size: 110.29px; }
+.shead { font-weight: 600; font-size: 89px; line-height: 87px; color: #343330; letter-spacing: -.01em; white-space: nowrap; pointer-events: none; }
+.shead.c { text-align: center; }
+.shead.on { animation: unroll .5s cubic-bezier(.25,.8,.3,1) both, fade .45s ease-out both; }
+.mid { text-align: center; font-weight: 600; font-size: 83.72px; line-height: 82.3px; color: #000; pointer-events: none; }
+.label.wait { opacity: .41; transition: opacity .5s ease; }
 @keyframes unroll { from { clip-path: inset(-30px 100% -30px -30px); } to { clip-path: inset(-30px -30px -30px -30px); } }
 @keyframes beat { 50% { transform: scale(1.14); } }
 @keyframes shrinkin { from { transform: scale(2.6); opacity: 0; } 35% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
@@ -271,10 +282,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 /* Confirmación de Restart (opción A): como el aviso «¿Sigues ahí?» (velo blanco, aquí al 90 % para que no se lea lo de
    debajo; texto centrado), con «Yes» y «No» de
    240 px de alto (76 mm) y 160 px (51 mm) entre ellos, lejos del botón Restart para que un segundo toque no caiga encima. */
-.cf { position: absolute; inset: 0; z-index: 45; background: rgba(255,255,255,.9); animation: fade .3s ease-out both; }
+.cf { position: absolute; inset: 0; z-index: 45; background: rgba(255,255,255,.97); animation: fade .3s ease-out both; }   /* 19/11 (Montse, Figma v7 U4): 97 % */
 .cf.leaving { animation: out .25s ease-in forwards; }
-.cf .q { width: 1600px; text-align: center; font-weight: 700; font-size: 88px; line-height: 96px; color: #000; pointer-events: none; }
-.cf .btn { width: 440px; height: 240px; padding: 0; justify-content: center; font-size: 72px; border-radius: 120px; }
+/* 19/11 (Montse, Figma v7 «U4 · Restart – Start again?»): big question (Roboto Bold 170) and two smaller buttons,
+   337 × 147, Yes dark and No white with a black 11 px border; text Roboto Bold 44.1. */
+.cf .q { width: 1600px; text-align: center; font-weight: 700; font-size: 170px; line-height: 160px; color: #000; pointer-events: none; }
+.cf .btn { width: 337px; height: 147px; padding: 0; justify-content: center; font-size: 44.1px; border-radius: 73.5px; box-shadow: 0 9.8px 18.4px rgba(0,0,0,.25); }
+.cf .btn.no { background: #fff; color: #000; box-shadow: inset 0 0 0 11px #000, 0 9.8px 18.4px rgba(0,0,0,.25); }
 
 /* "Are you still there?" notice over the screen. */
 /* z-index 50 (17/11, Montse): above every layer — problem names, the dot's menu and its overlay. */
@@ -319,9 +333,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <select id="jump">
         <option value="">Screen…</option>
         <option value="idle">Idle</option>
-        <option value="introA">Intro 1 · This mangrove forest needs help</option>
-        <option value="introB">Intro 2 · Restoring a mangrove…</option>
-        <option value="puzzle">Puzzle: place the problems</option>
+        <option value="introB">Intro · Restoring a mangrove… (the three steps)</option>
+        <option value="step1">Step 1 · Study the ecosystem</option>
+        <option value="puzzle">Step 2 · Puzzle: place the problems</option>
+        <option value="step3">Step 3 · Choose action that help nature recover</option>
         <option value="choose">Choose a problem</option>
         <option value="pressure">Human &amp; Livestock Pressure</option>
         <option value="pollution">Pollution</option>
@@ -365,7 +380,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
   const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500,
-              introA: [300, 2500, 7500, 12500], introB: [300, 1500, 3200, 1200, 550, 14000], fxRiver: 6000 };
+              introA: [300, 2500, 7500, 12500], introB: [300, 1500, 3200, 2800, 550, 15000], fxRiver: 6000,
+              step1: [300, 850, 2300, 3300, 10500, 11000, 15500], step3: [300, 850, 3600, 7600, 8400] };
+  // 19/11 (later, Montse: «deja un poco de tiempo entre cada paso para leerlos»): introB, one step every 2.8 s (was 1.2).
+  // step1 (19/11, provisional): number, its text, «This mangrove forest needs help.» (and the river), its line, when they
+  // go, «Explore the clues…», next. step3 (provisional): number, its text, the title, when the 3 goes and the title goes
+  // up, next (choose).
   // introB (19/11, Intro 2 nueva, provisional): title, «Scientists follow three steps:», first number, one step every…,
   // its text after its number (Montse, 19/11: number first, big to small, then its text; one after the other),
   // and when the screen moves on by itself (≈ 26 words for 8–9-year-olds).
@@ -457,7 +477,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // 18/11 (Montse): sin variantes, fijo.
   // First screen after the attract screen (also where Restart and Play again go): the two new intros in the nueva
   // interactividad (18/11), the Intro with Start in the others.
-  const first = () => (START === 'nueva' ? 'introA' : 'intro');
+  const first = () => (START === 'nueva' ? 'introB' : 'intro');   // 19/11 (Montse, Figma v7): the three steps come first
   // 18/11 · Nueva interactividad (Figma v6): each name has its square corner towards its zone.
   const TAIL = { pressure: 'tr', pollution: 'tl', blocked: 'br', coastal: 'bl' };
   const tailCls = k => (START === 'nueva' ? ' k-' + TAIL[k] : '');
@@ -677,9 +697,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // Title once the puzzle is complete; it stays while a problem is chosen (Montse's mock-up). Translation provisional.
   // 18/11 (Montse): once a problem is chosen and its solutions are out, the title says «Select the best solution».
   const SOL = 'Select the best solution';
+  // 19/11 (later, Montse, Figma v7): the titles now sit lower, nearer the middle. Centre of the title and of its glow
+  // taken from «10 · Choose a problem» and «11 · … Solutions» (in other frames they are a few px off, by hand).
   function chooseTitle(animate, text = 'Select a problem to apply the best solution.') {
-    glow(1800, 330, 2300, 720);
-    const t = add(mk('div', 'abs big', text)); place(t, 1800, 310, false);
+    const [cx, cy, gx, gy] = text === SOL ? [1792, 753, 1791, 774] : [1845, 1026, 1882, 994];
+    glow(gx, gy, 2300, 720);
+    const t = add(mk('div', 'abs big', text)); place(t, cx, cy, false);
     if (animate) anim(t, 'a-fade', 150);
     return t;
   }
@@ -789,14 +812,26 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   // 18/11 (later, Montse): one thing at a time. Intro 1: the river and its stain for T.fxRiver, then they calm down and
   // the diggers start digging until the end of the screen. Intro 2: the camels.
-  function backgroundFx(screen) {
+  // 19/11: «start» = when the river begins (step 1: with «This mangrove forest needs help.»).
+  function backgroundFx(screen, start = 0) {
     if (FX !== 'mov') return;
     if (screen === 'A') {
       const river = riverFx(), cranes = cranesFx();
-      later(() => { river.style.opacity = '0'; }, T.fxRiver);
-      later(() => cranes.forEach(c => c.classList.add('dig')), T.fxRiver + 600);
+      if (start) { river.style.transition = 'none'; river.style.opacity = '0'; later(() => { river.style.transition = ''; river.style.opacity = ''; }, start); }
+      later(() => { river.style.opacity = '0'; }, start + T.fxRiver);
+      later(() => cranes.forEach(c => c.classList.add('dig')), start + T.fxRiver + 600);
     } else camelsFx(true);
   }
+  // 19/11 · Step headings (Montse, Figma v7): the number comes big and shrinks to its size; then its text comes out.
+  function stepNum(n, x, y, op, delay) {
+    const w = add(mk('div', 'snum')); at(w, x, y); if (op < 1) w.style.opacity = op;
+    const c = w.appendChild(mk('div', 'inum', n)); c.style.visibility = 'hidden';
+    later(() => { c.style.visibility = ''; c.classList.add('on'); }, delay);
+    return w;
+  }
+  function stepText(e, delay) { e.style.visibility = 'hidden'; later(() => { e.style.visibility = ''; e.classList.add('on'); }, delay); return e; }
+  // Something leaves (also with reduced motion, where the a-out animation is off).
+  function leave(e) { if (!e) return; e.classList.remove('on'); e.style.animationDelay = ''; e.classList.add('a-out'); e.style.transition = 'opacity .3s ease'; e.style.opacity = '0'; }
 
   // Intro card (Figma «info-card-86''», v6): box as in Figma (visual position), square corner top left.
   function icard(text, x, y, w, h) {
@@ -1005,10 +1040,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     clearTimeout(stillTimer); stillTimer = null; menuOpen = true;
     const o = cfEl = add(mk('div', 'cf'));
     const put = e => (o.appendChild(e), e);
-    const g = put(mk('div', 'glow')); g.style.width = '1100px'; g.style.height = '860px'; at(g, 1370, 600);
-    put(at(mk('div', 'abs q', 'Start again?'), 1120, 860));
-    const yes = put(at(mk('button', 'abs btn', 'Yes'), 1400, 1080)); yes.type = 'button';
-    const no = put(at(mk('button', 'abs btn', 'No'), 2000, 1080)); no.type = 'button';
+    // 19/11 (Montse, Figma v7 U4): no glow; question centred on its Figma box (1543, 1246, 715 × 160), buttons under it.
+    const q = put(mk('div', 'abs q', 'Start again?')); place(q, 1900, 1326, false);
+    const yes = put(at(mk('button', 'abs btn', 'Yes'), 1543, 1460)); yes.type = 'button';
+    const no = put(at(mk('button', 'abs btn no', 'No'), 1944, 1460)); no.type = 'button';
     yes.setAttribute('aria-label', 'Yes: start again'); no.setAttribute('aria-label', 'No: keep playing');
     let tm = null;
     const close = () => {
@@ -1073,11 +1108,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   const NEXT = {
     idle: () => go(first()),
     // 18/11 · Nueva interactividad: two intro screens that run by themselves (Figma «↳ 18/11 · v6»), then the puzzle.
+    // 19/11 (Montse, Figma v7): the three steps → step 1 → puzzle (step 2) → step 3 → choose. Intro 1 (title + two
+    // cards) is out of the flow («descartes?» in Figma).
     introA: () => go('introB'),
-    introB: () => go('puzzle'),
+    introB: () => go('step1'),
+    step1: () => go('puzzle'),
+    step3: () => go('choose', 'still'),
     intro: () => go(START === 'map' ? 'mapIntro' : 'text'),
     text: () => go('puzzle'),
-    puzzle: () => go(START === 'nueva' ? 'choose' : 'map'),
+    puzzle: () => go(START === 'nueva' ? 'step3' : 'map'),
     // nueva interactividad (18/11)
     choose: () => { const k = ORDER.find(x => !S.solved.has(x)); k ? go('pick', k, 'enter') : go('done'); },
     pick: k => { const w = ROWKEYS.find(x => x !== P[k].correct && !S.off[k].has(x) && !used(k, x)); w ? go('nWrongTap', k, w) : go('nSel', k); },
@@ -1151,10 +1190,47 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         later(() => { p.style.visibility = ''; p.classList.add('on'); }, tSteps + i * beat + tText);   // its text once the number has landed
         return c;
       });
-      // Once the three are out, the numbers beat once more, 1-2-3 (as in v44: 0.35 s apart).
-      nums.forEach((c, i) => later(() => { c.classList.remove('on'); c.classList.add('beat'); }, tSteps + 3 * beat + 200 + i * 350));
+      // Once the three are out, the numbers beat once more, 1-2-3 (0.35 s apart), a second after the last text.
+      nums.forEach((c, i) => later(() => { c.classList.remove('on'); c.classList.add('beat'); }, tSteps + 2 * beat + tText + 1000 + i * 350));
       auto(NEXT.introB, tNext);
-      return { tap: NEXT.introB, hint: 'Also appears by itself: first the title and «Scientists follow three steps:»; then steps 1, 2 and 3 come out one by one, one after the other (the number comes big and shrinks to its size, then its text comes out of it; at the end the numbers beat 1-2-3). Then it moves on to the puzzle by itself (or <b>tap the screen</b>). Movement and timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: the camels; the ones with riders walk a little to the left and the grazing ones sway. Simulated.' : '') };
+      return { tap: NEXT.introB, hint: 'Also appears by itself: first the title and «Scientists follow three steps:»; then steps 1, 2 and 3 come out one by one, one after the other (the number comes big and shrinks to its size, then its text comes out of it; at the end the numbers beat 1-2-3). There is time to read each step before the next one (' + T.introB[3] / 1000 + ' s apart). Then it moves on to step 1 by itself (or <b>tap the screen</b>). Movement and timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: the camels; the ones with riders walk a little to the left and the grazing ones sway. Simulated.' : '') };
+    },
+    // 19/11 (Montse, Figma v7 «02 · Introduction 2 → 3 → 4»): step 1. Its heading («1 Study the ecosystem»); then
+    // «This mangrove forest needs help.» and its line under it, while the river and its stain move (Montse: the background
+    // moves here, so it shows something happened). Then they go and «Explore the clues…» comes out; the diggers dig.
+    step1() {
+      bg('before');
+      const [tNum, tHead, tTitle, tSub, tOut, tCard, tNext] = T.step1;
+      backgroundFx('A', tTitle);
+      glow(2030, 1226, 2600, 1500);
+      const n = stepNum('1', 1369, 611, .64, tNum);
+      const h = add(mk('div', 'abs shead', 'Study the ecosystem')); at(h, 1600, Math.round(708 - h.offsetHeight / 2)); stepText(h, tHead);
+      const t = add(mk('div', 'abs big', 'This mangrove forest needs help.')); t.style.width = '2200px'; place(t, 1979, 1002, false); anim(t, 'a-fade', tTitle);
+      const s = add(mk('div', 'abs mid', 'Scientists must investigate what is<br>causing the damage.')); s.style.width = '1600px'; place(s, 1978, 1194, false); anim(s, 'a-fade', tSub);
+      later(() => [n, h, t, s].forEach(leave), tOut);
+      anim(icard('Explore the clues and help plan the recovery', 2090, 1416, 900, 257), 'a-rise', tCard);
+      auto(NEXT.step1, tNext);
+      return { tap: NEXT.step1, hint: 'Step 1, by itself: the <b>1</b> comes big and shrinks, then «Study the ecosystem»; then «This mangrove forest needs help.» and its line. Then they go and «Explore the clues…» comes out, and it moves on to the puzzle (or <b>tap the screen</b>). Timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: with the texts the dark river flows and its stain drifts down (' + T.fxRiver / 1000 + ' s); then it settles and the diggers at the bottom left start digging. Simulated.' : '') };
+    },
+    // 19/11 (Montse, Figma v7, the two new «10 · Choose a problem»): step 3, once the puzzle is done. The problems wait in
+    // grey on the map; the «3» and «Choose action that help nature recover» come out, then «Select a problem to apply
+    // the best solution.» under them. Then the 3 and its text go, the title goes up to its place and the problems light up.
+    step3() {
+      bg('before');
+      const [tNum, tHead, tTitle, tUp, tNext] = T.step3;
+      const gl = glow(1882, 994, 2300, 720);
+      const ls = labels('wait'); ls.forEach(b => { b.classList.add('wait'); b.tabIndex = -1; });
+      const n = stepNum('3', 1828, 484, 1, tNum);
+      const h = add(mk('div', 'abs shead c', 'Choose action that help<br>nature recover')); place(h, 1925, 826, false); stepText(h, tHead);
+      const t = add(mk('div', 'abs big', 'Select a problem to apply the best solution.')); place(t, 1970, 1110, false); anim(t, 'a-fade', tTitle);
+      later(() => {
+        [n, h].forEach(leave);
+        // the title goes up to where it stays while choosing (as in chooseTitle), its glow with it
+        for (const [e, cx, cy] of [[t, 1845, 1026], [gl, 1882, 994]]) { e.style.transition = 'left .7s ease, top .7s ease'; place(e, cx, cy, false); }
+        ls.forEach(b => { b.classList.remove('wait'); b.classList.add('lit'); });
+      }, tUp);
+      auto(NEXT.step3, tNext);
+      return { tap: NEXT.step3, hint: 'Step 3, by itself after the puzzle: the problems wait in grey; the <b>3</b> comes big and shrinks, then «Choose action that help nature recover»; then «Select a problem…». Then the 3 goes, the title goes up and the problems light up to be chosen (or <b>tap the screen</b>). Timings provisional.' };
     },
     intro() {
       bg('before');
@@ -1191,15 +1267,17 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       add(mk('div', 'layer')).addEventListener('click', ev => { ev.stopPropagation(); paused = false; if (busy) endDesc(); else pick(null); });
       const CX = 1800, NUEVA = START === 'nueva';
       const gl = glow(CX, 660, 2500, 1350);
-      let t, s, sm = null;
+      let t, s, sm = null, num2 = null;
       if (NUEVA) {
+        // 19/11 (Montse, Figma v7): step 2 — the «2» comes first (big → its size), then the title and «Tap and drag».
+        num2 = stepNum('2', 1275, 748, .64, 0);
         // 18/11 · New composition (Montse, Figma «↳ 18/11 · v6», «Puzzle · 02 · Start» 754:9528): title, «Tap and drag»
         // under it (red in Figma) and the four names in one row.
         // 18/11 (Montse, final): title at 84 px (Roboto Bold 83.72 / 82.3 in Figma), centred on its Figma box.
         t = add(mk('div', 'abs big', 'Identify the challenges')); t.style.width = '2000px'; t.style.fontSize = '83.72px'; t.style.lineHeight = '82.3px';
-        place(t, 1920, 832, false); anim(t, 'a-fade');
+        place(t, 1920, 832, false); anim(t, 'a-fade', 550);
         // 18/11 (Montse, closed): «Tap and drag» no longer in red (it was red in Figma), black like the title.
-        s = add(mk('div', 'abs sub', 'Tap and drag')); place(s, 1947, 942, false); anim(s, 'a-fade', 120);
+        s = add(mk('div', 'abs sub', 'Tap and drag')); place(s, 1947, 942, false); anim(s, 'a-fade', 670);
       } else {
         t = add(mk('div', 'abs big', 'Discover what’s happening.')); t.style.width = '2000px'; place(t, CX, 270, false); anim(t, 'a-fade');
         s = add(mk('div', 'abs sub', 'Place each problem in the area where you think it belongs.')); at(s, CX - 750, t.offsetTop + t.offsetHeight + 40); anim(s, 'a-fade', 120);
@@ -1320,6 +1398,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         if (touched || !NUEVA) return; touched = true;
         // (inline opacity too, so they also go with reduced motion, where the a-out animation is off)
         [t, s, gl].forEach(e => { e.style.animationDelay = ''; e.classList.add('a-out'); e.style.transition = 'opacity .3s ease'; e.style.opacity = '0'; });
+        leave(num2);
       }
       // 18/11 (later, Montse): while a description is out, everything else hides (names, circles, title) to focus on that
       // problem, and something moves in its zone to show it: the stain on the river, the camels, the diggers, the water
@@ -1411,13 +1490,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           audio(); pick(sel === k ? null : k);
         });
       }
-      return { hint: '<b>Drag each problem to its zone</b> (or tap it and then tap the zone). When you pick one up, the free spots show a dashed outline. Wrong zone or outside: error sound and it goes back to its place. Right: it settles into its place on the map and a success sound plays.' + (START === 'nueva' ? ' <b>New interactivity:</b> layout from Figma v6 (“Identify the challenges”, “Tap and drag” below it and the names in a row). When placed correctly, its description appears above it for ' + T.descShow / 1000 + ' s (provisional) and then disappears; while it is showing, the other names are hidden and come back when it goes. Tapping the drawing removes it sooner. With all four placed, it moves on to choosing a problem.' : '') + ' English texts: provisional translation, pending content.' };
+      return { hint: '<b>Drag each problem to its zone</b> (or tap it and then tap the zone). When you pick one up, the free spots show a dashed outline. Wrong zone or outside: error sound and it goes back to its place. Right: it settles into its place on the map and a success sound plays.' + (START === 'nueva' ? ' <b>New interactivity:</b> layout from Figma v6 (“Identify the challenges” with its <b>2</b>, which comes first, “Tap and drag” below it and the names in a row). When placed correctly, its description appears above it for ' + T.descShow / 1000 + ' s (provisional) and then disappears; while it is showing, the other names are hidden and come back when it goes. Tapping the drawing removes it sooner. With all four placed, it moves on to choosing a problem.' : '') + ' English texts: provisional translation, pending content.' };
     },
     // ---------- 18/11 · Nueva interactividad (Montse)
     // Choose a problem: the title, and the problems on the map (the unsolved ones glow; the solved ones grey with a check).
-    choose() {
+    choose(p) {
       bg('before'); zones();
-      chooseTitle(true);
+      chooseTitle(p !== 'still'); // from step 3 the title is already there
       labels('choose');
       return { hint: '<b>Choose a problem</b> to find its solution. Solved ones appear in grey with a check. Title: provisional translation of “Selecciona un problema para aplicar la mejor solución”.' };
     },
@@ -1594,7 +1673,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       bg('before'); zones();
       const ls = labels('end');
       glow(1919, 1000, 1700, 640);
-      const t = add(mk('div', 'abs big', 'Good job!')); place(t, 1919, 1000, false); anim(t, 'a-pop', 200);
+      // 19/11 (Montse, Figma v7 «20 · All problems solved»): «Good job!» bigger, Roboto Bold 160.
+      const t = add(mk('div', 'abs big', 'Good job!')); t.style.fontSize = '160px'; place(t, 1919, 1016, false); anim(t, 'a-pop', 200);
       ls.forEach((b, i) => later(() => b.classList.add('a-out'), 800 + i * T.gap));
       later(() => t.classList.add('a-out'), 800 + ls.length * T.gap + 300);
       auto(NEXT.done, 800 + ls.length * T.gap + 700);
@@ -1634,7 +1714,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     stage.replaceChildren();
     stillEl = null; menuOpen = false; cfEl = null;
     current = SCREENS[S.screen](S.p, S.k) || {};
-    if (!['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) ({ solo: menuSolo, visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuSolo)();
+    if (!['idle', 'intro', 'introA', 'introB', 'step1', 'closing'].includes(S.screen)) ({ solo: menuSolo, visible: menuVisible, goo: menuGoo, tab: restartTab }[MENU] || menuSolo)();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armStill();
@@ -1680,7 +1760,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     paused = false;
     if (v === 'still') { if (!WAITS.includes(S.screen) || allSolved()) { if (allSolved()) S = fresh(); go('choose'); } showStill(); }
     else if (v === 'confirm') {
-      if (['idle', 'intro', 'introA', 'introB', 'closing'].includes(S.screen)) { S = fresh(); go('choose'); } else render();
+      if (['idle', 'intro', 'introA', 'introB', 'step1', 'closing'].includes(S.screen)) { S = fresh(); go('choose'); } else render();
       confirmRestart();
     }
     else if (v === 'choose') {
@@ -1703,7 +1783,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   }
   new ResizeObserver(fit).observe(viewport); fit();
 
-  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(render, render);
-  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'introA', 'introB', 'text', 'map', 'question', 'choose', 'pick'].includes(S.screen)) render(); });
+  // 19/11: load every weight before the first screen (the browser only loads a weight when it is first used, and the
+  // «loadingdone» re-render below would restart an animated screen halfway through).
+  const fontsIn = document.fonts ? Promise.all(['400', '500', '600', '700'].map(w => document.fonts.load(w + ' 80px Roboto')).concat(['500', '700'].map(w => document.fonts.load(w + ' 80px "Noto Sans Arabic"', 'ع')))).catch(() => {}).then(() => document.fonts.ready) : Promise.resolve();
+  fontsIn.then(render, render);
+  if (document.fonts && document.fonts.addEventListener) document.fonts.addEventListener('loadingdone', () => { if (['idle', 'intro', 'introA', 'introB', 'step1', 'step3', 'text', 'map', 'question', 'choose', 'pick'].includes(S.screen)) render(); });
 })();
 </script>
