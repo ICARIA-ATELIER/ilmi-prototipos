@@ -171,7 +171,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .place .s { font-weight: 400; font-size: 35.2px; line-height: 39.2px; letter-spacing: -.005em; }
 /* Fuente de los datos (Figma «↳ 17/11 v5», nodo 2879:6706, Montse 19/11): SemiBold 32 px de la Beta 03 (la v4 a 0,883 ×), 1 %, #CAE2CA,
    arriba a la derecha, alineada a la derecha con el nombre de la zona, como en su captura. */
-.src { color: #cae2ca; font-weight: 600; font-size: 28.3px; line-height: 31px; letter-spacing: .01em; white-space: nowrap; text-align: right; }
+.src { color: #cae2ca; font-weight: 500; font-size: 21.2px; line-height: 28px; white-space: nowrap; text-align: right; }   /* Figma (19/11 noche): Medium 24 (v4 a 0,883 ×), dos líneas, bajo «Back» */
 .card-xl { box-sizing: border-box; border-radius: 64px 64px 64px 12px; background: #1c4a59; box-shadow: 0 4px 8px -1.3px #1c4a59; }
 .xl-t { font-weight: 700; font-size: 56.5px; line-height: 62px; letter-spacing: -.01em; color: #cae2ca; white-space: nowrap; }
 .xl-s { font-weight: 500; font-size: 35.3px; line-height: 43px; color: #e0f1f3; white-space: nowrap; }
@@ -365,8 +365,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <li>Tarjetas de cada año: salen junto a la línea de tiempo, encima de su año, con la esquina recta apuntando al año (Montse, 18/11). Solo los textos de Ras Tanura 2015 y 2025 son del Figma; el resto son textos de ejemplo, con las hectáreas reales de cada año y zona (consulta del 18/11 con las fotos como límites), para cambiar por los del equipo de contenido (desde el 18/11 ya no van en rojo ni hay notas en pantalla, a petición de Montse). El alto de la tarjeta se ajusta a su texto, con el mismo margen arriba y abajo (Montse, 18/11).</li>
       <li>Zona vista: su píldora lleva el borde y el check de «los tres con check», y la tarjeta dice solo «Select another area», con la letra del título, tras la 1.ª y la 2.ª zona; la tarjeta se ajusta a ese texto (Montse, 18/11). Se puede volver a entrar.</li>
       <li>«Safwa &amp; Qatif» y «Tarout Island, Saihat &amp; Dammam» no tienen pantalla en el Figma: usan las fotos que pasó Montse el 18/11, con el color igualado al de Ras Tanura (los tonos del agua y de la tierra, por separado: Montse, 19/11), el mismo zoom y la misma línea de tiempo, con su nombre. Al volver quedan vistas. Así se llega a «Great job!».</li>
-      <li>Al ver las tres zonas: «Great job!» y, solo, la península con «Satellite scanning successfully completed!» (tarjeta turquesa y pestaña Restart; texto de Montse, 19/11: en el Figma aún pone «Scanning mission successfully completed!»). Después, también solo (3,5 s, provisional), la Tierra de lejos con «Thanks to eyes in space, we can protect mangroves and keep the coastline alive.» y el botón «Play again», que vuelve al reposo. Es el final nuevo del Figma «↳ 19/11 v1 + wireframes» (2891:6889 y 2891:6957), que divide en dos la antigua pantalla «Mission completed». <b>Pendiente</b>: qué pasa si nadie toca «Play again».</li>
-      <li>Leyenda de las zonas siempre igual: «Grey mangroves», sin el año (Montse, 19/11). La fila de la línea discontinua «Grey mangroves in 1985» sigue saliendo a partir de 1995, donde en 1985 había manglar.</li>
+      <li>Al ver las tres zonas: «Great job!» y, solo, la península con «Satellite scanning successfully completed!» (tarjeta turquesa y pestaña Restart; texto de Montse, 19/11, ya también en el Figma). Después, también solo (3,5 s, provisional), la Tierra de lejos con «Thanks to eyes in space, we can protect mangroves and keep the coastline alive.» y el botón «Play again», que vuelve al reposo. Es el final nuevo del Figma «↳ 19/11 v1 + wireframes» (2891:6889 y 2891:6957), que divide en dos la antigua pantalla «Mission completed». <b>Pendiente</b>: qué pasa si nadie toca «Play again».</li>
+      <li>Leyenda de las zonas siempre igual: «Grey mangroves», sin el año (Montse, 19/11). Una sola fila, también sin la de la línea discontinua de 1985 (Montse, 19/11). Va en y 948 y en el Figma es la misma pastilla.</li>
+      <li>Fuente de los datos como en el Figma (19/11, noche): «* Data retrieved from the Global Mangrove Watch website», en dos líneas, alineada a la derecha y debajo de «Back».</li>
       <li>Escaneo, detectado, elegir zona y «Great job!»: en vez de los puntos pintados del Figma, el manglar real de 2025 de las tres zonas (Global Mangrove Watch, Montse 18/11), con un trazo de 5 px y brillo para que se vea a esta escala (unos 40 m por píxel). En el escaneo va apareciendo desde el centro.</li>
       <li>El icono de la pulsera del reposo sale cortado por el borde derecho, como en el Figma (se sale del marco).</li>
     </ul>
@@ -415,7 +416,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     evolved: 'Do you want to<br>know how it has<br>evolved?', choose: 'Choose the area', another: 'Select another<br>area',   // tras entrar en una zona, sola y a tamaño de título (Montse, 18/11)
     slide: 'Slide to see the evolution!', back: 'Back',
     great: 'Great job!',
-    mission: 'Satellite scanning successfully completed!', thanks: 'Thanks to eyes in<br>space, we can protect<br>mangroves and keep<br>the coastline alive.', play: 'Play again', restart: 'Restart', source: 'Data retrieved from the Global Mangrove Watch website'
+    mission: 'Satellite scanning successfully completed!', thanks: 'Thanks to eyes in<br>space, we can protect<br>mangroves and keep<br>the coastline alive.', play: 'Play again', restart: 'Restart', source: '* Data retrieved from the Global<br>Mangrove Watch website'
   };
   // Zonas (Figma: píldoras normales y píldoras vistas de «los tres con check», con la esquina del check).
   //   img: foto de la zona; rect: dónde cae dentro de la vista de Tarout Bay (x, y, ancho; para el zoom), medido superponiendo las fotos;
@@ -842,10 +843,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     },
     mission() {
       // Figma «↳ 19/11 v1 + wireframes» (2891:6889, Montse 19/11): la península con la tarjeta turquesa y la pestaña Restart; pasa sola a «Thanks…».
-      // Texto de Montse (19/11): «Satellite scanning successfully completed!» (en el Figma aún pone «Scanning mission successfully completed!»)
+      // Texto de Montse (19/11): «Satellite scanning successfully completed!» (ya también en el Figma)
       layer('peninsula.jpg');
-      const c = add(mk('div', 'abs card-m2')); size(at(c, 605, 499), 736, 184); anim(c, 'rise', T.card);
-      size(at(anim(add(mk('div', 'abs m-t m-t2', TX.mission)), 'rise', T.card), 669, 539), 608);
+      const c = add(mk('div', 'abs card-m2')); size(at(c, 605, 416), 736, 184); anim(c, 'rise', T.card);   // y 416 como en el Figma (19/11 noche)
+      size(at(anim(add(mk('div', 'abs m-t m-t2', TX.mission)), 'rise', T.card), 669, 456), 608);
       auto(() => go('thanks'), T.mission);
       return { hint: 'Ending: <b>Satellite scanning successfully completed!</b> Moves on by itself (' + (T.mission / 1000).toFixed(1) + ' s, provisional).' };
     },
@@ -940,10 +941,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     });
     svg.appendChild(outline);
     place(Z.name, Z.sub, 1826, 81, 1);
-    const src = add(mk('div', 'abs src', TX.source)); src.style.right = (W - 1826) + 'px'; src.style.top = '39px';   // en las tres zonas y todos los años (Montse, 19/11)
+    const src = add(mk('div', 'abs src', TX.source)); src.style.right = (W - 1824) + 'px'; src.style.top = '330px';   // como en el Figma «↳ 19/11 v1 + wireframes» (caja x 1526, y 330, 298 de ancho, a la derecha), en las tres zonas y todos los años
     btn(1638, 191, 188, 91, 'back call sh', ARROW_L + '<span>' + TX.back + '</span>', () => go('choose'), 'Back: volver a elegir zona');
     let cardEl = null, legend = null, hintEl = null;
-    legend = add(mk('div', 'abs legend sh')); at(legend, 1440, 900);   // leyenda siempre (Montse, 17/11)
+    legend = add(mk('div', 'abs legend sh')); at(legend, 1440, 948);   // leyenda siempre (Montse, 17/11); y 948 como en el Figma (19/11)
     if (fresh1985) { hintEl = add(mk('div', 'abs slide-hint sh', TX.slide)); size(at(hintEl, 625, 794), 391.3, 70.7); anim(hintEl, 'pop', 400); }
     // línea de tiempo (Figma «timeline»)
     const tl = add(mk('div', 'abs tl')); size(at(tl, 522, 894), 875, 146);
@@ -974,7 +975,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         cardEl.style.top = (894 - 20 - cardEl.offsetHeight) + 'px';   // alto según el texto, mismo margen arriba y abajo (Montse, 18/11)
         anim(cardEl, 'rise', first ? 300 : 60, 380);
       }
-      if (legend) legend.innerHTML = '<div class="row"><span class="sw ' + (V.mang === 'mancha' ? 'fill' : 'dots') + '"></span>Grey mangroves</div>'   /* siempre igual, sin el año (Montse, 19/11) */ + (i > 0 && has1985 ? '<div class="row"><span class="sw line"></span>Grey mangroves in 1985</div>' : '');   // sin línea de 1985 donde no había manglar (Ras Tanura)
+      if (legend) legend.innerHTML = '<div class="row"><span class="sw ' + (V.mang === 'mancha' ? 'fill' : 'dots') + '"></span>Grey mangroves</div>'   /* una sola fila, siempre igual: sin el año ni la fila discontinua de 1985 (Montse, 19/11) */;   // sin línea de 1985 donde no había manglar (Ras Tanura)
       current.hint = Z.name.replace('&amp;', '&') + ' · <b>' + YEARS[i] + '</b>. <b>Drag</b> the circle on the timeline (drag only). ' + (cardEl && C.ex ? '<b>Example</b> text. ' : '') + 'Patches: the real mangroves of ' + YEARS[i] + ' from Global Mangrove Watch.';
       if (!first) showHint();
     };
