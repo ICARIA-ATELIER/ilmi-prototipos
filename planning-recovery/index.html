@@ -144,10 +144,11 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   color: #fff; font-weight: 500; font-size: 72px; line-height: 1; pointer-events: none; }
 .ipill.on { animation: unroll .5s cubic-bezier(.25,.8,.3,1) both; }
 .ipill.on span { animation: fade .35s ease-out .25s both; }
-.inum.on { animation: pop .45s cubic-bezier(.2,.9,.3,1) both; }
+.inum.on { animation: shrinkin .55s cubic-bezier(.2,.8,.3,1) both; }   /* 19/11 (Montse): the number comes big and shrinks to its size */
 .inum.beat { animation: beat .32s ease-in-out both; }
 @keyframes unroll { from { clip-path: inset(-30px 100% -30px -30px); } to { clip-path: inset(-30px -30px -30px -30px); } }
 @keyframes beat { 50% { transform: scale(1.14); } }
+@keyframes shrinkin { from { transform: scale(2.6); opacity: 0; } 35% { opacity: 1; } to { transform: scale(1); opacity: 1; } }
 /* 18/11 · Variante «Fondo · movimiento leve en las intros» (Montse): while the intro texts are out, small orderly
    movement in the drawing. Intro 1: the dark river flows and its stain drifts downstream. Intro 2: the river goes on and
    the camels with riders walk a little; the grazing ones rock. Simulated, look and timings provisional. */
@@ -364,8 +365,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // puzzleDone (provisional): pause after the last name lands, before the map with its title.
   // 17/11 (Montse): inactivity notice later — 20 s on the map and description (was 10), 30 s on the question and puzzle (was 20).
   const T = { cta: 300, toFeedback: 300, second: 350, gap: 150, readWrong: 5000, readRight: 5000, still: 20000, stillQ: 30000, puzzleDone: 900, capGap: 1000, holdover: 500, confirm: 10000, descShow: 5000, restore: 2500, restoreHold: 1500,
-              introA: [300, 2500, 7500, 12500], introB: [300, 1500, 3200, 700, 14000], fxRiver: 6000 };
-  // introB (19/11, Intro 2 nueva, provisional): title, «Scientists follow three steps:», first step, beat between steps,
+              introA: [300, 2500, 7500, 12500], introB: [300, 1500, 3200, 1200, 550, 14000], fxRiver: 6000 };
+  // introB (19/11, Intro 2 nueva, provisional): title, «Scientists follow three steps:», first number, one step every…,
+  // its text after its number (Montse, 19/11: number first, big to small, then its text; one after the other),
   // and when the screen moves on by itself (≈ 26 words for 8–9-year-olds).
   // fxRiver (18/11, variante «Fondo», provisional): how long the river and its stain move in intro 1 before the diggers.
   // introA / introB (18/11, nueva interactividad, provisional): when each text comes out (title, cards) and, last, when
@@ -1130,7 +1132,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       bg('before');
       backgroundFx('B'); // the camels (with riders they walk a little; the grazing ones rock)
       glow(1986, 980, 2600, 1400);
-      const [t0, tSub, tSteps, beat, tNext] = T.introB;
+      const [t0, tSub, tSteps, beat, tText, tNext] = T.introB;
       const t = add(mk('div', 'abs big', 'Restoring a mangrove is<br>like solving a mystery')); t.style.width = '1600px'; t.style.lineHeight = '115.64px';
       at(t, 1987 - 800, 724); anim(t, 'a-fade', t0);
       const s = add(mk('div', 'abs isub', 'Scientists follow three steps:')); at(s, Math.round(1987.5 - s.offsetWidth / 2), 1010); anim(s, 'a-fade', tSub);
@@ -1146,13 +1148,13 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         const c = add(mk('div', 'abs inum', n)); at(c, cx, cy);
         p.style.visibility = c.style.visibility = 'hidden';
         later(() => { c.style.visibility = ''; c.classList.add('on'); }, tSteps + i * beat);
-        later(() => { p.style.visibility = ''; p.classList.add('on'); }, tSteps + i * beat + 120);
+        later(() => { p.style.visibility = ''; p.classList.add('on'); }, tSteps + i * beat + tText);   // its text once the number has landed
         return c;
       });
-      // Once the three are out, the numbers beat once more, 1-2-3, on the same rhythm (halved).
-      nums.forEach((c, i) => later(() => { c.classList.remove('on'); c.classList.add('beat'); }, tSteps + 3 * beat + 200 + i * beat / 2));
+      // Once the three are out, the numbers beat once more, 1-2-3 (as in v44: 0.35 s apart).
+      nums.forEach((c, i) => later(() => { c.classList.remove('on'); c.classList.add('beat'); }, tSteps + 3 * beat + 200 + i * 350));
       auto(NEXT.introB, tNext);
-      return { tap: NEXT.introB, hint: 'Also appears by itself: first the title and «Scientists follow three steps:»; then steps 1, 2 and 3 come out one by one, on a steady beat (each number pops and its pill unrolls out of it; at the end the numbers beat 1-2-3). Then it moves on to the puzzle by itself (or <b>tap the screen</b>). Movement and timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: the camels; the ones with riders walk a little to the left and the grazing ones sway. Simulated.' : '') };
+      return { tap: NEXT.introB, hint: 'Also appears by itself: first the title and «Scientists follow three steps:»; then steps 1, 2 and 3 come out one by one, one after the other (the number comes big and shrinks to its size, then its text comes out of it; at the end the numbers beat 1-2-3). Then it moves on to the puzzle by itself (or <b>tap the screen</b>). Movement and timings provisional.' + (FX === 'mov' ? ' <b>Background with movement</b>: the camels; the ones with riders walk a little to the left and the grazing ones sway. Simulated.' : '') };
     },
     intro() {
       bg('before');
