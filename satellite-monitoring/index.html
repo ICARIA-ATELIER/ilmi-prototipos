@@ -184,6 +184,12 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .card-gj { display: flex; align-items: center; justify-content: center; border-radius: 12px 64px 64px 12px; background: #257286; color: #e0f1f3; font-weight: 700; font-size: 70.6px; line-height: 75px; letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 4px 8px -1.3px #1c4a59; }
 .card-m { box-sizing: border-box; border-radius: 64px 64px 64px 12px; background: linear-gradient(180deg, #3f686f, #21596a); box-shadow: 0 4px 8px -1.3px #1c4a59; }
 .m-t { text-align: center; color: #e0f1f3; font-weight: 700; font-size: 45.9px; line-height: 52px; letter-spacing: -.01em; white-space: nowrap; }
+/* final nuevo (Figma «↳ 19/11 v1 + wireframes», 2891:6889 y 2891:6957, Montse 19/11): tarjeta «CTA card M» turquesa, texto sobre la Tierra y botón «Play again» */
+.card-m2 { box-sizing: border-box; border-radius: 64px 64px 64px 12px; background: linear-gradient(180deg, #51a2b2, #3895ae); box-shadow: 0 4px 8px -1.3px #1c4a59; }
+.m-t.m-t2 { white-space: normal; }
+.t-b { text-align: center; color: #effaef; font-weight: 700; font-size: 56.5px; line-height: 67px; white-space: nowrap; }
+.btn-s.play { gap: 12px; font-weight: 700; color: #fff; border-radius: 999px; background: linear-gradient(180deg, #2a7a8e, #458894); box-shadow: 0 4px 8px -1.3px #1c4a59; }
+.btn-s.play svg { width: 44px; height: 41px; }
 .m-b { text-align: center; color: #e0f1f3; font-weight: 500; font-size: 35.3px; line-height: 43px; white-space: nowrap; }
 /* notas de revisión en rojo (no son de la pieza): se ven en rojo también con el prototipo en grises */
 .red-note { box-sizing: border-box; width: 560px; padding: 14px 20px; border-radius: 14px; background: rgba(255,255,255,.93); color: #d0021b; font-family: var(--ui); font-weight: 600; font-size: 24px; line-height: 31px; pointer-events: none; }
@@ -359,7 +365,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       <li>Tarjetas de cada año: salen junto a la línea de tiempo, encima de su año, con la esquina recta apuntando al año (Montse, 18/11). Solo los textos de Ras Tanura 2015 y 2025 son del Figma; el resto son textos de ejemplo, con las hectáreas reales de cada año y zona (consulta del 18/11 con las fotos como límites), para cambiar por los del equipo de contenido (desde el 18/11 ya no van en rojo ni hay notas en pantalla, a petición de Montse). El alto de la tarjeta se ajusta a su texto, con el mismo margen arriba y abajo (Montse, 18/11).</li>
       <li>Zona vista: su píldora lleva el borde y el check de «los tres con check», y la tarjeta dice solo «Select another area», con la letra del título, tras la 1.ª y la 2.ª zona; la tarjeta se ajusta a ese texto (Montse, 18/11). Se puede volver a entrar.</li>
       <li>«Safwa &amp; Qatif» y «Tarout Island, Saihat &amp; Dammam» no tienen pantalla en el Figma: usan las fotos que pasó Montse el 18/11, con el color igualado al de Ras Tanura (los tonos del agua y de la tierra, por separado: Montse, 19/11), el mismo zoom y la misma línea de tiempo, con su nombre. Al volver quedan vistas. Así se llega a «Great job!».</li>
-      <li>Al ver las tres zonas: «Great job!» y, solo, «Mission successfully completed!». El botón «Restart» sale un momento después (en el Figma hay una pantalla sin él y otra con él) y vuelve al reposo. Pendiente: qué pasa si nadie lo toca.</li>
+      <li>Al ver las tres zonas: «Great job!» y, solo, la península con «Satellite scanning successfully completed!» (tarjeta turquesa y pestaña Restart; texto de Montse, 19/11: en el Figma aún pone «Scanning mission successfully completed!»). Después, también solo (3,5 s, provisional), la Tierra de lejos con «Thanks to eyes in space, we can protect mangroves and keep the coastline alive.» y el botón «Play again», que vuelve al reposo. Es el final nuevo del Figma «↳ 19/11 v1 + wireframes» (2891:6889 y 2891:6957), que divide en dos la antigua pantalla «Mission completed». <b>Pendiente</b>: qué pasa si nadie toca «Play again».</li>
+      <li>Leyenda de las zonas siempre igual: «Grey mangroves», sin el año (Montse, 19/11). La fila de la línea discontinua «Grey mangroves in 1985» sigue saliendo a partir de 1995, donde en 1985 había manglar.</li>
       <li>Escaneo, detectado, elegir zona y «Great job!»: en vez de los puntos pintados del Figma, el manglar real de 2025 de las tres zonas (Global Mangrove Watch, Montse 18/11), con un trazo de 5 px y brillo para que se vea a esta escala (unos 40 m por píxel). En el escaneo va apareciendo desde el centro.</li>
       <li>El icono de la pulsera del reposo sale cortado por el borde derecho, como en el Figma (se sale del marco).</li>
     </ul>
@@ -387,8 +394,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // Tarout Bay), más ritmo: unos 0,35 s por palabra (Montse, 19/11; antes earth 4500, pen 9000, bubble 3500, bubbleMove 8000).
   // earth / pen: cuánto se queda la
   // Tierra y la península; scanCard / scanDots / scanEnd: 1.ª tarjeta, puntos con la 2.ª y paso a «detectado»; det3 / detOut:
-  // 3.ª tarjeta y salida de tarjeta y esquinas; great: «Great job!» → final; finBtn: el «Restart» del final.
-  const T = { card: 250, earth: 3000, zoomPen: 5000, pen: 6000, zoom: 4200, zoomRas: 1800, bubble: 2500, bubbleMove: 5500, wave: 2400, scanCard: 1200, scanDots: 5500, scanFx: 2800, scanEnd: 14500, det3: 900, detOut: 6500, detected: 7300, great: 2500, finBtn: 1500, still: 20000, gap: 150, holdover: 500, confirm: 10000 };
+  // 3.ª tarjeta y salida de tarjeta y esquinas; great: «Great job!» → final; mission: «Satellite scanning successfully completed!» → «Thanks…» (provisional, 19/11).
+  const T = { card: 250, earth: 3000, zoomPen: 5000, pen: 6000, zoom: 4200, zoomRas: 1800, bubble: 2500, bubbleMove: 5500, wave: 2400, scanCard: 1200, scanDots: 5500, scanFx: 2800, scanEnd: 14500, det3: 900, detOut: 6500, detected: 7300, great: 2500, mission: 3500, finBtn: 1500, still: 20000, gap: 150, holdover: 500, confirm: 10000 };
   // holdover y confirm (18/11, variante accesible): 0,5 s sin aceptar toques tras aparecer la confirmación de Restart o
   // cambiar el idioma (toques de arrastre); la confirmación se cierra sola, como «No», a los 10 s sin tocar.
 
@@ -408,7 +415,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     evolved: 'Do you want to<br>know how it has<br>evolved?', choose: 'Choose the area', another: 'Select another<br>area',   // tras entrar en una zona, sola y a tamaño de título (Montse, 18/11)
     slide: 'Slide to see the evolution!', back: 'Back',
     great: 'Great job!',
-    mission: 'Mission successfully completed!', thanks: 'Thanks to eyes in space, we can protect<br>mangroves and keep the coastline alive.', restart: 'Restart', source: 'Data retrieved from the Global Mangrove Watch website'
+    mission: 'Satellite scanning successfully completed!', thanks: 'Thanks to eyes in<br>space, we can protect<br>mangroves and keep<br>the coastline alive.', play: 'Play again', restart: 'Restart', source: 'Data retrieved from the Global Mangrove Watch website'
   };
   // Zonas (Figma: píldoras normales y píldoras vistas de «los tres con check», con la esquina del check).
   //   img: foto de la zona; rect: dónde cae dentro de la vista de Tarout Bay (x, y, ancho; para el zoom), medido superponiendo las fotos;
@@ -458,7 +465,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     ['ras:3', '14 · Ras Tanura · 2015'], ['ras:4', '15 · Ras Tanura · 2025'], ['choose:seen', '16 · Select another area (Ras Tanura seen)'],
     ['zoomZone:0:safwa', '17 · Zoom to Safwa & Qatif'], ['ras:0:safwa', '18 · Safwa & Qatif · 1985'], ['ras:3:safwa', '19 · Safwa & Qatif · 2015'],
     ['zoomZone:0:island', '20 · Zoom to Tarout Island'], ['ras:0:island', '21 · Tarout Island, Saihat & Dammam · 1985'], ['ras:3:island', '22 · Tarout Island, Saihat & Dammam · 2015'],
-    ['great', '23 · Great job! (all three areas seen)'], ['mission', '24 · Mission successfully completed!'], ['still', 'Are you still there? (inactivity)'],
+    ['great', '23 · Great job! (all three areas seen)'], ['mission', '24 · Satellite scanning successfully completed!'], ['thanks', '25 · Thanks to eyes in space… (Play again)'], ['still', 'Are you still there? (inactivity)'],
     ['confirm', 'Confirm Restart']
   ];
 
@@ -834,13 +841,20 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       return { hint: 'All three areas seen: <b>Great job!</b> Moves on to the ending by itself (' + T.great / 1000 + ' s, provisional).' };
     },
     mission() {
-      // Figma: «Mission successfully completed!» sobre la península (saturación −35 %); el botón «Restart» sale después
-      layer('peninsula-fin.jpg');
-      const c = add(mk('div', 'abs card-m')); size(at(c, 647, 371), 736, 244); anim(c, 'rise', T.card);
-      size(at(anim(add(mk('div', 'abs m-t', TX.mission)), 'rise', T.card), 711, 411), 608);
-      size(at(anim(add(mk('div', 'abs m-b', TX.thanks)), 'rise', T.card + T.gap), 711, 489), 608);
-      later(() => anim(btn(895, 669, 245.9, 98.9, 'btn-s fin call', '<span>' + TX.restart + '</span>' + RESTART_IC, () => { S = fresh(); go('intro'); }, 'Restart: volver al reposo'), 'pop'), T.finBtn);
-      return { hint: 'Ending. After a moment <b>Restart</b> appears and goes back to the idle screen. <b>Pending:</b> what happens if nobody taps it.' };
+      // Figma «↳ 19/11 v1 + wireframes» (2891:6889, Montse 19/11): la península con la tarjeta turquesa y la pestaña Restart; pasa sola a «Thanks…».
+      // Texto de Montse (19/11): «Satellite scanning successfully completed!» (en el Figma aún pone «Scanning mission successfully completed!»)
+      layer('peninsula.jpg');
+      const c = add(mk('div', 'abs card-m2')); size(at(c, 605, 499), 736, 184); anim(c, 'rise', T.card);
+      size(at(anim(add(mk('div', 'abs m-t m-t2', TX.mission)), 'rise', T.card), 669, 539), 608);
+      auto(() => go('thanks'), T.mission);
+      return { hint: 'Ending: <b>Satellite scanning successfully completed!</b> Moves on by itself (' + (T.mission / 1000).toFixed(1) + ' s, provisional).' };
+    },
+    thanks() {
+      // Figma 2891:6957: la Tierra de lejos con dos brillos oscuros detrás del texto (fondo exportado del Figma) y «Play again», que vuelve al reposo
+      layer('tierra-fin.jpg');
+      size(at(anim(add(mk('div', 'abs t-b', TX.thanks)), 'rise', T.card), 559.5, 375), 800);   // centrado como la caja del Figma (x 685, 549 de ancho)
+      anim(btn(815, 723, 289, 76, 'btn-s play call', '<span>' + TX.play + '</span>' + RESTART_IC, () => { S = fresh(); go('intro'); }, 'Play again: volver al reposo'), 'pop', T.card + T.gap);
+      return { hint: 'Ending: «Thanks to eyes in space…». <b>Play again</b> goes back to the idle screen. <b>Pending:</b> what happens if nobody taps it.' };
     },
     ras(year) { return rasScreen(year); },
     still() { return SCREENS.choose(); }
@@ -960,7 +974,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         cardEl.style.top = (894 - 20 - cardEl.offsetHeight) + 'px';   // alto según el texto, mismo margen arriba y abajo (Montse, 18/11)
         anim(cardEl, 'rise', first ? 300 : 60, 380);
       }
-      if (legend) legend.innerHTML = '<div class="row"><span class="sw ' + (V.mang === 'mancha' ? 'fill' : 'dots') + '"></span>Grey mangroves in ' + YEARS[i] + '</div>' + (i > 0 && has1985 ? '<div class="row"><span class="sw line"></span>Grey mangroves in 1985</div>' : '');   // sin línea de 1985 donde no había manglar (Ras Tanura)
+      if (legend) legend.innerHTML = '<div class="row"><span class="sw ' + (V.mang === 'mancha' ? 'fill' : 'dots') + '"></span>Grey mangroves</div>'   /* siempre igual, sin el año (Montse, 19/11) */ + (i > 0 && has1985 ? '<div class="row"><span class="sw line"></span>Grey mangroves in 1985</div>' : '');   // sin línea de 1985 donde no había manglar (Ras Tanura)
       current.hint = Z.name.replace('&amp;', '&') + ' · <b>' + YEARS[i] + '</b>. <b>Drag</b> the circle on the timeline (drag only). ' + (cardEl && C.ex ? '<b>Example</b> text. ' : '') + 'Patches: the real mangroves of ' + YEARS[i] + ' from Global Mangrove Watch.';
       if (!first) showHint();
     };
@@ -998,7 +1012,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
   // península, como en la página de Figma «↳ 19/11 v1» (Montse, 19/11: «en todas»): península, zooms, Tarout Bay, escaneo,
   // detectado, elegir zona, las tres zonas y «Great job!». No sale en el reposo, en la Tierra de lejos ni en el final, que tiene
   // su propio botón «Restart». Sin botón de idioma (no está en el Figma). Pide confirmación.
-  const RTAB = new Set(['pen', 'zoom', 'tarut', 'scan', 'detected', 'choose', 'zoomZone', 'ras', 'great', 'still']);
+  const RTAB = new Set(['pen', 'zoom', 'tarut', 'scan', 'detected', 'choose', 'zoomZone', 'ras', 'great', 'mission', 'still']);   // también en «Satellite scanning…», como en el Figma (19/11)
   function menu() {
     const b = at(add(mk('button', 'abs rtab', RESTART_IC + '<span>' + TX.restart + '</span>')), 0, 829); b.type = 'button';
     b.setAttribute('aria-label', 'Restart: start again (asks for confirmation)');
@@ -1070,7 +1084,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     // Adelante recorre las tres zonas en orden (Ras Tanura, Safwa & Qatif, Tarout Island) y luego el final
     choose: () => { const k = ZKEYS.find(z => !S.seen.includes(z)); if (!k) go('mission'); else go('zoomZone', 0, k); },
     ras: () => (S.year < 4 ? go('ras', S.year + 1) : go('choose')),
-    great: () => go('mission'), mission: () => go('intro')
+    great: () => go('mission'), mission: () => go('thanks'), thanks: () => go('intro')
   };
   const snap = () => ({ ...S });
   function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (Back / Next, or tap the screen to continue). ' : '') + (current.hint || ''); }
