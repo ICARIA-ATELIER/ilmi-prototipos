@@ -137,7 +137,8 @@ html.gray{filter:grayscale(1)}
 #onbCard .warnIcon{width:150px;height:150px}
 #onbCard .t70r{max-width:1700px}
 /* ---------- guided onboarding (v2.1): one element per step ---------- */
-#onbScrim{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .6s;pointer-events:none}
+#onbScrim{position:absolute;inset:0;background:rgba(0,0,0,.4);opacity:0;transition:opacity .6s;pointer-events:none;z-index:20}   /* por encima de toda la UI… */
+.onbFocus{z-index:30}   /* …salvo el elemento que se presenta en ese paso y su bocadillo */
 #onbScrim.on{opacity:1}
 #zoomLines{position:absolute;left:0;top:0;width:3840px;height:2160px;pointer-events:none;opacity:0;transition:opacity .6s;filter:drop-shadow(0 4px 14px rgba(0,0,0,.45))}
 #zoomLines.on{opacity:1}
@@ -353,8 +354,8 @@ html.gray{filter:grayscale(1)}
   <!-- IDLE -->
   <div id="idle" class="screen">   <!-- flat #1C4A59 background, no shapes/waves -->
     <div id="idleTitles" class="abs">
-      <p class="ar" lang="ar" dir="rtl">هل يمكنك مساعدة وجهٍ يشبه المرجان على التحوّل؟</p>
-      <div class="enWrap"><p class="en" data-qa="Main Title:50">Can you help a coral face change?</p></div>
+      <p class="ar" lang="ar" dir="rtl">هل يمكن للشركاء الصغار أن يساعدوا المرجان على التكيف؟</p>
+      <div class="enWrap"><p class="en" data-qa="Main Title:50">Can tiny partners help a coral cope?</p></div>
     </div>
     <p class="ctaLine" style="left:2755px;top:1898px;width:900.3px" data-qa="Call to action:30">Scan your wristband or tap to begin</p>
     <p class="ctaLine ar" lang="ar" dir="rtl" style="left:2910px;top:1812px;width:744.5px">مرّر سوارك أو المس للبدء</p>
@@ -976,7 +977,7 @@ const S = { screen: 'idle', ci: 0, phase: '', phaseT: 0, t: 0, health: 100, v: P
   locked: true, results: [], lastTouch: 0, screenAt: 0, sliderAt: 0, opened: new Set(), paused: false, still: false };
 const now = () => performance.now() / 1000;
 const show = (id, on) => { $(id).hidden = !on; };
-function hideAll() { ST.shiftOn = false; setRing(''); $('#bubble').hidden = true; $('#btnOnbStart').hidden = true; $('#zoomLines').classList.remove('on'); $('#onbScrim').classList.remove('on'); ['#idle', '#sIntro', '#sExplore', '#sResult', '#sFinal', '#hud'].forEach(i => show(i, false)); $('#scope').className = ''; $('#world').classList.remove('zoom'); $('#glints').innerHTML = ''; $('#rightWave').style.opacity = 0; clearNudges(); }
+function hideAll() { clearFocus(); ST.shiftOn = false; setRing(''); $('#bubble').hidden = true; $('#btnOnbStart').hidden = true; $('#zoomLines').classList.remove('on'); $('#onbScrim').classList.remove('on'); ['#idle', '#sIntro', '#sExplore', '#sResult', '#sFinal', '#hud'].forEach(i => show(i, false)); $('#scope').className = ''; $('#world').classList.remove('zoom'); $('#glints').innerHTML = ''; $('#rightWave').style.opacity = 0; clearNudges(); }
 function clearNudges() { document.querySelectorAll('.nudge').forEach(e => e.classList.remove('nudge')); }
 function enter(screen) { S.screen = screen; S.screenAt = now(); }
 const challengeBands = () => [P.band1, P.band2, P.band3];
@@ -1047,7 +1048,8 @@ function startChallenge(i) {
 const ONB_STEPS = ['title', 'lens', 'name', 'env', 'slider', 'ready'];
 function onbRead(step) { return P['c' + (S.ci + 1) + 's' + step]; }            // reading time of auto steps 2–5
 function introduce(sel) { const e = $(sel); e.hidden = false; e.style.setProperty('--hl', P.onbHl + 's'); e.classList.remove('introduce', 'fadein'); void e.offsetWidth; e.classList.add('introduce'); }
-function highlight() { const s = $('#onbScrim'); s.classList.add('on'); clearTimeout(highlight.t); highlight.t = setTimeout(() => s.classList.remove('on'), P.onbHl * 1000); }
+function clearFocus() { document.querySelectorAll('.onbFocus').forEach(e => e.classList.remove('onbFocus')); }
+function highlight(...sels) { clearFocus(); [...sels, '#bubble'].forEach(x => $(x).classList.add('onbFocus')); const s = $('#onbScrim'); s.classList.add('on'); clearTimeout(highlight.t); highlight.t = setTimeout(() => s.classList.remove('on'), P.onbHl * 1000); }
 function stageBox(el) {   // layout box in 3840×2160 stage px (ignores running animations); honours the CSS translate:-50% used on centred items
   let x = 0, y = 0, e = el; while (e && e !== stage) { x += e.offsetLeft; y += e.offsetTop; e = e.offsetParent; }
   const tr = (getComputedStyle(el).translate || '').split(' ');
@@ -1058,7 +1060,7 @@ function stageBox(el) {   // layout box in 3840×2160 stage px (ignores running 
 function bubble(text, cat, o) {   // o: {target, side: above|below|left|right, w, gap, at:{cx,cy} optional point to aim at}
   const b = $('#bubble'); b.hidden = false; $('#bubbleText').textContent = text; b.dataset.qa = cat;
   const tail = { above: 'down', below: 'up', left: 'right', right: 'left' }[o.side];
-  b.className = 'glass t-' + tail; b.style.width = o.w + 'px';
+  b.className = 'glass onbFocus t-' + tail;   // el bocadillo siempre queda por encima del velo b.style.width = o.w + 'px';
   const T = stageBox(typeof o.target === 'string' ? $(o.target) : o.target), aim = Object.assign({ cx: T.cx, cy: T.cy }, o.at || {});
   const W = o.w, H = b.offsetHeight, g = (o.gap ?? 40) + 43, M = 60; let x, y;
   if (o.side === 'above') { x = aim.cx - W / 2; y = T.y - g - H; }
@@ -1081,22 +1083,22 @@ function onbStep(phase) {
   const ch = CH[S.ci]; S.phase = phase; S.phaseT = 0; S.screenAt = now();
   if (phase === 'lens') {          // 2 · the microscope lens zooms into one part of the coral
     $('#onbCard').hidden = true; $('#btnOnbStart').hidden = true;
-    $('#scope').className = 'on'; setRing(''); introduce('#scope'); zoomLines(); $('#zoomLines').classList.add('on'); highlight();
+    $('#scope').className = 'on'; setRing(''); introduce('#scope'); zoomLines(); $('#zoomLines').classList.add('on'); highlight('#scope', '#zoomLines');
     if (S.ci === 0) bubble(ch.onb.lens, 'Prompt:100', { target: '#scope', side: 'above', w: 780 });   // challenges 2–3: lens animation only
     else $('#bubble').hidden = true;
   }
   if (phase === 'name') {          // 3 · which microorganism, and why it may help
-    $('#zoomLines').classList.remove('on'); introduce('#lensName'); highlight();
+    $('#zoomLines').classList.remove('on'); introduce('#lensName'); highlight('#lensName');
     bubble(ch.desc, 'Description:100', { target: '#lensName', side: 'below', w: 680, gap: 30 });
   }
   if (phase === 'env') {           // 4 · coral health + the changing environment
-    $('#hudTop').hidden = false; $('#timer').hidden = true; introduce('#hudTop'); introduce('#meter'); highlight();
+    $('#hudTop').hidden = false; $('#timer').hidden = true; introduce('#hudTop'); introduce('#meter'); highlight('#hudTop', '#meter');
     $('#mFill').style.backgroundSize = '100% ' + Math.max(1, $('#mBar').clientHeight - 10) + 'px'; updateMeter(); updateHealth();
     bubble(ch.onb.env, 'Prompt:100', { target: '#mBar', side: 'right', w: 860, gap: 60 });
   }
   if (phase === 'slider') {        // 5 · the goal: balance the amount, time is limited (timer shown, not running)
     $('#timer').hidden = false; $('#tval').textContent = fmt(P.roundDur); $('#slider').classList.remove('locked'); S.locked = false;   // touching it now starts the round
-    introduce('#slider'); highlight();
+    introduce('#slider'); highlight('#slider');
     { const kb = $('#slider .knob'), sb = stageBox($('#slider')); bubble(ch.onb.slider, 'Prompt:100', { target: '#slider', side: 'left', w: 680, gap: 50, at: { cy: sb.y + kb.offsetTop + kb.offsetHeight / 2 } }); }   // aim at the knob (what to touch)
   }
   if (phase === 'ready') {         // 6 · the round starts with the first touch on the slider
@@ -1361,7 +1363,7 @@ function live() {
 }
 // QA: every brief text with its category limit
 const QA_LIST = [
-  ['Main Title', 50, 'Can you help a coral face change?'], ['Call to action', 30, 'Scan your wristband or tap to begin'],
+  ['Main Title', 50, 'Can tiny partners help a coral cope?'], ['Call to action', 30, 'Scan your wristband or tap to begin'],
   ['Main Title', 50, 'A coral is never alone.'], ['Label', 65, 'Algae, bacteria and other microbes live with the coral. Together, they form a coral holobiont.'], ['Button', 15, 'Meet its tiny partners.'],
   ...MICRO.map(m => ['Label', 65, `${m.name} ${m.text}`]), ['Call to action', 30, 'Tap the icons to meet the tiny partners.'], ['Button', 15, 'Start experiment'],
   ...CH.flatMap(ch => [['Main Title', 50, ch.title], ['Subtitle', 90, ch.sub], ['Prompt', 100, ch.onb.lens], ['Prompt', 100, ch.onb.env], ['Prompt', 100, ch.onb.slider], ['Label', 65, ch.label], ['Description', 100, ch.desc], ...Object.values(ch.res).map(r => ['Description', 100, r]), ['Button', 15, ch.btn]]),
