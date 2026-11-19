@@ -338,6 +338,19 @@ html.gray{filter:grayscale(1)}
 #finalMsg{top:1170px;width:2300px;padding:64px 80px;border-radius:24px;background:linear-gradient(180deg,rgba(54,148,174,.25),rgba(28,74,89,.25)),var(--b900);border:0;box-shadow:0 8px 8px rgba(0,0,0,.3);gap:32px}
 #finalMsg .t70{font-size:80px;line-height:85px;font-weight:600}
 #finalMsg .t60{font-size:48px;line-height:57px;font-weight:500}
+
+/* ===== SF_12_FinalReport, versión ajustada por Montse (Figma 328:10331, 19/11): mensaje sobre el halo + resultados en píldoras ===== */
+#finalTitle{display:none}
+#finalHalo{left:705px;top:-615px;width:2474px;height:2237px}   /* mismo halo y posición que la intro */
+#finalMsg{top:414px;width:1500px;padding:0;gap:32px;background:none;border:0;box-shadow:none;border-radius:0;color:var(--b800)}
+#finalMsg .t70{font-size:128px;font-weight:700;line-height:116px;letter-spacing:-1.28px;max-width:1100px;margin:0 auto}   /* mismo corte de línea que el Figma con Roboto */
+#finalMsg .t60{font-size:80px;font-weight:600;line-height:85px;max-width:1061px;margin:0 auto}
+#finalCards{top:1261px;gap:48px}
+.fcard{width:auto;display:grid;grid-template-columns:96px auto;grid-template-rows:auto auto;column-gap:32px;row-gap:4px;align-items:center;padding:20px 64px 20px 20px;border-radius:999px;background:var(--b800);border:2px solid rgba(255,255,255,.18);box-shadow:0 16px 20px rgba(0,0,0,.28)}
+.fcard .fIcon{position:static;translate:none;grid-row:1/3;width:96px;height:96px;box-shadow:0 0 0 4px var(--b900);filter:none}
+.fcard .rule{display:none}
+.fcard .t70r{font-size:44px;line-height:53px;text-align:center;color:var(--b200)}
+.fcard .t70{font-size:60px;line-height:72px;text-align:center;color:var(--acc50)}
 </style>
 
 <header id="rbar">
@@ -441,7 +454,7 @@ html.gray{filter:grayscale(1)}
     <div id="finalTitle" class="abs t114 shadow" data-qa="Main Title:50">Final Report</div>
     <div id="finalCards" class="abs"></div>
     <div id="finalMsg" class="abs glass">
-      <div class="t70" data-qa="Subtitle:90">Healthy corals need healthy oceans.</div>
+      <div class="t70" data-qa="Subtitle:90">Healthy corals need healthy oceans</div>
       <div class="t60" data-qa="Description:100">Microbes support coral health, but clean water and healthy habitats are vital for resilient reefs.</div>
     </div>
     <button id="btnAgain" class="btn" style="top:1771px" data-qa="Button:15">Play again</button>
@@ -1469,7 +1482,7 @@ const QA_LIST = [
   ['Button', 15, 'Start'], ['Call to action', 30, CTA.start], ['Call to action', 30, CTA.adjust], ['Call to action', 30, CTA.lower], ['Call to action', 30, CTA.hold], ['Call to action', 30, CTA.higher], ['Call to action', 30, CTA.up], ...CH.map(ch => ['Call to action', 30, ch.dead]),
   ['Main Title', 50, 'Strong Response'], ['Main Title', 50, 'Partial Response'], ['Main Title', 50, 'Low Response'],
   ['Prompt', 100, 'This is a simplified experiment. Microbial treatments are still being researched.'],
-  ['Main Title', 50, 'Final Report'], ['Subtitle', 90, 'Healthy corals need healthy oceans.'], ['Description', 100, 'Microbes support coral health, but clean water and healthy habitats are vital for resilient reefs.'], ['Button', 15, 'Play again'],
+  ['Main Title', 50, 'Final Report'], ['Subtitle', 90, 'Healthy corals need healthy oceans'], ['Description', 100, 'Microbes support coral health, but clean water and healthy habitats are vital for resilient reefs.'], ['Button', 15, 'Play again'],
   ['Main Title', 50, 'Still there?'], ['Description', 100, 'Tap the screen to keep exploring.']
 ];
 (function qaPanel() {
