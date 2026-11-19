@@ -1,0 +1,1155 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prototipo Satellite Monitoring</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@500;600;700&display=swap">
+<style>
+/* Ilmi v4 (27/08, propuesta de KTF), incrustada como en Toolbar Camera. La copia web pública la cambia por Roboto (--sin-ilmi). */
+/* Copia web: la Ilmi (propuesta de KTF) no se publica; Roboto al 79 % en su lugar. */
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBHMdazTgWw.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBHMdazTgWw.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBHMdazTgWw.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3KUBHMdazTgWw.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Sustituta Roboto'; size-adjust: 79%;
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(https://fonts.gstatic.com/s/roboto/v51/KFO7CnqEu92Fr1ME7kSn66aGLdTylUAMa3yUBHMdazQ.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* Prototipo WR2-406-IA01 Satellite Monitoring (skill prototipo-ilmi, 16/11/2026; pasado a la v5 el 17/11/2026).
+   Fuente: Figma 54RNXLMnroowxnJNlmqQvL, página «↳ 17/11 v5» (grupo «v1» y la fila de arriba). Pantalla de 32" a 1920 × 1080.
+   En grises por defecto (Montse, 17/11); los colores del Figma, en «Variantes».
+   Arriba, la barra de revisión; debajo, la pantalla a su resolución real escalada para caber. */
+:root {
+  --bg: #e9e8e4; --fg: #1c1c1a; --muted: #5c5b57; --line: #cbc9c3; --ctl: #ffffff; --well: #d3d1cb;
+  --ui: "Roboto", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ar: "Noto Sans Arabic", "Geeza Pro", "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark } }
+:root[data-theme="dark"] { --bg: #151514; --fg: #ebeae6; --muted: #a29f98; --line: #3a3936; --ctl: #242422; --well: #0d0d0c; color-scheme: dark }
+html, body { height: 100%; margin: 0; }
+body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
+.app { height: 100%; display: flex; flex-direction: column; }
+
+/* --- barra de revisión --- */
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); border-bottom: 1px solid var(--line); }
+.ttl { display: flex; flex-direction: column; min-width: 0; }
+.ttl strong { font-size: 15px; font-weight: 700; }
+.ttl span { font-size: 12px; color: var(--muted); }
+.hint { flex: 1 1 220px; margin: 0; font-size: 13px; color: var(--muted); min-width: 0; }
+.hint b { color: var(--fg); font-weight: 600; }
+.ctrls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.ctl { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ctrls label { font-size: 12px; color: var(--muted); }
+.ctrls select, .ctrls button { font: 500 13px var(--ui); color: var(--fg); background: var(--ctl); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; cursor: pointer; max-width: 100%; }
+.ctrls button:focus-visible, .ctrls select:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.ctrls button:disabled { opacity: .45; cursor: default; }
+.ctrls button.phys { background: #215e70; border-color: #215e70; color: #fff; font-weight: 700; }
+.shot .bar { display: none; } .shot .viewport { padding: 0; }   /* modo captura (#shot=…) */
+.viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--well); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.notes { position: fixed; top: 64px; right: 16px; z-index: 50; width: min(540px, calc(100vw - 32px)); max-height: 72vh; overflow: auto; box-sizing: border-box; padding: 14px 18px 16px; background: var(--ctl); color: var(--fg); border: 1px solid var(--line); border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.18); font-size: 13px; line-height: 1.45; }
+.notes[hidden] { display: none; }
+.notes h2 { font-size: 14px; margin: 0 0 6px; }
+.notes h3 { font-size: 13px; margin: 12px 0 4px; }
+.notes ul { margin: 0; padding-left: 18px; }
+.notes .x { float: right; font: 500 13px var(--ui); color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; cursor: pointer; }
+
+/* --- pantalla de la pieza (colores del Figma de Montse; fuente Roboto al 79 % en lugar de la ilmi, propuesta de KTF) --- */
+.stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; overflow: hidden; background: #1a404e; font-family: 'Sustituta Roboto', var(--ui); color: #e0f1f3; user-select: none; -webkit-user-select: none; touch-action: none; }
+.stage.tap { cursor: pointer; }
+.scene, .layer { position: absolute; inset: 0; }
+.layer { background: center / cover no-repeat; }
+.abs { position: absolute; }
+.stage p { margin: 0; }
+.stage button { font-family: inherit; border: 0; margin: 0; padding: 0; cursor: pointer; }
+.stage button:focus-visible { outline: 5px solid #33f1e8; outline-offset: 6px; }
+.dark { background: rgba(0,0,0,.3); transition: opacity .35s; }
+.soft { -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 45%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 45%, transparent 100%); }
+.dark.light { background: rgba(0,0,0,.1); }
+.sh { box-shadow: 0 3px 7px rgba(0,0,0,.18), 0 1px 2px rgba(0,0,0,.2), 0 4px 4px rgba(0,0,0,.15); }
+
+/* reposo (Figma «Frame 819», 2064 × 1154: se escala al ancho de la pantalla) */
+.intro { position: absolute; left: 0; top: 3px; width: 2064px; height: 1154px; transform: scale(.930233); transform-origin: 0 0; background: #184a5a center / cover no-repeat; }
+.intro .cover { position: absolute; background: #184a5a; }
+.i-title { font-weight: 700; font-size: 66.9px; line-height: 63px; color: #cae2ca; text-align: center; }
+.i-en, .i-ar { font-weight: 600; font-size: 27.7px; line-height: 26px; color: #effaef; text-align: right; white-space: nowrap; }
+.i-ar { font-family: 'Sustituta Roboto', var(--ar); letter-spacing: 0; }
+.rf { position: absolute; border-radius: 50%; border: solid #effaef; box-sizing: border-box; }
+
+/* Tarjetas y botones: medidas, radios (una esquina recta), rellenos y sombras del Figma. Las formas giradas 180° en el
+   Figma llevan la esquina recta en el lado contrario al de sus radios. Ilmi v4 a 0,88 × los tamaños del Figma (Beta 03). */
+.card-l { display: flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 64px 64px 0 64px; background: linear-gradient(180deg, #dbede0, #bedfd6); color: #1a404e; text-align: center; font-weight: 600; font-size: 45.9px; line-height: 52px; letter-spacing: -.01em; white-space: nowrap; box-shadow: 0 7.8px 15.6px -2.6px #1c4a59; }
+.card-l.b2 { border-radius: 0 51.1px 51.1px 51.1px; font-size: 35.3px; line-height: 43px; letter-spacing: 0; box-shadow: 0 6.2px 12.4px -2.1px #1c4a59; }
+.card-d { display: flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 64px 64px 64px 0; background: #1c4a59; color: #e0f1f3; text-align: center; font-weight: 600; font-size: 35.3px; line-height: 43px; white-space: nowrap; box-shadow: 0 4px 8px -1.3px #1c4a59; }
+/* «Let’s see how they do it!»: el texto no va centrado en la burbuja (Figma: 89 px a la izquierda, 39 a la derecha) */
+.bubble { display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 12px 39px 0 89px; border-radius: 160px 160px 160px 0; background: linear-gradient(180deg, #1f5566, #1c4c5b); color: #e0f1f3; font-weight: 600; font-size: 35.3px; line-height: 43px; white-space: nowrap; box-shadow: 0 4px 4px #1a404e; }
+/* Tarjetas claras del escaneo y del detectado (Figma «info-card 86' M», 18/11): #cae2ca con un degradado al 10 % y la esquina
+   recta arriba a la derecha. Radios del Figma recortados a media altura, como hace Figma. */
+.card-sc { display: flex; align-items: center; justify-content: center; box-sizing: border-box; background: linear-gradient(180deg, rgba(57,184,216,.1), rgba(33,94,112,.1)), #cae2ca; color: #1a404e; text-align: center; font-weight: 600; font-size: 35.3px; line-height: 43px; white-space: nowrap; box-shadow: 0 4px 4px #1a404e; }
+.card-sc.m1 { border-radius: 70px 0 70px 70px; padding-right: 24px; }
+.card-sc.m2 { border-radius: 130px 0 130px 130px; padding-right: 7px; }
+.card-sc.m3 { border-radius: 77.5px 0 77.5px 77.5px; padding-right: 20px; }
+.bubble { text-align: center; }
+.btn-scan.sm { gap: 14px; padding-left: 20px; }
+.out { transition: opacity .35s, transform .35s; opacity: 0; transform: scale(.96); pointer-events: none; }
+.btn-s { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 54.7px; background: #215e70; color: #e0f1f3; font-weight: 400; font-size: 35.3px; line-height: 43px; box-shadow: 0 3.8px 7.6px -1.3px #1c4a59; }
+.btn-s svg { width: 51px; height: 51px; flex: none; }
+.btn-s.fin { gap: 12px; background: #1a404e; }
+.btn-s.fin svg { width: 42.2px; height: 39px; }
+.btn-scan { display: inline-flex; align-items: center; justify-content: center; gap: 26px; border-radius: 54.7px; background: linear-gradient(180deg, #acd2c4, #cae2ca); opacity: .9; color: #1c4a59; font-weight: 700; font-size: 29.3px; box-shadow: 0 3.8px 7.6px -1.3px #1c4a59; }
+.btn-scan span { display: block; height: 23px; line-height: 30.3px; position: relative; white-space: nowrap; }
+.btn-scan svg { width: 42.9px; height: 42.9px; flex: none; position: relative; }
+.place { text-align: right; color: #fff; white-space: nowrap; }
+.place .n { font-weight: 500; font-size: 52px; line-height: 52px; }
+.place .s { font-weight: 400; font-size: 35.2px; line-height: 39.2px; letter-spacing: -.005em; }
+/* Fuente de los datos (Figma «↳ 17/11 v5», nodo 2879:6706, Montse 19/11): SemiBold 32 px de la Beta 03 (la v4 a 0,883 ×), 1 %, #CAE2CA,
+   arriba a la derecha, alineada a la derecha con el nombre de la zona, como en su captura. */
+.src { color: #cae2ca; font-weight: 600; font-size: 28.3px; line-height: 31px; letter-spacing: .01em; white-space: nowrap; text-align: right; }
+.card-xl { box-sizing: border-box; border-radius: 64px 64px 64px 12px; background: #1c4a59; box-shadow: 0 4px 8px -1.3px #1c4a59; }
+.xl-t { font-weight: 700; font-size: 56.5px; line-height: 62px; letter-spacing: -.01em; color: #cae2ca; white-space: nowrap; }
+.xl-s { font-weight: 500; font-size: 35.3px; line-height: 43px; color: #e0f1f3; white-space: nowrap; }
+.pill { display: flex; align-items: center; justify-content: center; text-align: center; box-sizing: border-box; border-radius: 85.7px; background: #1c4a59; color: #e0f1f3; font-weight: 500; font-size: 31.5px; line-height: 38.4px; }
+/* zona vista (Figma «los tres con check»): borde #cae2ca de 4 px y check en una esquina */
+.pill.seen { border: 4px solid #cae2ca; font-weight: 600; font-size: 28.3px; line-height: 31px; letter-spacing: .01em; }
+.pill.seen.same { font-weight: 500; font-size: 31.5px; line-height: 38.4px; letter-spacing: 0; }
+.badge { position: absolute; width: 41.9px; height: 41.9px; border-radius: 50%; background: #cae2ca; display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.badge svg { width: 41.9px; height: 41.9px; }
+.card-gj { display: flex; align-items: center; justify-content: center; border-radius: 12px 64px 64px 12px; background: #257286; color: #e0f1f3; font-weight: 700; font-size: 70.6px; line-height: 75px; letter-spacing: -.02em; white-space: nowrap; box-shadow: 0 4px 8px -1.3px #1c4a59; }
+.card-m { box-sizing: border-box; border-radius: 64px 64px 64px 12px; background: linear-gradient(180deg, #3f686f, #21596a); box-shadow: 0 4px 8px -1.3px #1c4a59; }
+.m-t { text-align: center; color: #e0f1f3; font-weight: 700; font-size: 45.9px; line-height: 52px; letter-spacing: -.01em; white-space: nowrap; }
+.m-b { text-align: center; color: #e0f1f3; font-weight: 500; font-size: 35.3px; line-height: 43px; white-space: nowrap; }
+/* notas de revisión en rojo (no son de la pieza): se ven en rojo también con el prototipo en grises */
+.red-note { box-sizing: border-box; width: 560px; padding: 14px 20px; border-radius: 14px; background: rgba(255,255,255,.93); color: #d0021b; font-family: var(--ui); font-weight: 600; font-size: 24px; line-height: 31px; pointer-events: none; }
+.back { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 54.7px; background: linear-gradient(180deg, #28798e, #468894); opacity: .9; color: #e0f1f3; font-weight: 700; font-size: 29.3px; box-shadow: 0 3.8px 7.6px -1.3px #1c4a59; }
+.back span { display: block; height: 22.3px; line-height: 30.3px; white-space: nowrap; }
+.back svg { width: 51px; height: 51px; flex: none; }
+.slide-hint { display: flex; align-items: center; justify-content: center; border-radius: 55.6px 55.6px 55.6px 0; background: linear-gradient(180deg, #cae2ca, #acd2c4); color: #1a404e; font-weight: 700; font-size: 29.7px; box-shadow: 0 3.9px 7.7px -1.3px #1c4a59; transition: opacity .3s; }
+
+/* zoom con las imágenes del Figma («images»): cada nivel va dentro del anterior y entra con los bordes difuminados */
+.world { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 0 0; will-change: transform; }
+.zl { position: absolute; display: block; object-fit: cover; pointer-events: none; }
+.zl.soft { -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent), linear-gradient(180deg, transparent, #000 8%, #000 92%, transparent); -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent), linear-gradient(180deg, transparent, #000 8%, #000 92%, transparent); mask-composite: intersect; }
+
+/* escaneo */
+.vf { position: absolute; width: 100px; height: 100px; border: 0 solid #e0f1f3; filter: drop-shadow(0 0 8px rgba(224,241,243,.8)); }
+.vf.c-tl { border-width: 7px 0 0 7px; border-top-left-radius: 6px; }
+.vf.c-tr { border-width: 7px 7px 0 0; border-top-right-radius: 6px; }
+.vf.c-bl { border-width: 0 0 7px 7px; border-bottom-left-radius: 6px; }
+.vf.c-br { border-width: 0 7px 7px 0; border-bottom-right-radius: 6px; }
+/* manglar real en la vista de Tarout Bay: verde del Figma con un brillo como su «destello» */
+.mreal { position: absolute; inset: 0; width: 1920px; height: 1080px; pointer-events: none; filter: drop-shadow(0 0 6px rgba(65,241,189,.75)); }
+.mreal path { fill: var(--mang); stroke: var(--mang); stroke-width: 5; stroke-linejoin: round; stroke-linecap: round; transform-box: fill-box; transform-origin: center; }
+.scanbox { position: absolute; left: 66px; top: 50px; width: 1176px; height: 1002px; overflow: hidden; pointer-events: none; }
+.wave { position: absolute; border-radius: 50%; border: 5px solid rgba(143,250,235,.85); box-shadow: 0 0 22px rgba(79,243,221,.7), inset 0 0 22px rgba(79,243,221,.5); box-sizing: border-box; opacity: 0; }
+.scan-t { text-align: center; font-weight: 700; font-size: 35.4px; line-height: 37.6px; letter-spacing: -.02em; color: #e0f1f3; white-space: nowrap; }
+.scan-t.ok { color: #cae2ca; }
+.spin { width: 60px; height: 60px; animation: spin 1s steps(10) infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.check { width: 55.9px; height: 55.9px; border-radius: 50%; background: #cae2ca; display: flex; align-items: center; justify-content: center; transition: opacity .4s; }
+.check svg { width: 55.9px; height: 55.9px; }
+
+/* Ras Tanura: línea de tiempo (solo se arrastra) */
+.tl { border-radius: 112px; background: #1a404e; cursor: grab; touch-action: none; }
+.tl.drag { cursor: grabbing; }
+.tr, .tr-f, .tdot, .tlab, .thumb, .halo { pointer-events: none; }
+.tr { background: #257286; border-radius: 2px; }
+.tr-f { background: #cae2ca; border-radius: 2px; height: 3px; }
+.tdot { width: 10px; height: 10px; border-radius: 50%; background: #257286; transition: background .2s; }
+.tdot.past { background: #cae2ca; }
+.tlab { width: 140px; text-align: center; font-weight: 600; font-size: 22px; line-height: 26px; color: #257286; transform-origin: 50% 100%; transition: transform .25s, color .25s; }
+.tlab.on { color: #cae2ca; transform: scale(1.72); }
+.halo { width: 46px; height: 46px; border-radius: 50%; background: rgba(202,226,202,.22); }
+.thumb { width: 29px; height: 29px; border-radius: 50%; background: #cae2ca; }
+.snap .thumb, .snap .halo { transition: left .25s cubic-bezier(.3,1.2,.5,1); }
+.snap .tr-f { transition: width .25s cubic-bezier(.3,1.2,.5,1); }
+.ycard { box-sizing: border-box; width: 323px; height: auto; padding: 36px 30px 36px 48px; border-radius: 48.1px 48.1px 48.1px 0; background: linear-gradient(180deg, #e2eee2, #c5e6e5); color: #0c0c0d;
+  box-shadow: 0 3.3px 6.7px -1.1px rgba(26,18,11,.1), 0 1.1px 2.2px rgba(0,0,0,.05), 0 4px 4px rgba(0,0,0,.25), inset 0 0 0 .3px #ebe6de; }
+.ycard h3 { margin: 0 0 15px; max-width: 250px; font-weight: 600; font-size: 36.6px; line-height: 36px; }
+.ycard p { margin: 0; max-width: 230px; font-weight: 500; font-size: 21.8px; line-height: 24.8px; color: #1a1712; }
+/* manglar en el verde del Figma #41f1bd (Montse, 18/11), también en la versión en grises */
+.stage { --mang: #41f1bd; }
+.mang { position: absolute; inset: 0; pointer-events: none; }
+.mang g { transition: opacity .35s; }
+.legend { box-sizing: border-box; width: 386px; padding: 16px 22px; border-radius: 24px; background: rgba(26,64,78,.92); color: #e0f1f3; font-weight: 500; font-size: 21px; line-height: 28px; display: flex; flex-direction: column; gap: 8px; }
+.legend .row { display: flex; align-items: center; gap: 14px; }
+.legend .sw { width: 34px; height: 22px; border-radius: 6px; flex: none; }
+.legend .sw.fill { background: var(--mang); }
+.legend .sw.dots { background: radial-gradient(circle, var(--mang) 0 4px, transparent 4.5px) 0 0 / 11px 11px; }
+.legend .sw.line { border: 3px dashed #fff; box-sizing: border-box; box-shadow: 0 0 0 1px rgba(12,12,13,.5), inset 0 0 0 1px rgba(12,12,13,.5); }
+
+/* lo tocable: ampliación suave + iluminación fija (Montse, 17/11); al pulsar, se hunde un poco */
+.call::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: .85; box-shadow: 0 0 34px 10px rgba(51,241,232,.75); }
+.call { animation: breathe 2.4s ease-in-out infinite; }
+/* En grises (por defecto desde el 17/11): se filtra cada elemento de la pantalla menos las notas en rojo (.keep) */
+.stage[data-color="grises"] { background: #3f3f3f; }
+.stage[data-color="grises"] .scene > :not(.keep) { filter: grayscale(1); }
+.stage[data-color="grises"] .scene > .vf { filter: grayscale(1) drop-shadow(0 0 8px rgba(224,241,243,.8)); }
+.stage[data-color="grises"] .scene > button:active { filter: grayscale(1) brightness(.88); }
+.stage[data-color="grises"] .scene > .legend { filter: none; background: rgba(57,57,57,.92); color: #eee; }
+.stage[data-color="grises"] .ycard.keep { background: linear-gradient(180deg, #ebebeb, #dcdcdc); box-shadow: 0 3.3px 6.7px -1.1px rgba(0,0,0,.1), 0 1.1px 2.2px rgba(0,0,0,.05), 0 4px 4px rgba(0,0,0,.25), inset 0 0 0 .3px #e3e3e3; }
+@keyframes breathe { 0%, 100% { scale: 1; } 50% { scale: 1.07; } }
+.stage button { transition: filter .12s; }
+.stage button:active { filter: brightness(.88); }
+.stage button.call:active { animation: none; scale: .95; }
+
+/* bolita (Planning Recovery, 12/11): menú de idioma y Restart que sale como gotas líquidas (filtro #goo). Mismo
+   movimiento y medidas que en Planning Recovery (3840), escalado a la mitad y en el sitio del Restart del Figma. */
+.gov { position: absolute; inset: 0; z-index: 29; background: rgba(0,0,0,.5); opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+.gov.open { opacity: 1; pointer-events: auto; }
+.gm { left: 5px; top: 716px; width: 1200px; height: 400px; transform: scale(.5); transform-origin: 0 0; pointer-events: none; z-index: 30; }
+.gm button { border: 0; margin: 0; padding: 0; font-family: var(--ui); }
+.gm .gl { position: absolute; inset: 0; filter: url(#goo) drop-shadow(0 8px 12px rgba(0,0,0,.22)); animation: dotblink 2.6s ease-in-out infinite; }
+.gm.open .gl { animation: none; }
+.gm .gb { position: absolute; left: 38px; top: 248px; width: 112px; height: 112px; border-radius: 56px; background: linear-gradient(180deg, #2a7489, #1a404e); transform-origin: 56px 56px; transform: translate(0, 0) scale(.5);
+  transition: width .18s ease-in, transform .38s cubic-bezier(.6,-.3,.7,1) .14s; }
+.gm.open .gb { width: var(--w); transform: translate(var(--dx), var(--dy)) scale(1);
+  transition: transform .46s cubic-bezier(.3,1.35,.5,1) calc(var(--i) * 110ms), width .28s cubic-bezier(.3,1.25,.5,1) calc(.4s + var(--i) * 110ms); }
+.gm .gcore { position: absolute; left: 65px; top: 275px; width: 58px; height: 58px; border-radius: 50%; background: radial-gradient(circle at 50% 40%, #2f8197, #1a404e); transition: transform .3s cubic-bezier(.3,1.35,.5,1); }
+.gm.open .gcore { transform: scale(1.93); }
+.gm .gring { position: absolute; left: 65px; top: 275px; width: 58px; height: 58px; border-radius: 50%; box-shadow: 0 0 0 7px rgba(255,255,255,.55); animation: dotblink 2.6s ease-in-out infinite; transition: opacity .15s; }
+.gm.open .gring { opacity: 0; animation: none; }
+.gm .gx { position: absolute; left: 30px; top: 240px; width: 128px; height: 128px; border-radius: 64px; background: transparent; color: #fff; cursor: pointer; pointer-events: auto; display: flex; align-items: center; justify-content: center; }
+.gm .gx .ic { display: flex; width: 52px; height: 52px; opacity: 0; transform: rotate(-90deg) scale(.4); transition: opacity .12s, transform .2s ease-in; }
+.gm .gx svg { width: 52px; height: 52px; }
+.gm.open .gx .ic { opacity: 1; transform: none; transition: opacity .2s .12s, transform .3s cubic-bezier(.3,1.35,.5,1) .12s; }
+.gm .go { position: absolute; top: 248px; height: 112px; padding: 0 52px; border-radius: 56px; background: transparent; color: #fff; display: inline-flex; align-items: center; gap: 16px; font-weight: 700; font-size: 44px; white-space: nowrap; cursor: pointer; pointer-events: none; opacity: 0; transform: translateX(-18px); transition: opacity .12s, transform .2s; }
+.gm .go svg { width: 50px; height: 50px; }
+.gm .go.lang { font-family: var(--ar); font-size: 50px; }
+.gm .go.lang.en { font-family: var(--ui); font-size: 44px; }
+.gm.open .go { pointer-events: auto; opacity: 1; transform: none; transition: opacity .2s calc(.58s + var(--i) * 110ms), transform .3s cubic-bezier(.3,1.3,.5,1) calc(.58s + var(--i) * 110ms); }
+@keyframes dotblink { 0%, 100% { opacity: .5; } 50% { opacity: .95; } }
+
+/* 18/11 · Opción A de accesibilidad (Montse eligió la A, como en Planning Recovery): idioma y Restart siempre visibles,
+   uno encima del otro en la esquina inferior izquierda, donde estaba la bolita. Guía de ILMI §13.3.1 en la 32" a 1920 × 1080
+   (1 px ≈ 0,37 mm): zona táctil 204 × 204 px = 75 mm, 68 px = 25 mm entre los dos y hasta el borde de abajo. Relleno oscuro
+   + borde claro (≥ 3:1 sobre la foto, clara u oscura), en Roboto (la Ilmi pinta igual I, l y 1) y sin parpadeo.
+   Aspecto provisional. */
+/* Pestaña «Restart» del Figma: 105,5 × 78,3, opacidad 90 %, #1a404e con un degradado al 20 % (#3694ae abajo → #cae2ca arriba),
+   esquinas redondas solo a la derecha; icono 27,5 × 25,4 sobre «Restart» en negrita 19,2 (Ilmi v4 a 0,883 ×). */
+.stage .rtab { width: 105.5px; height: 78.3px; box-sizing: border-box; padding: 11.3px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4.5px; border-radius: 0 31.7px 31.7px 0; background: linear-gradient(0deg, rgba(54,148,174,.2), rgba(202,226,202,.2)), #1a404e; opacity: .9; color: #e0f1f3; font-weight: 700; font-size: 17px; line-height: 17.5px; box-shadow: 0 2.2px 4.4px -.74px #1c4a59; z-index: 30; }
+.stage .rtab svg { width: 27.5px; height: 25.4px; margin: 3.85px 0; flex: none; }
+.stage .av { left: 0; width: 204px; height: 204px; box-sizing: border-box; border-radius: 0 54px 54px 0; background: linear-gradient(180deg, #2a7489, #1a404e); color: #e0f1f3; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; font-family: var(--ui); font-weight: 700; font-size: 42px; line-height: 1; z-index: 30; box-shadow: 0 0 0 4px #e0f1f3, 0 6px 14px rgba(0,0,0,.35); }
+.stage .av svg { width: 70px; height: 70px; flex: none; }
+.stage .av.lang span { font-family: var(--ar); font-size: 46px; line-height: 1.2; }
+.stage .av.lang.en span { font-family: var(--ui); font-size: 42px; line-height: 1; }
+/* Confirmación de Restart: como «Hello? Are you still there?» (velo blanco, texto centrado), con «Yes» y «No» de 204 px
+   de alto (75 mm) y 136 px (50 mm) entre ellos, lejos del botón Restart. */
+.cf { position: absolute; inset: 0; z-index: 38; background: rgba(255,255,255,.9); animation: fade .3s ease-out both; }
+.cf.leaving { animation: out .25s ease-in forwards; }
+.cf .glow { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.95), rgba(255,255,255,0)); pointer-events: none; }
+.cf .q { width: 800px; text-align: center; font-weight: 700; font-size: 64px; line-height: 68px; color: #1a404e; pointer-events: none; }
+.stage .cf .b { width: 203px; height: 70px; border-radius: 35px; background: #215e70; color: #e0f1f3; font-weight: 700; font-size: 40px; }   /* como el «Yes» de «Are you still there?» (Montse, 18/11: «a la mitad por lo menos») */
+
+/* «¿Sigues ahí?» (Planning Recovery, «Unhappy · No tap 02»), a la mitad de tamaño */
+.still { position: absolute; inset: 0; z-index: 40; background: rgba(255,255,255,.82); animation: fade .4s ease-out both; }
+.still.leaving { animation: out .3s ease-in forwards; }
+.still .glow { position: absolute; border-radius: 50%; background: radial-gradient(closest-side, rgba(255,255,255,.95), rgba(255,255,255,0)); }
+.still .hello { width: 800px; text-align: center; font-weight: 700; font-size: 64px; line-height: 68px; color: #1a404e; pointer-events: none; }
+.still .yes { width: 203px; height: 70px; border-radius: 35px; background: #215e70; color: #e0f1f3; font-weight: 700; font-size: 40px; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes out { to { opacity: 0; transform: scale(.96); } }
+@media (prefers-reduced-motion: reduce) { .stage *, .stage { animation: none !important; transition: none !important; } }
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="ttl"><strong>Satellite Monitoring</strong><span>WR2-406-IA01 · prototype (Figma «↳ 17/11 v5», 18/11) · 32" at 1920 × 1080</span></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="ctrls">
+      <span class="ctl"><button id="back" type="button" aria-label="Previous step">← Back</button><button id="fwd" type="button" aria-label="Next step">Next →</button></span>
+      <span class="ctl"><label for="jump">Go to</label><select id="jump"><option value="">Screen…</option></select></span>
+      <button id="restart" type="button">Reset</button>
+    </div>
+  </header>
+  <aside class="notes" id="notes" hidden>
+    <button class="x" id="notesX" type="button">✕ Cerrar</button>
+    <h2>Notas del prototipo</h2>
+    <h3>De dónde sale</h3>
+    <ul>
+      <li>Figma de Montse, página «↳ 17/11 v5», grupo «v1», actualizado el 18/11 con los textos nuevos y notas de flujo encima de cada pantalla: reposo → la Tierra de lejos → península → Tarout Bay → escaneo → detectado → elegir zona. Las tres vistas de la Tierra (el mundo y dos más cerca) son imágenes de Montse del 18/11. De las zonas en adelante sigue como la versión 10 (fila de arriba: 2015, 2025, «los tres con check», «Great job!» y «Mission successfully completed!»).</li>
+      <li>Siempre en grises (Montse, 17/11: «en gris»; desde el 18/11 ya no hay variante de color). El manglar va siempre en el verde del Figma (#41f1bd). En la barra ya no están las variantes de Color y de Restart ni el botón de la pulsera (Montse, 18/11): el reposo arranca tocando la pantalla.</li>
+      <li>Pantalla de 32" a 1920 × 1080. Medidas, radios (cada forma con una esquina recta), rellenos, sombras y fondos (con su saturación) copiados del Figma. Fuente Ilmi v4 (propuesta de KTF) a 0,88 × los tamaños del Figma, que usa la Beta 03. En la copia web pública va en Roboto.</li>
+      <li>Solo inglés, como el Figma, salvo la línea de la pulsera del reposo. La bolita cambia el idioma, pero los textos siguen en inglés.</li>
+    </ul>
+    <h3>Textos corregidos (Montse: «corrige todo»)</h3>
+    <ul>
+      <li>«Tarout», como en el Figma, en todos los textos (Montse, 19/11: «Tarout Bay es correcto»).</li>
+      <li>«Saudi Arabian» → «Saudi Arabia».</li>
+    </ul>
+    <h3>Copiado tal cual del Figma (por si es un descuido)</h3>
+    <ul>
+      <li>Tarout Bay (con las burbujas) y «Elegir zona» usan la foto 13 px más a la izquierda y 9 px más arriba que el escaneo: al pasar de una a otra la foto salta un poco.</li>
+      <li>En «Great job!», la píldora de Ras Tanura tiene la letra de antes (Medium 35,7) y las otras dos, la nueva (SemiBold 32). Las píldoras vistas cambian un poco de sitio y tamaño respecto a las normales.</li>
+      <li>En el Figma, la cabecera de Ras Tanura y el botón «Back» no están igual en 1985, 2015 y 2025. Aquí se dejan fijos como en la de 1985 (grupo «v1»), para que no salten al mover el año.</li>
+    </ul>
+    <h3>Provisional</h3>
+    <ul>
+      <li>Todos los tiempos: cuándo sale cada tarjeta, burbuja y botón, zooms, escaneo, paso de pantalla, «Great job!» y botón «Restart» del final. Las tarjetas se quedan lo que se tarda en leerlas a 8–9 años (unos 0,5 s por palabra); al principio (Tierra, península y Tarout Bay), con más ritmo, unos 0,35 s por palabra (Montse, 19/11).</li>
+      <li>Zooms: de la Tierra a la península con las tres imágenes de Montse (encajadas comparándolas; entre ellas hay giros de ~1°), de la península a Tarout Bay con las 6 imágenes del Figma («images») y uno corto de Tarout Bay a la zona elegida (el mismo para las tres). Escaneo: solo las ondas (Montse, 18/11). Lo tocable lleva ampliación suave + iluminación y la leyenda se ve siempre (Montse, 17/11).</li>
+      <li>En cada zona la foto de satélite es la misma en todos los años. <b>Las manchas (o puntos) son el manglar real de cada año</b>: la capa «Mangrove extent» de Global Mangrove Watch, la misma que enseña globalmangrovewatch.org, sacada de la web el 18/11 y calcada sobre cada foto (encajada con un mapa de satélite de referencia; puede haber unos píxeles de desvío). Cada zona enseña solo su manglar (Montse, 18/11): la zona es lo que enseña su foto, y como la de Safwa &amp; Qatif cae dentro de la de Ras Tanura, Ras Tanura es su foto menos la de Safwa (la costa del puente largo es de Safwa &amp; Qatif). Por eso Ras Tanura no tiene manglar en 1985 ni en 1995: según Global Mangrove Watch empieza hacia 2005. En el verde del Figma, #41f1bd (Montse, 18/11), también en la versión en grises. El contorno discontinuo es 1985. Al entrar, en 1985 solo sale «Slide to see the evolution!», como en el Figma; las tarjetas y el oscurecido del 30 % salen al mover el año (como en las pantallas de 2015 y 2025).</li>
+      <li>Fuente de los datos: en las tres zonas y en todos los años, arriba a la derecha y alineada con el nombre de la zona, «Data retrieved from the Global Mangrove Watch website», con el estilo del Figma («↳ 17/11 v5»; Montse, 19/11).</li>
+      <li>Tarjetas de cada año: salen junto a la línea de tiempo, encima de su año, con la esquina recta apuntando al año (Montse, 18/11). Solo los textos de Ras Tanura 2015 y 2025 son del Figma; el resto son textos de ejemplo, con las hectáreas reales de cada año y zona (consulta del 18/11 con las fotos como límites), para cambiar por los del equipo de contenido (desde el 18/11 ya no van en rojo ni hay notas en pantalla, a petición de Montse). El alto de la tarjeta se ajusta a su texto, con el mismo margen arriba y abajo (Montse, 18/11).</li>
+      <li>Zona vista: su píldora lleva el borde y el check de «los tres con check», y la tarjeta dice solo «Select another area», con la letra del título, tras la 1.ª y la 2.ª zona; la tarjeta se ajusta a ese texto (Montse, 18/11). Se puede volver a entrar.</li>
+      <li>«Safwa &amp; Qatif» y «Tarout Island, Saihat &amp; Dammam» no tienen pantalla en el Figma: usan las fotos que pasó Montse el 18/11, con el color igualado al de Ras Tanura (los tonos del agua y de la tierra, por separado: Montse, 19/11), el mismo zoom y la misma línea de tiempo, con su nombre. Al volver quedan vistas. Así se llega a «Great job!».</li>
+      <li>Al ver las tres zonas: «Great job!» y, solo, «Mission successfully completed!». El botón «Restart» sale un momento después (en el Figma hay una pantalla sin él y otra con él) y vuelve al reposo. Pendiente: qué pasa si nadie lo toca.</li>
+      <li>Escaneo, detectado, elegir zona y «Great job!»: en vez de los puntos pintados del Figma, el manglar real de 2025 de las tres zonas (Global Mangrove Watch, Montse 18/11), con un trazo de 5 px y brillo para que se vea a esta escala (unos 40 m por píxel). En el escaneo va apareciendo desde el centro.</li>
+      <li>El icono de la pulsera del reposo sale cortado por el borde derecho, como en el Figma (se sale del marco).</li>
+    </ul>
+    <h3>Bolita e inactividad (como Planning Recovery)</h3>
+    <ul>
+      <li>La pestaña «Restart» del Figma (abajo a la izquierda) sale en todas las pantallas desde la península, como en la página «↳ 19/11 v1» (Montse, 19/11: «en todas»), también en las que pasan solas: mientras la confirmación está abierta, la pantalla espera. No sale en el reposo, en la Tierra de lejos ni en la pantalla final, que tiene su propio botón «Restart».</li>
+      <li>«Hello? Are you still there?» a los 20 s sin tocar (Montse, 17/11: 10 s más que en Planning Recovery) en las pantallas que esperan un toque. «Yes» sigue. Pendiente: qué pasa si nadie responde.</li>
+      <li>No sale con el menú de la bolita abierto.</li>
+      <li><b>Idioma y Restart accesibles (18/11; Montse eligió la opción A de la revisión de accesibilidad; desde el 18/11 es la única):</b> idioma y Restart siempre visibles abajo a la izquierda, uno encima del otro, 204 × 204 px = 75 mm en la 32" (la guía de ILMI pide ≥ 75 mm), con 68 px = 25 mm entre ellos y hasta el borde; relleno oscuro con borde claro y sin parpadeo; en Roboto. El de idioma enseña la otra lengua en su escritura, con un globo (provisional, no está en el Figma). Restart pide confirmación («Start again?» · «Yes» / «No», textos provisionales): «No», tocar fuera o 10 s sin tocar la cierran; los 0,5 s primeros no acepta toques.</li>
+      <li>Pendiente fuera de la pantalla: marca en relieve en el marco junto a los botones, voz con el perfil de visión de la pulsera y altura de los botones ~1050 mm del suelo (depende de planos).</li>
+    </ul>
+  </aside>
+  <main class="viewport" id="viewport">
+    <div class="stage" id="stage" role="region" aria-label="Pantalla del interactivo"></div>
+  </main>
+</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><filter id="goo" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="16" result="bl"/><feColorMatrix in="bl" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 24 -10" result="g"/><feComposite in="SourceGraphic" in2="g" operator="atop"/></filter></svg>
+
+<script>
+(() => {
+  const W = 1920, H = 1080, KEY = 'proto-wr2406';
+
+  // Tiempos (ms). Ninguno está fijado en el Figma: todos PROVISIONALES. still: inactividad, como Planning Recovery.
+  // Las tarjetas se quedan lo que se tarda en leerlas a 8–9 años (unos 0,5 s por palabra). Al principio (Tierra, península y
+  // Tarout Bay), más ritmo: unos 0,35 s por palabra (Montse, 19/11; antes earth 4500, pen 9000, bubble 3500, bubbleMove 8000).
+  // earth / pen: cuánto se queda la
+  // Tierra y la península; scanCard / scanDots / scanEnd: 1.ª tarjeta, puntos con la 2.ª y paso a «detectado»; det3 / detOut:
+  // 3.ª tarjeta y salida de tarjeta y esquinas; great: «Great job!» → final; finBtn: el «Restart» del final.
+  const T = { card: 250, earth: 3000, zoomPen: 5000, pen: 6000, zoom: 4200, zoomRas: 1800, bubble: 2500, bubbleMove: 5500, wave: 2400, scanCard: 1200, scanDots: 5500, scanFx: 2800, scanEnd: 14500, det3: 900, detOut: 6500, detected: 7300, great: 2500, finBtn: 1500, still: 20000, gap: 150, holdover: 500, confirm: 10000 };
+  // holdover y confirm (18/11, variante accesible): 0,5 s sin aceptar toques tras aparecer la confirmación de Restart o
+  // cambiar el idioma (toques de arrastre); la confirmación se cierra sola, como «No», a los 10 s sin tocar.
+
+  // Textos del Figma v5, con las erratas corregidas (ver Notas). Los saltos de línea son los del Figma.
+  const TX = {
+    title: 'Watching Earth<br>from space',
+    scanEn: 'Scan your wristband or tap to start', scanAr: 'مرّر سوارك أو المس للبدء',
+    pen1: 'Every landscape tells a story',
+    pen2: 'Satellites take impressive pictures of<br>Earth from space. They help scientists<br>track change over time.',
+    cta: 'Scientists compare satellite<br>images from different years<br>to spot changes in mangrove<br>forests.',
+    see: 'Let’s see how they do it<br>in Tarout Bay!', scan: 'Start',
+    light1: 'Satellite cameras record<br>different kinds of light.',
+    light2: 'Healthy mangroves reflect light<br>differently from water, sand and<br>buildings, helping scientists map<br>them from space.',
+    light3: 'Our eyes cannot see the<br>difference, but satellites can',
+    scanning: 'Scanning the Tarout<br>Bay area',
+    detected: 'Grey mangroves<br>detected',
+    evolved: 'Do you want to<br>know how it has<br>evolved?', choose: 'Choose the area', another: 'Select another<br>area',   // tras entrar en una zona, sola y a tamaño de título (Montse, 18/11)
+    slide: 'Slide to see the evolution!', back: 'Back',
+    great: 'Great job!',
+    mission: 'Mission successfully completed!', thanks: 'Thanks to eyes in space, we can protect<br>mangroves and keep the coastline alive.', restart: 'Restart', source: 'Data retrieved from the Global Mangrove Watch website'
+  };
+  // Zonas (Figma: píldoras normales y píldoras vistas de «los tres con check», con la esquina del check).
+  //   img: foto de la zona; rect: dónde cae dentro de la vista de Tarout Bay (x, y, ancho; para el zoom), medido superponiendo las fotos;
+  // Ras Tanura: Figma. Safwa & Qatif y Tarout Island: fotos que pasó Montse el 18/11, con el color igualado al de Ras Tanura.
+  const ZONES = {
+    ras:    { name: 'Ras Tanura', sub: 'Southern Sector', pill: 'Ras Tanura', box: [651, 324, 198.1, 60.4], seen: [651, 324, 206.1, 68.4], badge: [817, 301], same: true,
+              img: 'ras-tanura.jpg', rect: [332, 36, 795], patch: { base: { cx: 706.5, cy: 360, rot: -8.5 }, extra: { cx: 548, cy: 252, rot: -14 } } },
+    safwa:  { name: 'Safwa &amp; Qatif', sub: '', pill: 'Safwa &amp; Qatif', box: [399, 549, 230.1, 60.4], seen: [435.5, 560, 225.1, 68.4], badge: [445, 533],
+              img: 'safwa-qatif.jpg', rect: [401, 308.8, 384.6], patch: { base: { cx: 905, cy: 505, rot: 8 }, extra: { cx: 930, cy: 300, rot: -55 } } },
+    island: { name: 'Tarout Island, Saihat &amp; Dammam', sub: '', pill: 'Tarout Island,<br>Saihat &amp; Dammam', box: [622, 729, 298.1, 98.4], seen: [587, 729.5, 286.1, 91.4], badge: [831, 714],
+              img: 'tarut-island.jpg', rect: [402, 447.7, 689.7], patch: { base: { cx: 1199, cy: 405, rot: 0 }, extra: { cx: 850, cy: 172, rot: 78 } } }
+  };
+  const ZKEYS = ['ras', 'safwa', 'island'];
+  const YEARS = [1985, 1995, 2005, 2015, 2025];
+  // Tarjetas de cada año (salen junto a su año, encima de la línea de tiempo). Solo los textos de Ras Tanura 2015 y 2025 son del Figma;
+  // el resto son TEXTOS DE EJEMPLO (sin marcar en rojo desde el 18/11, Montse), con las hectáreas de Global Mangrove Watch, para cambiar
+  // por los del equipo de contenido.
+  const EX = (t, b) => ({ t, b, ex: true });
+  const CARDS = {
+    ras: [
+      EX('No Mangroves Yet', 'In 1985, satellites found no grey mangroves at Ras Tanura.'),
+      EX('Still Waiting', 'In 1995, there were still no mangroves at Ras Tanura.'),
+      EX('A First Patch', 'By 2005, about 1 hectare of mangroves had started to grow.'),
+      { t: 'Protecting a Valuable Place', b: 'By 2015, efforts that began in 2012 were helping protect Ras Tanura’s mangroves and track how they changed over time.' },
+      { t: 'Growing Greener', b: 'By 2025, satellite images showed more mangroves in Ras Tanura. Conservation projects and the Mangrove Eco-Park helped support their recovery.' }
+    ],
+    safwa: [
+      EX('A Small Start', 'In 1985, about 7 hectares of mangroves grew along this coast.'),
+      EX('More Than Double', 'By 1995, mangroves covered about 18 hectares, more than twice as much as in 1985.'),
+      EX('Slow Growth', 'By 2005, there were about 21 hectares of mangroves.'),
+      EX('Growing Fast', 'By 2015, mangroves covered about 79 hectares, almost four times more than in 2005.'),
+      EX('A Green Coast', 'By 2025, about 153 hectares of mangroves grew along this coast, more than twenty times as much as in 1985.')
+    ],
+    island: [
+      EX('Most of the Bay', 'In 1985, this area had most of the bay’s mangroves: about 22 hectares.'),
+      EX('Spreading Out', 'By 1995, mangroves covered about 37 hectares.'),
+      EX('Still Growing', 'By 2005, there were about 46 hectares of mangroves.'),
+      EX('Watching from Space', 'By 2015, satellite images showed about 89 hectares of mangroves.'),
+      EX('Room to Grow', 'By 2025, mangroves covered about 136 hectares, about six times more than in 1985.')
+    ]
+  };
+
+  const ORDER = [
+    ['intro', '1 · Idle (wristband or tap)'], ['earth', '2 · Earth from afar'], ['zoomPen', '3 · Zoom to the peninsula'], ['pen', '4 · Arabian Peninsula'],
+    ['zoom', '5 · Zoom to Tarout Bay'], ['tarut', '6 · Tarout Bay'], ['scan', '7 · Scanning'], ['detected', '8 · Mangroves detected'], ['choose', '9 · Choose an area'],
+    ['zoomZone', '10 · Zoom to Ras Tanura'], ['ras:0', '11 · Ras Tanura · 1985'], ['ras:1', '12 · Ras Tanura · 1995'], ['ras:2', '13 · Ras Tanura · 2005'],
+    ['ras:3', '14 · Ras Tanura · 2015'], ['ras:4', '15 · Ras Tanura · 2025'], ['choose:seen', '16 · Select another area (Ras Tanura seen)'],
+    ['zoomZone:0:safwa', '17 · Zoom to Safwa & Qatif'], ['ras:0:safwa', '18 · Safwa & Qatif · 1985'], ['ras:3:safwa', '19 · Safwa & Qatif · 2015'],
+    ['zoomZone:0:island', '20 · Zoom to Tarout Island'], ['ras:0:island', '21 · Tarout Island, Saihat & Dammam · 1985'], ['ras:3:island', '22 · Tarout Island, Saihat & Dammam · 2015'],
+    ['great', '23 · Great job! (all three areas seen)'], ['mission', '24 · Mission successfully completed!'], ['still', 'Are you still there? (inactivity)'],
+    ['confirm', 'Confirm Restart']
+  ];
+
+  // Manglar real de 2025 de las tres zonas en la vista de Tarout Bay (Global Mangrove Watch), en vez de los puntos que pintó Montse
+  // (Montse, 18/11). Una mancha por trozo: centro (x, y) y trazado. scan: foto del escaneo; tarut: foto de Tarout Bay (13 × 9 px movida).
+  const TREAL = {
+    scan: [[707.2, 786.4, 'M708.5 784.5 705 785 706 787 706.5 787 706 787.5 706 787.5 706 788 708.5 788Z'],
+      [704.9, 784.0, 'M704.5 783 704.5 785 705 785 705 783Z'],
+      [697.4, 779.3, 'M692 774 692 775 691 775 691 776.5 693 777 694 778 694 778 694.5 779 695 779 696 780 696 781 696.5 781 696.5 782.5 697 782.5 698 783.5 698 785 699 785 699 785.5 700 786 700.5 787 701 787 701 786 700 785 701 785 701 784 702.5 784 702.5 782 701 782 700.5 781 700.5 779.5 700 779 700 777 699 777 699 776.5 698 776 698 775 697 775 697 774Z'],
+      [789.2, 661.8, 'M787.5 657 787.5 657 787 657.5 787 658 787.5 658.5 787 659 787 659 787 662 787.5 662 787.5 664 788 664 788 663.5 789 664 789 664 790.5 664 791 666 791 666 791 666.5 792 666.5 792 663 791.5 663 791 662 790 662 790 661 789.5 661 789 662 788 662 788 660.5 787.5 660 789.5 658 789 657 789 657Z'],
+      [808.9, 629.7, 'M810 626 809 626 809 629 808 629 808 630.5 807 631 807 631.5 806 631.5 806 632 807 632 807.5 631.5 809 631.5 809 631 810 631 810 629.5 810.5 629Z'],
+      [813.0, 616.6, 'M814.5 605.5 812.5 605.5 812.5 606 812 606 812 607.5 811 608 811 610 812 610 812 611 811 611 811 614 812 614 812 614 811 614.5 811 617 810.5 617 810 625 810.5 625 811 623 812 623.5 812 624 811 624 811 626 812 626 812 627 812.5 627 813 626 814 626 814 626 814.5 625.5 814.5 624 815 624 815 608.5 814.5 608Z'],
+      [797.2, 558.6, 'M790.5 548 790.5 549 790 549 790 552.5 789 553 789 553.5 791 553.5 791 554 792 554.5 792 556 792.5 556 792.5 556.5 793 557 793 558 794 558 794.5 559 795 559 795 560 796 560.5 796 561 796 561 796.5 562 797 562 797 562.5 798.5 563 798.5 564 799 564 799 565 800 565 801 565.5 801 566 802 566 802 568 803 568 803 569 805 569 805 568 806 568 806 567 804 567 804 566 804.5 566 804.5 565 804 565 804 564 802.5 564 802.5 562.5 802 562 802 561 801 561 801 560 800.5 560 800.5 559 799 558 799 557 798.5 557 798.5 556 798 556 798 555 797 555 796.5 554 794 554 794 553 792.5 552.5 793 551 795 551 795 550.5 794 550.5 794 550 793 550 793 550 793 550.5 792.5 548Z'],
+      [751.6, 548.6, 'M751 548 751 549 752 549 752 548Z'],
+      [750.2, 546.8, 'M749 546 749 547 750 547 750 547.5 751 547.5 751 547 750 547 750 546Z'],
+      [791.5, 541.7, 'M792 541 791 541 791 542.5 792 542Z'],
+      [748.0, 542.7, 'M748 540 748 541 747 541 747 542 746 542.5 746 543 747 543.5 747 545 749 545 749 544 749 544 749 543 749 542.5 749 541 749 541 749 540Z'],
+      [787.8, 542.3, 'M790.5 538 790 538 789.5 539.5 788 539.5 788 541 787 542 786 542 786 541 785 541 785 541.5 784.5 542 784.5 544.5 786.5 544.5 787 544 787.5 544 788 545 790 545 790 540.5 790.5 540Z'],
+      [743.4, 534.2, 'M744 533.5 743 533.5 743 535 743 535 743 534.5 744 534Z'],
+      [708.7, 541.4, 'M723.5 533.5 722 533.5 722 535 721 535 720 533.5 719.5 533.5 719.5 534 719 534 719 535 718 535 718 536 715 536 714.5 536.5 711.5 536.5 711 537 703.5 537 703 538 699.5 538 699 540 699 540 699 535 695.5 535 695.5 536 694 536.5 694 537 695 538 693 539.5 693 541 693.5 541.5 693 542 693 544 692 544 692 545 693 545 693 544 694 543 695 545 695.5 545 695.5 545.5 696.5 545.5 697 546 697.5 546.5 697.5 548 706 548 706.5 547 713.5 547 714 546 716 546 716 545.5 717.5 546 717.5 547 721.5 547 722 545.5 723.5 545.5 723.5 543.5 724 542.5 725 542.5 725 542 723.5 542 723.5 542 723 542.5 723 544 721.5 544 721 545 719 545 718.5 545.5 718 545.5 717.5 545 718 544 719 544 719 543 720 543 720.5 542.5 721.5 542.5 722 541 723 541 723 540 723.5 540Z'],
+      [789.9, 531.8, 'M790.5 529 790 529 789.5 530 788 530 788 532 788.5 532 788 533 788 533 788 533.5 788.5 534 788.5 535 789 535 790 533 791 533 791 533.5 792.5 533.5 792.5 531 792 531 792 530.5 791 530 791 530 790.5 529.5Z'],
+      [729.8, 531.9, 'M738 527.5 736 527.5 736 528 735 528 734.5 529 731.5 529 731 530 727.5 530 727 530.5 725.5 530.5 725.5 535 725 535 725 537 724 537 724 539 725 539 725 538 727 538 727 536.5 726 536 726 534.5 728 534 728 533.5 729 533.5 729 532 728 532 728 530.5 729 531 729 531 729 531 729 531 730 530.5 730 532 732 532 732 531 734 531 734 531 735 530.5 735.5 530 737 530 737 528.5 738 528Z'],
+      [698.8, 529.0, 'M693.5 526 693.5 528 694 528 695 528.5 695 529 695.5 529 695.5 530.5 696 531 697 532 701 532 701 531 703 531 703 531 703.5 530.5 704 530 704 530 704 528 702 528 701.5 527.5 701.5 527 700.5 527 700 526Z'],
+      [757.3, 529.2, 'M739 527 739 528 740 528 740 528 741 527.5 741 527 742 527 742 526 749 526 749 530 750.5 530 751 530 750 530.5 750 531 749.5 531 749 530.5 748 530.5 748 530 747 530 747 530.5 746 530.5 746 531 747 531.5 747 533 747 533 747 533.5 748 533.5 748 534 748.5 534 749 535 749 536.5 751 536.5 751 536 753 536 753 535 753 535 753 532 754 532 754 531 755 531.5 755 532 755 532 755 531.5 756.5 531 757 530.5 759 530.5 759 531 761 531 761 530.5 766.5 530.5 767 532 770 532 770.5 533 771 533 771 533.5 772 533.5 772.5 534 774 534 774 535 774.5 535 775 534 776.5 534 777 533.5 778 533.5 778 533 782.5 533 782.5 532 783 532 783 531 782 531 781.5 532 778 532 778 531 774 531 774 530.5 773 530.5 773 531 773 531 772.5 530.5 769.5 530.5 769 530 768 530 768 529 767 529 766.5 528 763 528 763 529 763 529 762 527.5 761 527 761 527 760 527 760 526 759 526 759 525 757.5 525 757 524.5 756.5 524 756.5 524 756 524 756 524 755 524.5 754.5 526 753.5 526 753 525.5 754 525 754 524.5 755 524.5 755 522.5 753 522.5 752.5 523 751 523 751 523 751 522.5 751 522 751 522 750.5 522.5 749 522.5 749 523 747 523 746.5 524.5 743 524.5 743 525 741 525 740.5 527Z'],
+      [621.2, 424.8, 'M625 418 624 418 624 418.5 623 418.5 623 419 622 419 621.5 421 619.5 421 619 422 619 421.5 618 421.5 618 422 618 422 618 424 616 424.5 616 426 616 426 616 427 615 427.5 615 429 614 429 614 435 615 435 615 434 616 434 616 432 616 432 616 431 617 430.5 617 429 618 429 618 428 619 427.5 619.5 426 620 426 620 425.5 621 425 621 424.5 622 425.5 622 427 623.5 427 624 427.5 625 427.5 626 425 627 425 627 424.5 628 424.5 628 424 629 424 629 421.5 628.5 421.5 628 421 627 421 627 420 625 420Z'],
+      [629.0, 401.8, 'M633 383 632 383 632 384 631.5 384 631.5 385.5 630 386 630 388.5 629.5 389 629.5 390 631 390.5 631 391 630 391 630 392 629.5 392.5 629 394 627.5 394 627.5 394.5 627 395 627 395 626 395.5 626 397 625.5 397 625 398.5 624 398.5 624 401 625 401 625 403 625.5 403 625.5 404 626 404.5 626 405.5 625.5 406 625 406.5 625 406 624 406 624 407 625 407 625 408 626 408 626.5 407 627.5 407.5 627 409 625.5 409 625.5 414 630 414 630 415 631.5 415 631.5 413 632 412.5 632 412 633 412 633 411 634 411 634 410 633.5 410 633 409 632.5 409 632 408 631.5 408 631 406.5 630.5 406.5 630 406 630 406 629 405 629 404 629.5 403.5 629.5 401.5 630 401 630 394 631 394 632 392.5 632 392.5 632 390.5 633 390 633 389 633.5 389 633.5 388 634 388 634.5 387 635.5 387 635.5 386 635 386 634 387 633 387 633 386.5 633.5 386.5 634 386 634 386 634 385 633 385Z'],
+      [626.5, 363.1, 'M626 363 626 363.5 627 363.5 627 363Z'],
+      [561.1, 363.1, 'M560.5 363 560.5 363.5 562 363.5 562 363Z'],
+      [631.6, 368.6, 'M634 362 633 362 632.5 363 631 363 630.5 363.5 629.5 363.5 629 364 628 364 628 365 627.5 365 627.5 365.5 627 366 626.5 366.5 625.5 366.5 625.5 368 625 368 625 370 625.5 370.5 625.5 371 627.5 371 627.5 370.5 628 370 629 372 629.5 372 629 372.5 629 372.5 629 374 630 374 630 375 631.5 375.5 631 376 631 376 631 377 632 377 632 377.5 633.5 377.5 633.5 377 633 376.5 633 375.5 634 375 634 372 635 371 635.5 371 636 370 637 370 637 369 635.5 368.5 635.5 367 636 366.5 636 367 637.5 367 637.5 365 637 365 636 364 637 363.5 637 363 634.5 363Z'],
+      [612.6, 359.4, 'M612 359 612 360 613 360 613 359Z'],
+      [559.6, 359.6, 'M560.5 359 559 359 559 360.5 560 360.5 560 360 560.5 360Z'],
+      [596.8, 360.8, 'M625.5 363.5 624 363.5 623.5 363 623 362.5 623 362 621.5 362 621.5 362.5 621 363 621 361.5 621.5 361 622 360.5 622 360.5 622 359 620 359 619.5 358 618 358 618 359.5 617 360 617 360 616 360.5 616 362 613.5 362 613.5 362.5 612 363 612 363 611.5 363.5 611 364 611 362 611.5 362 611.5 360.5 609 360 609.5 360 609.5 358.5 610 358 610.5 357.5 611 357.5 611 357 610.5 357 610 356 609 356 609 357 604 357 603.5 356 602 356 602 355 603 354.5 603 354 603.5 354 603.5 352 603 352 603 351.5 602.5 351.5 602 351 600.5 351 600 350 598.5 350 598 350 599 349.5 599 349 597.5 349 597 349.5 595.5 349.5 595.5 350 594 350 594 351 592 351 592 351.5 591.5 352 590 352 590 354.5 591 355 591 355 590 355 590 357 591 357 591 357 590 357.5 589.5 358 585 358 585 357.5 583 357.5 583 356 582 356 582 357.5 582 357 581 357 581 357.5 580 357.5 580 358 578.5 358 578 359 577 359 577 359.5 576 360 576 360.5 575 360.5 575 361 574 361 574 362 573 362 573 363 571 363 571 363.5 568 363.5 567.5 365 566.5 365 566.5 366 569 366 569 365 576 365 576 363.5 575 363.5 575 363 576 363 576 363.5 577 364 577 365 578.5 365 578.5 366.5 580 366.5 580 365 581 365 581 366 580 366.5 580 369 581 369 581 367 582 367 582 368 583 368 583 367 584 367 584 366.5 584 366 584 366 585 366 585 366.5 586 366.5 586.5 366 587.5 366 588 367 590 367 590 368 591 368 591 367 592 367 592 368 593 368 593 367 594 367 594.5 366 595 366 595 366.5 600 366.5 600 366 600 367 602 367 602 367 603.5 366.5 603.5 366 604 366 604.5 365 607.5 365 608 364 608 364.5 608 365.5 607.5 366 607.5 366.5 609 366.5 610 365 611 365 611.5 366 612 366 612.5 365 614 365 614.5 364 615 364 615.5 365 615 366 614 366 614 366.5 617 366.5 617.5 367 619 367 619 366.5 620 366.5 620 367 621.5 367 621.5 367 622 366.5 622.5 366 624 366 624 365 625 365 625 364.5 625.5 364Z'],
+      [567.4, 356.5, 'M569 347 568 347 568 348 567.5 349 567 349 566 350 565 350 565 351 564 351 564 351.5 562.5 352 562 352.5 560.5 352.5 560.5 354 559 354.5 559 356 560 356 560 355 561 355 561 354.5 562 354.5 563 355.5 563 356 561 356 561 357.5 563 358 563 358 562 358 562 359 561 359 561 360 562.5 360 562 360.5 562 360.5 562 361 562 361 562.5 362 563 362 563 361 564 361.5 564 362.5 563 363 563 363.5 564 363.5 564.5 364 565 364 565 363.5 566.5 363.5 567 363 569 363 569 362 570.5 362 571 360.5 573 360.5 573 360 575 360 575 359 576 359 576 358.5 577 358 577 357.5 578 357.5 578 357 574 357 574 356 570.5 356 571 355 571 354 572 354 572 353 571 353 571 352.5 570 352 570 351 571 351 571 349.5 570 349 569 348.5Z'],
+      [569.9, 343.0, 'M571 341 570 341 570 342.5 569 343 569 344 570 344 570 342 571 342Z'],
+      [687.9, 326.2, 'M687 325.5 687 326 688 326 688 327 688.5 327 688 325.5Z'],
+      [852.4, 314.4, 'M852 314 852 315 853 315 853 314Z'],
+      [857.5, 313.6, 'M855 312 855 312.5 856 313 856 315.5 857 315.5 857.5 315 859 315 859 314 860 314 860 313 859.5 313 859 312.5 857 312.5 857 312Z'],
+      [851.6, 311.6, 'M851 311 851 312 852 312 852 311Z'],
+      [861.2, 308.5, 'M865 307.5 864 307.5 864 307 861 307 861 307 860 307.5 860 308 858 308 858 309 857 309 857 310 863 310 863 309 864 309 864 308 865 308Z'],
+      [875.5, 303.0, 'M877 301 876.5 301 876.5 301 876 302 875 302 875 303 874 303 874 303.5 873 304 873 304.5 874.5 304.5 875 305 875 305 875 304 876 304 876 303 877 303Z'],
+      [675.6, 302.2, 'M675 300 675 302.5 675 303 675 304 676 304 676 303.5 676.5 303 676.5 302 676 301.5 676 301 675 301 675 300Z'],
+      [877.6, 299.6, 'M877 299 877 300 878 300 878 299Z'],
+      [671.6, 297.6, 'M671 297 671 298 672 298 672 297Z'],
+      [848.3, 303.9, 'M845.5 296 845.5 297 845 297 845 298 845.5 298 845 298.5 845 298.5 845 299 845.5 299.5 845.5 304 845 304.5 845 307.5 845 307.5 845.5 308 846 308 846 307.5 849 307.5 849.5 307 850.5 307 851 307 850 307.5 850 308 850.5 308 851 309 850 309 850 310.5 852 310.5 852 310 854 310 854 308 853.5 308 853.5 307.5 852 307.5 852 306 851.5 306 851 304.5 850 304 850 302 849 302 849 300 849 300 849 299 848 299 848 297 847.5 297 847 296Z'],
+      [880.2, 295.7, 'M881 293 880.5 293 880 294 879 294 879 294.5 878.5 295 878.5 295 878 295.5 878 298 880 298 880 297 882 297 882 296.5 882.5 296 882.5 295 882 294.5 882 294 881 294Z'],
+      [841.1, 291.0, 'M834 287 834 288 836 288 836 289 837 289 838 290 839.5 290.5 840 292 841 292 841.5 293 843 295 843 296 844 296 844 295.5 845.5 295.5 845 292.5 845 292 845 292 843 291.5 843 289.5 842 289.5 841.5 289 841 288.5 841 288 838 288 838 287Z'],
+      [799.1, 289.3, 'M812 284.5 811.5 284 811.5 284 808 284 808 284 807.5 284.5 807 285 806 285 806 287 801.5 287 801.5 287 800 287.5 800 288 799.5 288 799 289 797 289 796.5 289.5 794.5 289.5 794 289 793 289 792 287.5 788 287.5 788 289 789 289 789 290 789.5 290.5 789.5 291 790.5 291 791 292 792 292 792 292.5 793.5 292.5 794 292 795 292 795 293.5 797.5 294 798 293.5 799 293.5 799 292.5 801 292.5 801 292 802 292 803 290 804 290 804 290 805 289 805.5 289 806 288 807 288 807 287.5 808 287.5 808.5 287 809.5 287 810 285 812 285Z'],
+      [661.4, 270.9, 'M660 270 660 270.5 661 271 661 272 663 272 663 271 662 271 662 270.5 661 270 661 270Z'],
+      [659.5, 266.2, 'M658 264 658 265 658.5 265.5 658.5 266 659 266 659 269 660 269 660 268 661 267.5 661 265 660 265 660 264.5 659 264.5 658.5 264Z'],
+      [646.6, 255.2, 'M646 252 646 258.5 647 258.5 647 252Z'],
+      [649.0, 250.1, 'M649 250 649 250.5 649 250.5 649 250Z'],
+      [647.8, 247.4, 'M647 247 647 247.5 648 247.5 648 248 649 248 649 247.5 648 247.5 648 247Z'],
+      [644.0, 246.4, 'M643 245 643 247 644 247 644 247.5 645 247.5 645 246 644 246 644 245Z'],
+      [640.1, 213.0, 'M635 193 635 194.5 634 195 634 195.5 633 195 633 195 632 195 632 195.5 632.5 196 631 196 631 198 632 198 632 199 634 199 634.5 200 635 200 635 200.5 634.5 200.5 634.5 202 636.5 202 637 203 636 203.5 636 204 637 204 637 205 638 205 638 206 636 206 636 206 635 206.5 635 207 636 207 636 208 637 208 637 209.5 638 210 638 210 637 210 637 211 638 211 638 213 637 213 637 215 638 215 638.5 217.5 638 218 638 219 637 219 637 220.5 637 221 637 223 637 223 637 227.5 638 227.5 638 227 639 226.5 639 227.5 640 228 640 228.5 639 229 639 233 640 233.5 640 235 641 235 641 237 641 237 641.5 236 642 236.5 642 237.5 641 238 641 238.5 642 239 642 242 643 242 643 241 644 241 644 239 644.5 238.5 644.5 236 644 236 644 235.5 643 235 643 233.5 644 233 644 228 643.5 228 643 227 643 224.5 643 224 643 222.5 644 222 644 221 643 220.5 643 219 644 218.5 644 216.5 645 215.5 645 215.5 645 215 644.5 215 644 215.5 643 215 643 214 644 214 644 213 643.5 213 643 213 644 212.5 644.5 209.5 644 209 644 209 643 208.5 643 206.5 642.5 206 642.5 205 642 204.5 643 204 643 206 644 206 644 204 643.5 204 643 204 644 203.5 644 203 645 203 645 202 646 202 646 200.5 645.5 200.5 645 200 644.5 199.5 644.5 199 644 199 644 197.5 643 197.5 643 198 642.5 198 642.5 197 643 197 643 196 642 196 642 195.5 641 195 641 195 640 195 640 194 638 194 638 195 637 195 637 195 636 195.5 636 194 637 194 636.5 193Z'],
+      [634.2, 193.6, 'M634 193 634 194 634.5 194 634.5 193Z'],
+      [638.0, 191.9, 'M638.5 191 638 191 638 191.5 637 192 637 192.5 638.5 192.5Z'],
+      [614.4, 183.9, 'M614 183.5 614 184 615 184 615 183.5Z'],
+      [612.5, 182.9, 'M614 180.5 613 180.5 613 181 612 181 612 182.5 611 183 611 184 611 184 611 186 612 186 612 184.5 613 184 613.5 183 614 183Z'],
+      [627.5, 178.9, 'M628.5 178 627 178 627 179 626.5 179 626.5 180 627 180 627.5 179 628.5 179Z'],
+      [608.4, 179.0, 'M608 178 608 180 609 180 609 178Z'],
+      [623.7, 187.4, 'M612 189 612 189.5 613 190 613 193 613 193.5 613 194 614 194 614 195 618 195 618 193.5 619 193 619 192.5 619 193 620 193.5 620 194 622 194 622 193.5 623 193 623 193 623 192.5 623 192 623 191 623.5 190 624 190 624 189 626 189 626.5 187.5 627 187 627 184.5 628 184 628 184 628.5 183.5 628.5 182 630 182 630.5 184 629 184 629 185.5 629 186 629 188 628 188 628 188.5 627 189 627 190 629 190 629 191 628 192 628 191 627 191 626.5 190 625 190 625 195 625 195 625.5 193 626 193.5 626 194 632.5 194 632.5 193 631.5 193 631 193 632 192.5 633 191 633 191 633 192.5 634 192.5 634 192 634.5 192 635 189.5 636.5 190 636 190 636 191 637 191 637 190 638 189.5 638 188 637.5 188 637 187 636 187 636 188.5 635.5 189 635 188 634 188 634.5 187 634.5 186.5 634 186.5 634 187 633.5 187 633 186.5 631 186 631.5 185 632 185 632 186 633 186 633 185 632 185 632 184 633 183.5 633 182 632.5 182 632 183 632 182 631.5 182 631 181 630.5 181 631 180.5 631 180.5 631 180 629 180 629 180 628.5 180.5 628.5 181 627.5 182 627 181 626 181 626 179 625 179 625 178 623 178 622.5 177.5 621 177.5 621 179 620.5 180 620 180 620 180.5 619 180.5 619 182 619 182 619 182.5 618 183 618 183 617 183.5 617 184 616 184 616 185 616.5 185 617 185.5 615 186 614.5 186.5 613 186.5 613 187 614 187 614 188 613 188 613 188.5Z'],
+      [619.1, 178.6, 'M620 177.5 619 177.5 619 179 618 179 618 180 619 180 619 179 620 179Z'],
+      [614.3, 178.2, 'M618 176 617.5 176 617 175 615 175 614.5 176 613 176 613 177 612 177 612 177 611 177.5 611 179 610 179 610 181 611 181 611 181 612 180.5 612 180 614 180 614 179 615 179 615 181 616 181 616 181 617 180.5 617 180 617 180 617 178.5 618 178Z'],
+      [604.6, 180.0, 'M602 175 602 178 603 178 603 177.5 603 178 603 180 603 180.5 603 182.5 602 183 602 184 603.5 184 603.5 184 605 183.5 605 183 605.5 183 605.5 183.5 607 183.5 607 183 607 183 607 181 607 181 607 180 607 180 607 178 607 178 607 177.5 606 177 606 176 605.5 176 605 177 605 176.5 605 176 604 176 604 177 603 177 603 175Z'],
+      [608.8, 174.5, 'M608 171.5 608 173 607 173 607 175 607 175 607 176 608 176 608 177 609 177 609 176 610 176 610 175 611 175 611 174.5 611 174 611 173 610 173 610 173.5 609 174 609 174.5 608 174.5 608 173 609 173 609 171.5Z'],
+      [603.6, 171.0, 'M601 170 601 171 602 171 602 171.5 605.5 171.5 605.5 171 605 171 605 170 604 170 604 171 602 171 602 170Z'],
+      [624.7, 172.1, 'M622 170 622.5 171.5 623 171.5 623 172 624 172.5 624 174.5 625 174.5 625.5 174 626 174 626 174.5 626.5 174.5 626.5 174 627 174 627 173 626 173 626 172 625 172 625.5 171.5 626 171.5 626 170Z'],
+      [602.8, 167.8, 'M605 164 604 164 604 165 603 165 603 166.5 601 166.5 601 168 600 168 600 169 601 169 600.5 169.5 600 169.5 600 171 601 171 601 170 601 169.5 601.5 168 602 168 602 169 603 169 603 168 603 169.5 605.5 169.5 605.5 168 605 168 605 167 604 167 604 165 605 165Z'],
+      [610.4, 163.9, 'M610 163.5 610 164 611 164 611 163.5Z'],
+      [614.7, 162.8, 'M616 160 615 160 615 160 614.5 160.5 614.5 162.5 614 163.5 613 163 613 163 613 163 613 164 614.5 164.5 614.5 166 615 166 615 164 615 164 614.5 164 615 163.5 615 162 616 162 616 161 615 161 615.5 160.5 616 160.5Z'],
+      [611.7, 160.0, 'M609 157.5 609 160 610 160 610 162 610.5 162 611 163 612 163 612 162 613 162 613 161.5 613 161 613 160 614 160 614 157.5 613 157.5 612.5 158 611 158 610.5 160 610 159.5 610 157.5Z'],
+      [605.2, 161.0, 'M605 157.5 605 159 604 159 604 160 605 160 605 161 604 161 604 162 605 162 605 163.5 606 163.5 606 163 607 163 607 162 606 162 606 161 605 161 605 157.5Z'],
+      [611.6, 154.6, 'M611 152 611 155 611 155.5 611 156 612 156 612 157 613 157 613 156 612 156 612 155 611 155 611.5 154.5 612 154.5 612 153 611.5 153 611 152Z'],
+      [579.2, 156.9, 'M581 148.5 580 148.5 580 149 579.5 149 579.5 150.5 579 151 578.5 151.5 578 151.5 578 154.5 579 155 578.5 155 578 155 578 156 578.5 156 579 156.5 577.5 157 577.5 158 577 158 576.5 159 575.5 159 575.5 160 576 160 576 162 577 162 576.5 163 576 163 576 164 577.5 164 577.5 164 578 163.5 578 162 579 162 579 161 579.5 161 579.5 160 580 159 581 159 581 160 581.5 160 581.5 160.5 583 160.5 583 160 582 160 581.5 159 582 158 582 157.5 581.5 157 582 156 583 156 583 155 581.5 155 581.5 151.5 580 151 580 151 581 151Z'],
+      [588.4, 147.0, 'M588 146 588 148 589 148 589 146Z'],
+      [581.5, 146.7, 'M580 145 580 145.5 581 146 581 148 581 148 581.5 148.5 582 148.5 582 148 583 148 583 147 582 147 582 145.5Z'],
+      [598.3, 147.7, 'M600 142 599 142 599 147 598 147 598 148 597 148 596.5 149 596 149 596 153 596.5 153 597 154 597 154 597 152.5 598 152 598 149 599 148.5 599 148 599.5 147 600 147 600 146 601 146 601 143.5 600 143Z'],
+      [601.0, 127.4, 'M601 127 601 128 601 128 601 127Z']],
+    tarut: [[693.4, 777.9, 'M691 777 691 777.5 692 777.5 692 778 693 778.5 692.5 779 692 779 692 780 695 780 695 776 693 776 692.5 777Z'],
+      [691.0, 775.2, 'M691 774.5 691 776 691 776 691 774.5Z'],
+      [683.5, 770.6, 'M678 765.5 678 766 677 766 677 768 679 768 679 768.5 680 768.5 680 769 681 769.5 681 771 682 771 682 772 683 772.5 683 774 683 774 683 774.5 684 775 684 776 685 776 685 777 686 777 686 777.5 686.5 777.5 687 778 687 778 687 777.5 686 776 687 776 687.5 775 688.5 775 688.5 773 687.5 773 687 772 687 771 686 770.5 686 768.5 685.5 768.5 685 768 684 767.5 684 766 683.5 766 683 765.5Z'],
+      [775.4, 652.8, 'M774 648 774 648 773 648.5 773 649 774 649.5 773.5 650 773 650 773 653 774 653 774 655 774 655 774.5 654.5 775 655 775 655 777 655 777 657 777.5 657 778 657.5 778 657.5 778 654 778 653.5 778 653 776.5 653 776 652 776 652 775.5 653 774 653 774 651.5 774 651 774.5 650 775 650 775 649 776 649 776 648.5 775 648.5 775 648Z'],
+      [795.2, 620.7, 'M796 617 795.5 617 795.5 620 794 620 794 621.5 793.5 622.5 792 622.5 792 623 794 623 794 622.5 795.5 622.5 795.5 622 796 622 796 620.5 797 620 797 619 796 618.5Z'],
+      [799.3, 607.6, 'M801 596.5 799 596.5 799 597 798 597 798 598.5 797.5 599 797.5 601 798 601 798 602 797.5 602 797.5 604.5 798 604.5 798 605 797.5 605 797.5 608 797 608 797 612 796 612 796 616 797 616 797 614 798 614.5 798 615 797.5 615 797.5 617 798 617 798 618 799 618 799 617 800 617 800 617 801 616.5 801 615 801.5 615 801.5 599.5 801 599Z'],
+      [783.6, 549.4, 'M776 540 776 543.5 775.5 544 775.5 544.5 777 544.5 778 545 778 546.5 779 546.5 779.5 547.5 779.5 549 781 549 781 549.5 781.5 550 781.5 551 782 551 782 552 783 552 783.5 553 785 553.5 785 555 785.5 555 785.5 555.5 787 556 787.5 557 788 557 788 558.5 789.5 559 789.5 560 791.5 560 791.5 559 792 558.5 792 558 790 557.5 790.5 557 791 557 791 555.5 790.5 555.5 790 555 789 554.5 789 553 788 553 788 552 788 552 787 551 787 549.5 786.5 549.5 786 549 786 549 785 548 785 546.5 784.5 546.5 784 546 783 546 783 545 780.5 545 780 544 779 543.5 779 542 781.5 542 781.5 541.5 780.5 541.5 780 541 779.5 541 779 541.5 779 539 777 539 777 540Z'],
+      [738.0, 539.6, 'M738 539 738 540 738 540 738 539Z'],
+      [736.6, 537.9, 'M735.5 537 735.5 538 736 538 736 538.5 738 538.5 738 538 736.5 538 736 537Z'],
+      [777.9, 532.5, 'M777.5 532 777.5 533 778 533 778 532Z'],
+      [734.2, 533.4, 'M734 531 734 531.5 733.5 532 733 533 732 533 732 534 733.5 534 733.5 535.5 735.5 535.5 735.5 535 735 534.5 735 533.5 735.5 533 735.5 532 735 531.5 735 531Z'],
+      [774.2, 533.2, 'M777 529 776 529 776 530 774 530 774 531.5 773.5 532 773 532.5 772.5 532.5 772 532 771.5 532 771.5 532 771 532.5 771 535.5 773 535.5 773 535 774 535 774 536 776 536 776 531 777 531Z'],
+      [729.6, 525.0, 'M730 524 729.5 524 729 526 730 526 729.5 525 730 525Z'],
+      [695.0, 532.2, 'M710 524 708 524 708 526 707 526 707 525 706.5 525 706 524 706 524 706 525 705 525 705 525.5 704 526 704 526.5 701 526.5 701 527 698 527 697.5 528 690 528 689.5 529 686 529 685.5 531 685 531 685 526 682 526 682 527 680 527.5 680 528 681 528 681 528.5 680 529 679.5 530 679 530 679 532 679.5 532 680 532 679 532.5 679 534.5 678.5 535 678.5 535.5 679 535.5 679 535 680 535 680 534 680 534 681 535.5 682 536 682 536 683 536 683 537 684 537 684 538.5 692 538.5 692.5 538 700 538 700 537 702 537 702.5 536 704 536.5 704 538 708 538 708.5 536 710 536 710 534 710.5 533 711 533 711 532.5 710 532.5 710 533 709 533 709 534.5 708 535 707.5 535.5 705 535.5 705 536 704 536 704 536 704.5 535 705 535 705 534 706 534 706.5 533 708 533 708 532 709 532 709 531 710 531Z'],
+      [776.3, 522.5, 'M777 520 776 520 776 520.5 774 520.5 774 523 775 523 775 523.5 774 523.5 774 524 775 524.5 775 526 775.5 526 775.5 525 776 525 776.5 523.5 777 523.5 777.5 524 779 524 779 522 778 522 778 521 777.5 521Z'],
+      [716.0, 522.7, 'M724 518 721 519 721 520 718 520 717.5 520.5 714 520.5 713.5 521 712 521 712 525.5 711 526 711 528 710 528 710 529.5 711 529.5 711 529 713 529 713 527 712 527 712 525 714 525 714.5 524 715.5 524 715 523 714 522.5 714.5 521 715 521.5 715 522 715.5 522 715.5 521.5 716 521 716 523 718 523 718.5 522 720 522 720 521.5 721.5 521 722 520.5 723 520.5 723.5 519 724 519Z'],
+      [684.9, 519.7, 'M680 517 680 518.5 680 519 680 519 681 519.5 681 520 682 520 682 521.5 682 522 682 522 683 522 683 523 687 523 687 522 689 522 689 521.5 690 521 690 520.5 690 519 688.5 519 688 518 686.5 518 686 517Z'],
+      [743.7, 520.0, 'M725 518 725 519 726 519 726.5 518 727.5 518 727.5 518 728.5 517 735 517 735.5 520.5 737 520.5 737 521 736 521 736 522 736 522 735.5 521 734.5 521 734 520.5 733.5 520.5 733 521 732 521 732 522 733 522 733 523.5 733.5 524 733.5 524 734 524 734 525 735 525 735.5 526 735.5 527 737 527 737 526.5 739 526.5 739 526 739.5 526 739.5 523 740 523 740.5 522 741 522 741 523 741.5 523 742 522 743 522 743 521 745 521 745.5 522 747 522 747 521 753 521 753.5 523 757 523 757.5 524 759 524 759 525 760 525 760 526 761 526 761 525 763 525 763 524.5 764 524 764.5 523.5 769 523.5 769 523 769.5 523 769.5 522 768 522 768 523 764.5 523 764 522 760.5 522 760 521 759.5 521 759 522 759 521 756 521 755.5 520.5 754.5 520.5 754 520 753 520 753 519 749.5 519 749 520 749 519 748.5 519 748 518 747.5 518 747.5 517.5 746.5 517.5 746 517 745 517 745 516 744 516 743 514.5 742 514.5 742 515 741.5 515 741 517 740 517 739.5 516 740 516 740.5 515 741 515 741 513 739 513 739 514 737 514 737 513.5 737.5 513 737.5 512.5 737 512.5 737 513 735.5 513 735 514 733.5 514 733 515.5 729.5 515.5 729 516 727.5 516 727.5 517 727 517.5Z'],
+      [607.2, 415.4, 'M611 408 610 408 610 409 609 409 609 409.5 608 410 607.5 411 606 411 605.5 413 605 412.5 605 412 604 412 604 412.5 604 413 604 415 602 415 602 416 602 416.5 602 418 601 418 601 419 600 419.5 600 425.5 601 425.5 601 425 602 425 602 423 602 422.5 602 421 603 421 603 420 604 419.5 604 418 605 418 605 417 606 417 606 417 606.5 416 607 416 607 415 608 416 608.5 417 609.5 417 610 418 611 418 611 417.5 612 417 612 416 613 416 613 415 614 415 614 414.5 615 414 615 412 614.5 412 614 411 613 411 613 410.5 611 410.5Z'],
+      [615.1, 392.1, 'M619 373 618 373 618 374.5 617.5 375 617.5 376 616 376 616 379 616 379 616 381 617 381 617 381.5 616 381.5 616 383 615.5 384 615 384 615 384.5 613.5 384.5 613 386 612 386 612 387 612 387.5 612 388 611 388 611 389 610 389 610 391 611 391.5 611 393.5 612 394 612 395 612 395 612 396 612 396 611.5 397 611 397 611 396 610 396 610 398 611 398 611 399 612 399 612.5 398 614 398 613.5 399.5 612 399.5 612 404.5 616 404.5 616 405 618 405 617.5 403 618 403 618 402.5 619 402 619 401.5 620 401.5 620 400 618.5 399.5 618 399 617.5 398.5 617 397 616 397 616 395.5 615 395 615 394.5 616 394 616 392 616 392 616 385 617 384.5 618 383 618 383 618 381 619 381 619 379.5 619.5 379 619.5 379 620 378.5 620.5 378 621.5 378 621.5 376 621 376 621 377 620 377 620 378 619 377.5 619.5 376.5 620 376 620 375.5 619 375Z'],
+      [612.6, 353.6, 'M612 353 612 354 613 354 613 353Z'],
+      [547.0, 353.6, 'M546 353 546 354 548 354 548 353Z'],
+      [617.6, 359.1, 'M620 352.5 619 352.5 619 353 617 353 617 354 615.5 354 615 355 614 355 614 355 613.5 355.5 613 357 611.5 357 611.5 358 611 358.5 611 361 611.5 361 611.5 361.5 613.5 361.5 613.5 361 614 361 614 361.5 615 361.5 615.5 362 615 363 615 364 616 364.5 616 366 617.5 366 617 366.5 617 367 618 367 618 368 619.5 368 619 366 620 366 620 362 621 362 622 360.5 623 360.5 623 359 621.5 359 621.5 357 622 357 622 358 623.5 358 623.5 355.5 623 355 623 355 622 354.5 622.5 354 623 354 623 353 620.5 353Z'],
+      [598.6, 349.9, 'M598 349.5 598 350 599 350 599 349.5Z'],
+      [545.5, 350.2, 'M545 349.5 545 351 546 351 546 349.5Z'],
+      [582.8, 351.2, 'M611.5 354 610 354 609 352.5 607.5 352.5 607 353 607 352 608 351 608 351 608 349.5 606 349.5 605.5 349 604 349 604 350 603 350 603 351 602 351 602 352.5 599.5 352.5 599.5 353 598 353 598 354 597 355 597 353 598 352.5 598 351 595 351 595.5 350 595.5 349 596 349 596.5 348 597 348 597 347 596.5 347 596 346.5 595 346.5 595 347 590 347 589.5 346.5 588.5 346.5 588 345 589 345 589 344.5 589.5 344 589.5 343 589 342.5 589 342 588 342 588 341 586.5 341 586 340.5 584.5 340.5 584 340 585 340 585 339 584 339 583.5 340 581.5 340 581.5 340 580 340.5 580 341 578 341 577.5 343 576 343 576 345 577 345 577 346 576 346 576 347 577 347 577 348 576 348 575.5 349 571 349 571 348 569 348 569 346.5 568 346.5 568 348 568 347 567 347 567 348 566 348 565.5 349 564 349 564 349.5 563 349.5 563 350 562 350 562 351 561 351 561 351.5 560 352 560 352.5 559 352.5 559 353 557 353 557 354 554 354 553.5 355.5 552 355.5 552 356 555 356 555 355.5 562 355.5 562 354 561 354 561 353.5 562 353 562 354 563 354 563 355.5 564 356 564 357 566 357 566 356 567 356 567 357 566 357 566 359 567 359 567 358 568 358 568 358.5 569 358.5 569 358 570 358 570 357 570 357 570 356 571 356 571 357 572 357 572.5 356 573 356 573.5 357 574 357 574 358 576 358 576 358.5 577 358.5 577 358 578 358 578 358.5 579 358.5 579 358 580 358 580.5 356 581 356.5 581 357 586 357 586 356 586 358 588 358 588.5 357 590 357 590.5 355.5 593.5 355.5 594 355 594 355 594 356 593.5 356 593.5 357 595 357 595 356.5 596 356 596 355.5 597.5 355.5 598 356 598 356 598.5 355.5 600 355.5 600.5 355 601 355 601.5 355 601 356 600 356 600 357 603.5 357 604 358 605 358 605 357 606 357 606 358 607.5 358 607.5 357 608 357 608.5 356 610 356 610 356 611 355.5 611 355 611.5 355Z'],
+      [553.3, 346.9, 'M555 337.5 554 337.5 554 339 553 339 553 340 552 340.5 551 340.5 551 341 550 341 549.5 342 548 342 548 343 546 343 546 344 545.5 345 545 345 545 346.5 546 346.5 546 346 547 346 547 345 548 345 548 346 549 346 549 346.5 547 346.5 547 348 549 348 549 349 548 349 548 349 547 349.5 547 350 548 350.5 548 351 548 352.5 549 352.5 549 352 550 352 550 353 549 353 549 354 550 354 550 355 551 355 551 354 552 354 552.5 353 555 353 555 353 556 352.5 556 352 557 352 557 351 559 351 559 350 561 350 561 350 562 349.5 562 349 563 349 563 348 564 348 564 347 560 347 560 346.5 556 346 556.5 346 557 346 557 344.5 558 344 558 343.5 557 343.5 557 343 556 342.5 556 341.5 557 341 557 340 556.5 340 556 339 555 339Z'],
+      [555.9, 333.5, 'M557 332 556 332 556 333 555 333 555 335 556 335 556 333 557 332.5Z'],
+      [674.2, 316.6, 'M673.5 316 673.5 316.5 674 316.5 674 317 675 317 675 316.5 674 316Z'],
+      [838.9, 304.9, 'M838.5 304.5 838.5 305 839 305 839 304.5Z'],
+      [843.9, 304.1, 'M842 302 842 303 842.5 303 842.5 306 844 306 844 305 845 305 845.5 304.5 846.5 304.5 846.5 304 846 304 846 303 843.5 303 843 302Z'],
+      [838.1, 301.9, 'M838 301.5 838 302 838.5 302 838.5 301.5Z'],
+      [847.7, 298.7, 'M851 298 851 298 850.5 297 848 297 848 297.5 846.5 298 846 298.5 844.5 298.5 844 299 843 299 843 300 850 300 850 299.5 850.5 299 851 298.5 851 298.5Z'],
+      [862.0, 293.4, 'M864 291 863 291 863 291.5 862.5 292 862.5 292 862 292.5 861.5 293 860.5 293 860.5 294 860 294 860 295 861 295 861 295.5 862 295.5 862 294 862.5 294 863 293 864 293Z'],
+      [661.7, 292.3, 'M661 290.5 661 293 661.5 293 661.5 294 662 294 662 294 663 293.5 663 292 662 292 662 291 661.5 291 661.5 290.5Z'],
+      [864.1, 289.9, 'M864 289.5 864 290 864.5 290 864.5 289.5Z'],
+      [657.8, 287.9, 'M657.5 287.5 657.5 288 658 288 658 287.5Z'],
+      [834.7, 294.2, 'M832 287 832 287 831 287.5 831 288 832 288.5 831 289 831 289.5 832 290 832 294.5 831 295 831 298 832 298 832 298.5 832.5 298.5 833 298 836 298 836 297 837 297 837 297.5 836.5 298 836.5 298.5 837 298.5 837 299 836.5 299 836.5 301 838.5 301 839 300 840.5 300 840.5 298.5 840 298 840 298 839 298 838.5 296 838 296 837 295 836.5 294.5 836.5 292.5 836 292 836 290 835 290 835 289.5 834.5 289 834.5 287.5 834 287.5 834 287Z'],
+      [866.7, 286.0, 'M868.5 284 868 284 868 284 867 284 867 284 866 284 865 285.5 864.5 286 864.5 288 866.5 288 867 287 868.5 287 868.5 287 869 286.5 869 285 868.5 285Z'],
+      [827.5, 281.5, 'M820.5 278 820.5 278.5 822 278.5 822.5 279 823.5 279 824 280 824 280 824.5 281 825.5 281 826 281.5 826.5 282 826.5 282 828 282 828 284 830 285.5 830 287 830.5 287 831 286 832 286 832 283 831 283 831 282 830 282 830 280 828 280 827 279 827 278.5 825 278.5 824.5 278Z'],
+      [785.5, 279.6, 'M798.5 275 798 274.5 798 274 794.5 274 794 275.5 792.5 275.5 792 277 788 277 788 278 786.5 278 786 279 783 279 783 280 781 280 780.5 279 779.5 279 779 278.5 778.5 278 778.5 278 774.5 278 774.5 279 775 279.5 775 281 776 281 776 281.5 777 281.5 777 282 778 282 778.5 283 780 283 780 282 781 282 781 284 782 284 782.5 284.5 784 284.5 784 284 785 284 785.5 283 787 283 787.5 282 788.5 282 788.5 282 789 281.5 789.5 281 790.5 281 790.5 280 791 280 791 279.5 792 279 792 278.5 793 278.5 793 278 794.5 278 795 277 796 277 796 275.5 798.5 275.5Z'],
+      [647.4, 261.1, 'M646 260 646 261 646.5 261 647 261.5 647.5 262 647.5 262 649 262 649 261.5 648 261 647.5 260Z'],
+      [645.6, 256.2, 'M644 254 644 255.5 644.5 255.5 645 256 645.5 256.5 645.5 259 646 259 646 258 647 258 647 255.5 646 255.5 646 255 645 255 645 254Z'],
+      [632.8, 245.5, 'M632 242 632 249 633.5 249 633.5 242Z'],
+      [635.1, 240.4, 'M635 240 635 241 635.5 241 635.5 240Z'],
+      [633.8, 237.7, 'M633 237 633 238 634 238 634 238.5 635 238.5 635 238 634 238 634 237Z'],
+      [630.1, 236.7, 'M629.5 235.5 629.5 237 630 237 630 238 631 238 631 236 630 236 630 235.5Z'],
+      [626.2, 203.0, 'M621.5 183 621.5 184.5 620 185 620 185.5 619.5 185 618 185 618 185.5 618.5 185.5 619 186 617 186 617 188.5 618 188.5 618 189 620.5 189 621 190 621.5 190 621 191 621 191 621 192 622.5 192 623 193.5 622 194 622 194.5 623 194.5 624 195.5 624 196 622 196 622 196.5 621.5 197 622 198 623 198 623.5 200 624 200 623.5 200.5 623.5 201 624 201.5 623.5 205 624 205 624 206.5 625 207 625 208 624 208 624 209 623.5 209.5 623.5 211 623 211 623 213 623.5 213 623.5 217.5 624 217.5 624 217 625 217 626 218 626 219 625.5 219 625.5 223.5 626 224 626 225 627 225 627 227 627.5 227 628 226.5 628 227 628 228 627.5 228 627.5 229 628 229 628 232.5 629.5 232.5 629.5 231 630 231 630 229 631 229 631 226.5 630 226.5 629.5 225.5 629.5 224 630 223.5 630 218 629.5 218 629.5 217.5 629 217 629 215 629.5 214.5 629.5 212.5 630 212 630 211 629.5 210.5 629 209 630 209 630 207 631 206.5 631 206 631.5 206 631.5 205 631 205 630.5 206 629 205.5 629 204 630 204 630 203.5 629.5 203.5 629 203 630 203 630 201.5 631 201 631 200 630 200 630 199 629 199 629 197 629 196.5 629 195 628 195 628 195 629 194.5 629 196 630 196 630 194.5 629.5 194.5 629 194 630 194 630 193 631.5 193 631.5 192.5 632 192 632 191 631.5 190.5 631.5 190 631 190 631 189 630 189 630 188 629 188 629 188.5 629 188 629 186 628 186 627.5 185 626 185 626 184 624 184 624 185 623 185 623 185 622 185.5 622 184 623 184 623 183Z'],
+      [620.4, 183.6, 'M620 183 620 184 621 184 621 183Z'],
+      [624.1, 181.9, 'M625 181 624 181 624 181.5 623 182 623 182.5 625 182.5Z'],
+      [600.4, 174.0, 'M600 174 600 174 601 174 601 174Z'],
+      [598.6, 173.0, 'M600 171 599 171 599 171 598 171.5 597.5 174 597 174.5 597 175 597 175 597.5 176 598 176 598 175 599 174.5 599 174 599.5 174 599.5 173 600 173Z'],
+      [613.7, 169.1, 'M613 170 613 170 613.5 169 615 169 615 168.5 613 168.5Z'],
+      [594.4, 169.2, 'M594 168.5 594 170 595 170 595 168.5Z'],
+      [609.8, 177.6, 'M598 179 598 180 599 180 599 183 599.5 183.5 600 185 604 185 604 183.5 605 183 605 182.5 605.5 183 606 184 608 184 608 183.5 609 183 609 182.5 609.5 182.5 609.5 182 609 182 609 181 609.5 181 609.5 180.5 610 180 610 179 612 179 612 178 613 178 613 177 613.5 177 613 174.5 614 174 614 173.5 615 173.5 615 172 616.5 172 617 174 615.5 174 615.5 175.5 615 176 615 176.5 615.5 177 615.5 178 614 178 614 178.5 613.5 179 613.5 180 615 180 615.5 181 615 181 615 181.5 614 182 614 181 613 181 613 180 611 180 611 185 611.5 185 612 183 612 184 619 184 619 183 617.5 183 617 183 618 182.5 618 182 619 182 619 181 619.5 181 619.5 182.5 620 182.5 620 182 621 182 621 179.5 623 180 622.5 180 622 180 622 181 623 181 623 180 624 179.5 624 178 623.5 178 623 177 622 177 622 179 621.5 178 620 178 620 177 621 177 621 176.5 620 176.5 620 177 619.5 176.5 617 176 617.5 175 618 175 618 176 619.5 176 619.5 175 618 175 618 173.5 619.5 173.5 619 172 619 172 619 173 618 173 618 172 617 172 617 171.5 617 171 617 171 617 170 615.5 170 615.5 170.5 615 171 615 171 614 171.5 614 172 613.5 172 613 171.5 612 171 612 169 611 169 611 168.5 609 168.5 609 168 607.5 168 607.5 169 607 169 607 170 606 170 606 171 605 171 605 172 605 172 605 173 604 173 603 174 602 174 602 175 602.5 175 603 175.5 601 176 600.5 176.5 599.5 176.5 599.5 177 600 178 599 178 599 178.5Z'],
+      [605.1, 168.9, 'M606 168 605 168 605 169 604 169 604 170 605 170 605 169.5 606 169Z'],
+      [600.4, 168.4, 'M603.5 165.5 601 165.5 601 166 599.5 166 599 167 598 167 597.5 168 597 168.5 596.5 169 596 169 596 171.5 597.5 171.5 598 170 600 170 600 169 601.5 169.5 601.5 171.5 602 171.5 602 171 603 171 603 170 603.5 170 603.5 169 604 168.5 604 166 603.5 166Z'],
+      [590.7, 170.3, 'M588 165.5 588 168.5 589 168.5 589 168 589.5 168 589.5 170.5 589 171 589 173 588 173 588 174.5 589.5 174.5 589.5 174 591 174 591 173 591.5 173 591.5 174 593 174 593 173 593.5 173 593.5 171.5 593 171 593 170 593.5 170 593.5 168.5 593 168.5 593 168 592 167.5 592 166 591.5 166 591 167 591 167 591 166 590 166 590 167 589 167 589 165.5Z'],
+      [595.0, 164.8, 'M594 162 594 163 593.5 163 593.5 165 593 165.5 593 166 594 166 594 167 595 167 595 166.5 596 166 596 165.5 597.5 165.5 597.5 165 597 164.5 597 163 596 163 595 165 594 165 594 163.5 595 163 595 162Z'],
+      [610.7, 162.3, 'M608 160 608 161 608.5 161 609 162 609 162 610 163 610 165 611 165 611.5 164 612 164 612 165 613 165 613 163 612 163 612 162.5 611 162 611.5 162 612 162 612 160Z'],
+      [589.6, 161.2, 'M587.5 160 588 162 591.5 162 591.5 161 591 161 591 160 590 160 590 161 588 161 588 160Z'],
+      [588.7, 157.9, 'M591 154 590 154 589 156.5 587 156.5 587 158 586 158 586 159 587 159 586.5 159.5 586 159.5 586 161 587 161 587 160 587.5 159.5 588 158 588 159 589 159 589 158 589 158 589.5 159.5 591.5 159.5 591.5 158 591 158 591 157 590 157 590 155 591 155Z'],
+      [596.4, 153.9, 'M596 153.5 596 154 597 154 597 153.5Z'],
+      [600.7, 152.8, 'M602 150 601 150 601 150 601 150.5 601 152.5 600 153 600 153.5 599 153 599 153 599 153 599 154 601 154.5 601 156 601 156 601 154 601 154 601 153.5 601 152 602 152 602 151 601.5 151 601 151 602 150.5Z'],
+      [597.8, 150.0, 'M595.5 147.5 596 152 596.5 152 597 153 598 153 598 152 599 152 599 151.5 599 151 599 150 600 150 600 147.5 599 147.5 598.5 148 597.5 148 597.5 149 597 149 596.5 150 596 149.5 596 147.5Z'],
+      [591.2, 150.6, 'M591 147.5 591 149 590 149 590 150 591 150 591 151 590 151 590 152 591 152 591.5 153.5 592 153.5 592 153 593 153 593 152 592 152 591.5 151 591.5 147.5Z'],
+      [597.6, 144.5, 'M597 142 597 145 597.5 145.5 598 147 599 147 599 146 598 146 597.5 145 598 144.5 598 143 597.5 143 597.5 142Z'],
+      [565.2, 147.0, 'M567 139 566 139 566 139 565.5 139.5 565.5 140.5 565 141 564.5 141.5 564 141.5 564 145 565 145 564 145.5 564 146 564.5 146 565 146.5 563.5 147 563.5 148 563 148 562.5 149 561.5 149 561.5 150 562 150 562 152 563 152 562.5 153 562 153 562 154 563.5 154 563.5 154 564 153.5 564 152 565 152 565 151 565.5 151 565.5 150 566 149 567 149 567 150 567.5 150 567.5 150.5 569 150.5 569 150 568 150 567.5 149 568 148 568 147.5 567.5 147 568 146 569 146 569 145 567.5 145 567.5 141.5 566 141 566 141 567 141Z'],
+      [574.4, 137.2, 'M574 136.5 574 138 575 138 575 136.5Z'],
+      [567.4, 136.9, 'M566 135 566 136 567 136 567 138 567 138 567.5 139 568 139 568 138 569 138 569 137 568 137 568 136 567 136 567 135Z'],
+      [584.4, 137.9, 'M586 132 585 132 585 137 584 137 584 138 583 139 583 139 582.5 139.5 582 139.5 582 143 582.5 143 583 144 583.5 144 583.5 142.5 584 142 584 139 585 139 585 138 585.5 138 586 136.5 587 136.5 587 133.5 586 133Z'],
+      [587.0, 117.4, 'M587 117 587 118 587 118 587 117Z']]
+  };
+  const VF = { x: 66, y: 50, w: 1176, h: 1002 };             // visor del escaneo (Figma «Group 191»)
+  // Zoom con las imágenes de Montse (Figma «images», 2805:5256). Cada fila: imagen y su sitio (x, y, ancho) dentro de la
+  // anterior, en px de la pantalla; calculado comparando las imágenes. La primera va dentro de la península.
+  // Zoom de la Tierra a la península con las tres imágenes de Montse (18/11): el mundo → «tierra-lejos» → «tierra» → península.
+  // Cada fila: imagen y su sitio (x, y, ancho) dentro de la anterior, calculado comparando las imágenes (entre ellas hay giros de ~1°).
+  const EARTH_ZR = [['tierra-lejos.jpg', 376.5, 202.6, 983.9], ['tierra.jpg', 152.2, 137.3, 1420.4]], PEN_IN_EARTH = [503.3, 260.4, 988.7];
+  const ZR = [['z6.jpg', 486, 132, 1101], ['z5.jpg', 531, 129, 1062], ['z4.jpg', 534, 132, 1056], ['z3.jpg', 534, 132, 1053], ['z2.jpg', 531, 132, 1056], ['z1.jpg', 534, 132, 1053]];
+  // La vista de Tarout Bay con las burbujas (Figma v5: «zoom1 3» a 2443 px en −523, −92; la del escaneo está en −510, −83).
+  const TARUT_IN_Z1 = [411.0, 72.3, 1508.9];
+  // La vista de cada zona dentro de la de Tarout Bay (la de «Elegir zona», en −523, −92): ZONES[k].rect.
+
+  // Manglar de cada año (1985, 1995, 2005, 2015, 2025): lo que enseña Global Mangrove Watch, capa «Mangrove extent» v4, la misma
+  // de globalmangrovewatch.org. Sacado del mapa de la web el 18/11/2026 (Montse: «copiar exactamente lo que muestra la web») y
+  // recortado a su zona (Montse: «cada zona muestra los manglares suyos»): la zona es lo que enseña su foto; la de Safwa & Qatif
+  // cae dentro de la de Ras Tanura, así que Ras Tanura es su foto menos la de Safwa. En Safwa & Qatif y en la isla, cuyas fotos
+  // están más cerca, los escalones del dato (~66 m) se suavizan según la escala, para que se vean como en Ras Tanura (Montse, 19/11). Se
+  // calcado sobre cada foto, encajada antes con un mapa de satélite de referencia (desvío de unos pocos píxeles). Un trazado SVG
+  // por zona y año, en píxeles de la pantalla (1920 × 1080). Antes eran manchas de relleno («Vector 112» del Figma).
+  const MANG_C = '#41f1bd';   // verde del Figma («manglares»), Montse 18/11
+  const REAL = {
+    ras: [
+      '',
+      '',
+      'M718 412 718 413.5 720 413.5 720 412ZM712 410 712 415.5 713.5 416 713.5 419 715 419 715 414.5 716.5 413.5 716.5 412 715 411.5 715 410ZM711.5 383 711.5 388.5 713.5 388.5 713.5 387 714 386.5 716.5 386.5 716.5 385 715 384.5 715 383Z',
+      'M1233.5 643.5 1233.5 645.5 1235 645.5 1235 643.5ZM1249.5 629 1244.5 629.5 1245 630.5 1244.5 631 1241.5 631 1241.5 633 1249.5 633ZM794.5 613 794.5 616.5 796 616.5 796 613ZM1196.5 586 1196.5 590 1201 590 1201 588 1199.5 587.5 1199.5 586ZM1117.5 572 1117.5 576 1119 576 1119 572ZM759 539.5 759 541.5 761.5 541.5 762 543 763.5 543 763.5 541.5 762 541 762 539.5ZM754 525 754 527 755.5 527.5 755.5 530.5 757 530.5 757.5 531 757.5 536 759 536 759 534.5 760.5 534 760.5 530.5 759 530 759 528.5 758 528.5 757.5 527 756 527 755.5 526.5 755.5 525ZM725 503.5 725 509 726.5 509 726.5 503.5ZM708.5 360 708 361.5 705 361.5 705 363 703.5 363.5 703 365 700.5 365 700.5 367 702 367.5 702 370.5 703.5 371 703.5 372 702 372.5 702 376 703.5 376 703.5 374.5 704.5 374 705 374.5 705 379.5 706 379.5 707 381.5 708.5 382 708.5 386 707 386.5 707 388 706.5 388.5 705 388.5 705 392 706.5 392 707 392.5 707 393.5 705.5 394 705.5 397.5 707 398 707 408.5 709.5 408.5 710 409 710 411.5 709.5 412 707 412 707 422.5 708.5 423 708.5 424.5 710 424.5 710.5 425 710.5 431 710 431.5 708.5 431.5 708.5 433.5 711.5 433.5 712 434 712 442 710.5 442.5 710.5 446 712 446.5 712 451.5 713.5 452 713.5 453 712 453.5 712 455 713.5 455 714 453.5 715 454 715 455 718.5 455 718.5 446 717 446 716.5 445.5 717 444.5 718.5 444.5 718.5 440.5 717 440.5 716.5 440 717 439 718.5 439 718.5 437 717 437 716.5 436.5 716.5 430.5 718 430 718 428 715.5 428 715 427.5 715 426 714 426 713.5 425 715 424.5 715 419.5 716.5 419 716.5 416 717 415.5 720 415.5 720 410 718.5 410 718 408.5 716.5 408 716.5 404.5 715 404 715 397.5 709 397.5 708.5 397 708.5 395.5 707.5 395.5 707 394.5 707.5 394 711.5 394 711.5 392.5 712 392 713.5 392 714 390.5 715 391 715 392 716.5 392 716.5 391 718 390.5 718 386.5 717 386.5 716.5 385 715 384.5 715 382 716.5 381.5 716.5 380 717 379.5 719.5 379.5 719.5 377.5 717 378 716.5 377.5 716.5 376 715 375.5 715 368.5 713.5 368 713 361.5 710.5 361.5 710 360ZM655.5 349 655.5 356.5 657 356.5 657 349ZM624.5 324 623 324 623 325.5 621.5 326 621.5 327.5 624.5 327.5ZM669.5 322 666.5 322 666.5 323.5 665 324 664.5 325.5 661.5 326 661.5 327 660 327.5 660 329.5 661.5 330 661.5 334.5 662.5 334.5 663 336 662.5 336.5 659 336.5 658.5 336 658.5 334.5 655.5 334.5 655.5 338 655 338.5 650.5 338.5 650.5 342 653.5 342 653.5 340.5 655 340 655.5 340.5 655.5 343.5 657 343.5 657 339 658 338.5 658.5 340 660 340.5 660 343.5 661.5 343.5 661.5 340.5 662 340 664.5 340 665 341.5 664.5 342 663 342 663.5 347.5 665 347.5 665 346 666.5 345.5 666.5 344 667 343.5 669.5 343.5 669.5 340.5 670 340 671.5 340.5 671.5 342 676 342 676 340.5 677.5 340 677.5 333 676 333 675.5 334.5 673 334.5 673 336 671.5 336.5 671.5 338 671 338.5 669.5 338.5 669 340 667 340 666.5 339.5 666.5 337 667 336.5 669.5 336.5 669.5 330 670.5 329.5 671 331 673 331 673 327.5 671.5 327.5 671 327 671 325.5 667 325.5 666.5 325 667 324 669.5 324ZM663 327 665 327 665.5 327.5 665.5 329 667 329.5 667 333 666.5 333.5 663 333.5 662.5 333 662.5 327.5ZM626.5 317 626.5 319 628 318.5 628 317ZM558.5 274 558.5 277.5 561.5 277.5 561.5 275.5 560.5 275.5 560 274ZM563.5 268.5 563.5 270.5 565 270.5 565 268.5ZM560 268.5 560 272 561.5 272 561.5 268.5ZM565 263 565 265 568 265 568 263Z',
+      'M1224 645.5 1224 647.5 1225.5 647.5 1225.5 645.5ZM1232 640 1232 642 1233.5 642.5 1233.5 649 1237 649 1237 647.5 1237.5 647 1240 647 1240.5 645.5 1243 645.5 1243 643.5 1242 643.5 1241.5 642 1235.5 642 1235 641.5 1235 640ZM1222 638.5 1222 640 1224 640 1224 638.5ZM1254.5 629 1253.5 629 1253 627.5 1246 627.5 1246 628.5 1244.5 629.5 1243 629.5 1242.5 631 1238.5 631 1238.5 632.5 1238 633 1235 633 1235 634.5 1251 634.5 1251 633.5 1251.5 633 1253 633 1253 631.5 1254.5 631ZM1285 613 1283 613 1283 614 1281.5 614.5 1281.5 616 1280 616.5 1280 618 1279.5 618.5 1277 618.5 1276.5 620 1275 620 1275 622 1278 622 1278.5 623.5 1280 623.5 1280 620.5 1281.5 620 1282 618.5 1285 618.5ZM794.5 613 794.5 618.5 796 619 796 622 798 622 798 621 799.5 620.5 799.5 616.5 798.5 616.5 798 615 796.5 615 796 614.5 796 613ZM1285 609.5 1285 611 1286.5 611 1286.5 609.5ZM786.5 606 786.5 608 788 608 788 606ZM1207.5 602.5 1207.5 603.5 1206 604 1206 606 1207.5 606.5 1207.5 607.5 1206 608 1206 609.5 1207.5 610 1207.5 621.5 1206 622 1206 629.5 1207.5 629.5 1208 631 1209.5 631 1210 629.5 1217.5 629.5 1217.5 628 1218 627.5 1220 627.5 1220.5 629 1219 629.5 1219 631 1220 631 1220.5 632.5 1219 633 1219 636.5 1224 636.5 1224 635 1224.5 634.5 1228.5 634.5 1228.5 631 1227.5 631 1227 629.5 1224.5 629.5 1224 629 1224 625.5 1222.5 625.5 1222 624 1220.5 623.5 1220.5 622 1219 621.5 1219 616.5 1218 617 1217.5 616.5 1217.5 611.5 1216 611.5 1215.5 611 1215.5 609.5 1214 609 1214 604 1213 604 1212.5 602.5ZM1207.5 608.5 1209 608 1209.5 609 1208 609.5ZM1294.5 595 1293 595 1292.5 596.5 1289.5 596.5 1289.5 598 1288 598.5 1288 600 1287.5 600.5 1286.5 600.5 1286.5 605.5 1291 605.5 1291.5 604 1296 604 1296 602.5 1297.5 602 1297.5 598.5 1296 598 1296 596.5 1295 596.5ZM1180.5 581 1180.5 582.5 1184.5 582.5 1185 583 1185 584.5 1188 584.5 1188.5 586 1190 586.5 1190 588 1192.5 588 1193 588.5 1193 590 1194.5 590 1195 591.5 1197.5 591.5 1198 592 1198 595.5 1199 595.5 1199.5 597 1201 597.5 1201 599 1202.5 599.5 1203 602.5 1204.5 602.5 1204.5 601 1205 600.5 1207.5 600.5 1207.5 593.5 1206 593 1206 591.5 1203 591.5 1202.5 591 1202.5 586 1198.5 586 1198 584.5 1196.5 584 1196.5 582.5 1190.5 582.5 1190 581ZM1127 574 1125.5 573.5 1125.5 572 1117.5 572 1117.5 573.5 1116 574 1116 575.5 1115.5 576 1112.5 576 1112.5 579 1112 579.5 1101.5 579.5 1101 581 1098 581.5 1098 582.5 1096.5 583 1096.5 584.5 1096 585 1090 585 1089.5 586.5 1084.5 586.5 1084 585 1081 585 1080.5 584.5 1080.5 583 1079.5 583 1079 581.5 1069.5 581.5 1069.5 585 1071 585.5 1071 588.5 1072.5 589 1072.5 590.5 1075 590.5 1075.5 592 1078.5 592 1079 592.5 1079 594 1082.5 594 1082.5 592.5 1083 592 1085 592 1085.5 592.5 1085.5 596 1088 596 1088.5 597.5 1092 597.5 1092.5 596 1095 596 1095 594.5 1095.5 594 1100 594 1100 592.5 1100.5 592 1103 592 1103 590.5 1104.5 590 1105 588.5 1108 588.5 1108 587 1109.5 586.5 1110 585 1111 585 1111 583.5 1111.5 583 1114.5 583 1114.5 581.5 1115 581 1117.5 581 1118 579.5 1121 579.5 1121 576.5 1121.5 576 1127 575.5ZM759 539.5 759 541.5 760 541.5 760.5 543 762 543.5 762 545 765.5 545 765.5 543 764 543 763.5 541.5 762 541 762 539.5ZM754 525 754 528.5 755.5 529 755.5 530.5 757 530.5 757.5 531 757.5 537.5 759 537.5 759 534.5 760.5 534 760.5 528.5 759.5 528.5 759 527 756 527 755.5 526.5 755.5 525ZM725 496.5 725 512.5 728.5 512.5 728 496.5ZM731.5 491 731.5 492.5 733 492.5 733 491ZM726.5 484 726.5 485.5 729 485.5 729.5 486 729.5 487.5 731.5 487.5 731.5 485.5 730 485.5 729.5 484ZM718.5 480 718.5 484 719.5 484 720 485.5 721.5 485.5 721.5 482 720 481.5 720 480ZM698.5 354.5 698.5 357.5 698 358 695.5 358 695.5 359.5 695 360 694 359.5 694 358 690.5 358 690.5 360 691.5 360 692 361 691.5 361.5 689 361.5 689 367 690.5 367.5 690.5 369 696.5 369 697 370.5 698.5 370.5 699 371 698.5 372.5 697 372.5 697 376 701.5 376 702 376.5 702 379 700.5 379.5 700.5 381.5 703 381.5 703.5 383 705 383.5 704.5 385 700.5 385 700.5 386.5 699 387 699 388.5 700.5 389 700.5 390.5 703 390.5 703.5 391 703.5 394 705 394 705.5 394.5 705 395.5 703.5 395.5 703.5 397.5 705 397.5 705.5 398 705.5 402.5 705 403 703.5 403 703.5 406.5 705 406.5 705.5 407 705.5 410 707 410.5 707 413.5 705.5 414 705.5 417 705 417.5 703.5 417.5 704 420.5 703.5 421 702 421 702 426.5 703.5 426.5 704 427 704 437 705.5 437 706 435.5 708 435.5 708.5 437 710 437 710.5 437.5 710.5 440.5 710 441 708.5 441 708.5 451.5 710 451.5 710.5 452 710.5 455 712 455.5 712 460.5 713.5 460.5 713.5 459 714 458.5 715 459 715 461.5 713.5 462 713.5 464 715 464.5 715 473 718.5 473 718.5 470 720 469.5 720 464.5 721.5 464 721.5 458.5 720.5 458.5 720 457 718.5 456.5 718.5 452 720 451.5 720 439 718.5 438.5 718.5 437 717 437 716.5 436.5 716.5 430.5 718 430 718 425 718.5 424.5 720 424.5 720 421 718.5 421 718 420.5 718 416 718.5 415.5 720 415.5 720 410.5 721.5 410 722 408.5 723 408.5 723 406.5 721.5 406.5 721.5 408 721 408.5 718.5 408.5 718 408 718 405 718.5 404.5 720 404.5 720 403 718.5 403 718 401.5 718.5 401 720 401 720 398 721.5 397.5 721.5 394 720.5 394 719.5 393 719.5 392 718 391.5 718 386.5 716.5 386 716.5 383 715.5 383 715 382 715.5 381.5 717.5 381.5 718 382 718 385 719.5 385 719.5 381.5 718.5 381.5 718 380 719.5 379.5 719.5 378 720 377.5 723 377.5 723 376.5 724.5 376 724.5 372 723.5 372.5 723 372 723 370.5 721.5 370.5 721 370 721 368.5 719.5 368 719.5 365 718 365 718 366.5 717.5 367 716.5 366.5 716.5 364 718 363.5 718 361.5 715 361.5 714.5 361 714.5 359.5 713.5 359.5 713 358 710.5 358 710 357.5 710 356 705 356 705 357.5 704.5 358 702 358 702 359.5 701 360 700.5 359.5 700.5 356.5 702 356 702 354.5ZM719 370.5 719.5 370 721 370 721.5 370.5 721.5 372.5 721 373 719.5 373 719 372.5ZM695.5 354.5 695.5 356 697 356 697 354.5ZM706.5 349 705 349 705 350.5 703.5 351 703.5 352.5 706.5 352.5ZM647 331 647 333 648.5 333 648.5 331ZM647 324 644 324 644 325.5 642.5 326 642.5 329 642 329.5 640.5 329.5 641 332.5 640.5 333 639 333 639 335 640.5 335 641 336.5 642.5 336.5 642.5 333.5 644 333 644 331.5 645.5 331 646 329.5 647 329.5ZM677.5 322 679.5 322 679 321 679.5 320.5 682.5 320.5 682.5 318.5 679 318.5 679 320 677.5 320.5ZM632.5 318.5 632.5 322.5 634 322.5 634 318.5ZM642.5 343.5 642.5 345.5 644 346 644 354.5 645 354.5 645.5 355 645.5 356.5 647 356.5 647.5 358 657 358 657 355 658.5 354.5 658.5 353 659 352.5 660 353 660 354.5 661.5 355 661.5 356.5 666.5 356.5 666.5 355 668 354.5 668 353 668.5 352.5 670 352.5 670 351 668.5 351 668 349.5 668.5 349 670 349 670 348 671.5 347.5 671.5 344 672 343.5 676 343.5 676 342.5 677.5 342 677.5 340.5 678 340 679.5 340 679.5 333.5 681 333 681 331.5 681.5 331 682.5 331 682.5 328 683 327.5 687 327.5 687.5 328 687.5 332.5 687 333 684 333 684 336 682.5 336.5 682.5 338 684 338.5 684 341.5 683.5 342 681 342 681 343 679.5 343.5 679.5 347.5 683.5 347.5 684.5 348.5 684 349 682.5 349 682.5 350.5 681.5 351 681 350.5 681 349 678 349 677.5 347.5 673 347.5 673 358 674.5 358 674.5 355 675 354.5 676 355 676 356.5 692 356 692 354.5 689.5 354.5 689 353 690.5 352.5 691 351 692 351 692 349.5 692.5 349 694 349.5 694 352.5 695.5 352.5 695.5 351.5 697 351 697 346 697.5 345.5 701.5 345.5 702 346 701.5 347 700 347 700 349 703.5 349 703.5 346 705 345.5 705 341.5 704 341.5 703.5 340 700 340 700 343 699 343.5 698.5 343 698.5 341.5 696 341.5 695.5 341 696 340 697 340 697 338 695.5 338 695.5 339.5 694.5 340 694 339.5 694 338 689.5 338 689 337.5 689 335 689.5 334.5 690.5 335 690.5 336.5 694 336.5 694 334.5 691 334.5 690.5 334 690.5 331.5 691 331 694 331 694 327.5 692 327.5 692 328.5 691 329 690.5 327.5 689 327 689 325.5 687.5 325 688 324 689 324 689 322 684 322 684 323.5 682.5 324 682.5 325 681 325.5 681 327 680 327.5 679.5 327 679.5 325.5 676.5 325.5 676 325 676 320.5 673.5 320.5 673 320 673 318.5 668.5 318.5 668 317 665 317 665 320 664.5 320.5 663 320.5 663 321.5 661.5 322 661.5 323.5 660 324 660 327 658.5 327.5 658.5 329 657 329.5 656.5 331 655.5 331 655.5 332.5 655 333 652 333 652 334.5 653 334.5 653.5 336 653 336.5 648.5 336.5 648.5 338 648 338.5 645.5 338.5 645.5 340 646.5 340 647 341.5 646.5 342 644 342 644 343ZM677 351 677.5 350.5 679.5 350.5 680 351 680 352.5 679.5 353 677.5 353 677 352.5ZM687 349 687.5 348.5 689 348.5 689.5 349 689.5 351 689 351.5 687.5 351.5 687 351ZM693.5 347.5 694 347 695.5 347 696 347.5 696 349 695.5 349.5 694 349.5 693.5 349ZM690 347.5 690.5 347 692 347 692.5 347.5 692.5 349 692 349.5 690.5 349.5 690 349ZM660 347 660.5 347.5 660.5 351 659 351.5 659 352.5 657 353.5 656.5 353 656.5 351 658 350.5 658 347.5 658.5 347ZM687 345.5 687.5 345 689 345 689.5 345.5 689.5 347.5 689 348 687.5 348 687 347.5ZM690 343.5 690.5 343 692 343 692.5 343.5 692.5 345.5 692 346 690.5 346 690 345.5ZM659 329.5 661 329.5 661.5 330 661.5 334 661 334.5 660 334 660 333 657.5 333 657 332.5 657 331.5 658.5 331ZM672.5 322 673 321.5 674.5 321.5 675 322 675 324 674.5 324.5 673 324.5 672.5 324ZM661.5 317 658.5 317 658.5 320 657 320.5 657 322 660 322 660 321 661.5 320.5ZM656.5 313 655.5 313 655 311.5 648.5 311.5 648 313 645.5 313 645.5 314.5 645 315 642 315 642 316.5 640.5 317 640 318.5 639 318.5 639 320 638.5 320.5 637.5 320.5 637.5 326 640.5 326 640.5 324.5 641 324 642.5 324 642.5 322.5 643 322 647 322 647.5 320.5 650 320.5 650.5 321 650.5 326 652 326 652 324.5 653.5 324 653.5 322.5 654 322 655 322 655 319 655.5 318.5 657 318.5ZM618 311.5 618 319 619.5 319 619.5 317.5 620 317 621.5 317.5 621.5 323.5 621 324 619.5 324 620 329 618.5 329.5 618.5 333 621.5 333 621.5 332 624.5 331 625 329.5 626 329.5 626.5 331 629.5 331 629.5 330 631 329.5 631 326 629.5 325.5 629.5 323 631 322.5 631 318.5 630 318.5 629.5 317 628 316.5 628 313 626 313 626.5 314.5 626 315 624.5 314.5 624.5 313 623 313 623 314.5 622.5 315 620 315 619.5 314.5 619.5 311.5ZM632.5 302.5 632.5 305.5 631 306 631 311 629.5 311.5 629.5 313 632 313 632.5 313.5 632.5 315 634 315 634 313.5 634.5 313 637.5 313 638 311.5 640.5 311.5 640.5 309.5 639 309 639 306 637.5 306 637.5 307.5 636 308 635.5 309.5 633 309.5 632.5 309 632.5 306.5 634 306 634 302.5ZM616.5 299 616.5 300.5 618 301 618 302.5 626 302.5 626 300.5 625 300.5 624.5 299 623 299 622.5 300.5 618.5 300.5 618 299ZM666.5 299 666.5 300.5 668 301 668 302.5 669 302.5 669.5 304 671 304.5 671 309.5 674.5 309.5 674.5 308 675 307.5 676 308 676 309.5 677.5 309.5 677.5 308 679 307.5 679 306 676.5 306 676 305.5 676 304 674.5 303.5 675 302.5 676 302.5 676 298.5ZM672.5 304 673 303.5 674.5 303.5 675 304 675 306 674.5 306.5 673 306.5 672.5 306ZM624.5 284.5 623 284.5 623 286 622.5 286.5 621 286.5 621 288 621.5 288.5 621 290 615 290 615 293 614.5 293.5 613 293.5 613 295.5 614.5 295.5 615 296 614.5 297 613 297 613.5 300.5 615 300.5 615 297.5 616.5 297 616.5 294 617 293.5 618 294 618 295.5 619.5 295.5 619.5 294 621 293.5 621.5 294 621.5 297 626 297 626 293.5 625 293.5 624.5 293 624.5 291.5 623 291 623 287 624.5 286.5ZM622.5 293.5 623 293 624.5 293 625 293.5 625 295.5 624.5 296 623 296 622.5 295.5ZM637.5 282.5 637.5 284.5 639 284.5 639 282.5ZM651.5 273.5 650 273.5 650 275 648.5 275.5 648.5 280 647 280.5 647 282 646.5 282.5 645.5 282 645.5 280.5 644 280.5 644 282.5 645.5 283 645.5 284.5 648 284.5 648.5 285 648.5 288 650 288 650 284.5 649 284.5 648.5 283 650 282.5 650 279.5 651.5 279 651.5 277 650 276.5 650.5 275.5 651.5 275.5ZM624.5 268.5 624.5 271.5 624 272 622.5 272 622.5 273.5 624 273.5 624.5 274 624.5 277 623 277.5 623 279 625.5 279 626 279.5 626 282.5 627.5 282.5 628 281 629.5 281 629.5 279 628 279 627.5 277.5 626 277 626 268.5ZM647 268 643.5 268.5 643 270 640.5 270 640.5 271.5 639 272 638.5 273.5 637 273 637 268.5 635.5 268.5 635.5 273.5 637 274 637.5 279 639 279.5 639 281 642 281 642 279.5 642.5 279 644 279 644 277.5 645.5 277 645.5 274 647 273.5ZM640.5 276.5 642 277 642 279 641.5 279.5 640 279 640 277ZM639 255.5 639 263 640 263 640.5 264.5 642 265 642 266.5 645.5 266.5 645.5 264.5 642.5 264.5 642 263 640.5 262.5 640.5 261.5 642 261 642 257.5 640.5 257 640.5 255.5ZM566.5 247 565 247 564.5 248.5 563 248.5 563 252 561.5 252.5 561 254 560 254 560 261.5 561.5 262 561 263 560 263 560 265 561 265 561.5 266.5 561 267 558.5 267 558.5 270 557 270.5 556.5 272 553.5 272 553.5 274 555 274 555.5 274.5 555.5 279.5 557 280 556.5 281 555.5 281 555.5 284.5 558.5 284.5 558.5 283.5 560 283 560 280 561.5 279.5 561.5 278 562 277.5 563.5 277.5 563.5 274.5 565 274 565 272.5 565.5 272 566.5 272.5 566.5 274 568 274.5 568 275.5 571.5 275.5 571.5 274 570 273.5 570 272 568.5 272 568 271.5 568.5 270.5 570 270.5 570 268.5 568.5 268.5 568 267.5 569.5 267 569.5 265.5 570 265 571.5 265 571.5 263 568.5 263 568 262.5 568 254 565.5 254 565 253.5 565.5 252.5 566.5 252.5ZM557 281.5 558 281 558.5 282.5 557.5 283ZM558 270.5 558.5 270 560 270 560.5 270.5 560.5 272 560 272.5 558.5 272.5 558 272ZM584 241.5 584 245 586 245 586 241.5ZM564.5 238 564.5 239.5 566 239.5 566.5 240 566.5 245 568 245.5 568 247 569.5 247 569.5 245.5 570 245 571.5 245 571.5 243.5 570 243.5 569.5 243 569.5 239.5 567 239.5 566.5 238ZM613 230.5 609.5 230.5 610 242.5 609.5 243 608 243 608 244.5 606.5 245 606.5 246.5 605 247 604.5 248.5 603.5 248.5 603.5 257.5 605 258 605 259.5 606.5 259.5 606.5 256 608 255.5 608 247.5 608.5 247 610 247 610 245.5 611.5 245 611.5 243.5 613 243 613.5 241.5 614.5 241.5 614.5 234 613 233.5ZM614.5 194.5 614.5 196.5 616 196.5 616 194.5Z'
+    ],
+    safwa: [
+      'M573 239.5 573.5 242.5 574.5 243.5 577 244.5 581.5 244.5 584.5 243.5 588 240.5 588 238.5 587 237.5 584 236.5 577 236.5 574.5 237.5ZM725 199 721.5 196.5 716.5 196.5 713 199 712 201 712 207.5 711.5 208.5 705.5 214.5 698.5 220 697 223 696.5 229 695.5 232.5 693.5 236 690 239 681.5 242 678 244 669 247 667.5 247 667 247.5 658.5 247 654 249.5 650.5 250.5 645 250 638 247.5 634.5 247.5 633.5 248.5 633.5 250 635 253 637.5 256 640 257.5 646 258 649.5 257 651.5 255.5 656 253.5 659.5 253.5 660 253 669.5 253 670 253.5 675.5 253.5 676 254 685 254 685.5 253.5 690 253 698.5 249 705.5 244.5 716 232.5 718.5 223.5 718 212.5 718.5 211 725 205.5 726 203.5 726 201Z',
+      'M573 239.5 573.5 242.5 574.5 243.5 577 244.5 581.5 244.5 584.5 243.5 588 240.5 588 238.5 587 237.5 584 236.5 577 236.5 574.5 237.5ZM517 216.5 517 219.5 518.5 221.5 520.5 221.5 525 219 529 218.5 530.5 219 532.5 221 536 227 538 228 543.5 228.5 546 229.5 550.5 229.5 552.5 228.5 554.5 226 557 220 557 218 556 216 553 214 551 214 550.5 213.5 533.5 213.5 526 210 521 210.5 518.5 213ZM798 240.5 796.5 238 795.5 237.5 792.5 237.5 783.5 240.5 776.5 240.5 776 241 771.5 241 771 241.5 768 241.5 767.5 242 766 242 764 241 760.5 238 750 231.5 748 228.5 748 226 749 224 753 220.5 755 218 756.5 213.5 755.5 209.5 753.5 206.5 750 203 745 200.5 743 200.5 742.5 200 732.5 200 732 199.5 729.5 199.5 726.5 198.5 722.5 196.5 718 196 714 197.5 712 199.5 710.5 203.5 710 208 708.5 211 703 216.5 700.5 218 698.5 220 697 223 696.5 229 695.5 232.5 693.5 236 690 239 681.5 242 676.5 244.5 675 244.5 673 245.5 671.5 245.5 667 247 658 246.5 654 248 649.5 248 643 245.5 637 245.5 636.5 246 635 246 633 247.5 633 250 637 256 639.5 257.5 643 258 643.5 258.5 655 258.5 655.5 258 659.5 258 660 257.5 665 257 665.5 256.5 671.5 257.5 672 258 675.5 258 676 257.5 678 257.5 683 255 691.5 252.5 696 250.5 703 250 703.5 249.5 706 249.5 706.5 249 715 247.5 719 244.5 721 241 724.5 237.5 729 236 738.5 236 739 236.5 741.5 236.5 744 237.5 750 242.5 753 244 759 244.5 759.5 244 764.5 243.5 766 244 769.5 247 773 249 778.5 249.5 779 250 785 250 785.5 249.5 790.5 249 794 247 795.5 245.5Z',
+      'M573 239.5 573.5 242.5 574.5 243.5 577 244.5 585 244.5 588.5 243 590 241 590 238.5 589 237.5 586.5 236.5 577 236.5 574.5 237.5ZM498 226.5 497.5 226.5 497 227.5 497.5 227.5ZM506 224.5 509 227 517 231.5 518.5 231.5 519 232 524 231.5 529.5 235 533 235.5 533.5 236 542 236 545 235 549 232.5 553 228.5 556.5 222 557 218 556 216 553 214 551 214 550.5 213.5 537.5 213.5 537 213 534.5 213 531.5 212 527.5 210 522.5 209.5 522 210 520.5 210 517 212 507 222.5ZM798 240.5 797.5 239 795.5 237.5 792.5 237.5 786 240 783.5 240 783 240.5 772 240.5 771.5 240 768 239.5 762 236.5 753 231 751 229 750 227 750 224.5 755 218 756.5 213.5 755 209 752.5 206.5 749.5 205 745 204 737 200.5 729.5 199.5 722.5 196.5 718 196 714 197.5 712 199.5 708.5 208 702.5 216 698.5 220 697 223 696.5 229 695.5 232.5 693.5 236 690 239 681.5 242 678 244 671.5 245.5 669.5 246.5 667.5 246.5 667 247 658 247 654.5 248.5 650 248.5 643 245.5 640 245.5 639.5 245 634.5 245.5 633 246 631.5 247.5 631 250 633 253.5 635 255.5 640 258 647 258 650 257 652 255.5 655.5 254 660.5 254.5 666 257 678 256.5 684 254.5 685.5 254.5 696 250.5 705.5 250 706 249.5 708 249.5 711 248.5 719 244 729 234.5 733 232.5 737.5 232.5 741.5 234.5 749 242 753.5 244.5 760 246.5 764.5 249 768.5 249.5 769 250 772 250 779.5 252.5 784.5 252.5 790 250 793 248 795.5 245.5 797.5 242.5 797.5 241Z',
+      'M913.5 637.5 910.5 635 908 635 901.5 640 896.5 640.5 892.5 638 885.5 632 882.5 630.5 878 630.5 874 632 870.5 632.5 865.5 635 858.5 637.5 855.5 640.5 852 647.5 852 649 851 651.5 851 655 850.5 655.5 850.5 660.5 851 661.5 852 662 854.5 661.5 860 658.5 866 652 868.5 651 870 651 872.5 652 875.5 655 878 659 881.5 662.5 883.5 663.5 886.5 663.5 887.5 663 888.5 661.5 888.5 658 887 655.5 886.5 652 887.5 649.5 890.5 646.5 893.5 645.5 900.5 649 906 648.5 912.5 644.5 914 642ZM934 557 931.5 557 930 558.5 929.5 560.5 928 563 922.5 568.5 921.5 570.5 921.5 575.5 922.5 577.5 926 581 929 581.5 931 579.5 933 571 937.5 562.5 937 559.5ZM904 472.5 900.5 474.5 896 480.5 893.5 486 890.5 490.5 890 492 890 496 893 503.5 899 512 900.5 519 902 522.5 905.5 527 908 533 909 534 912 535 914 534 915 531.5 916.5 513.5 918.5 509 921.5 505 923 502 923.5 498 924 497.5 924 493.5 923.5 493 923 488.5 919.5 481.5 916.5 478.5 911 476 908 473.5 906 472.5ZM934 439.5 931.5 440 927 444.5 926 446.5 925.5 449.5 926.5 452 929.5 453.5 933 453 935.5 450 936 448.5 936 443 935 440.5ZM943.5 274 937.5 274 936 274.5 934.5 276 935 278.5 937 280.5 938.5 283 938.5 287 936 289.5 930.5 292 922 301 921 301.5 917.5 301.5 914.5 298.5 913 293 911 291 909 291 907 293.5 907.5 297.5 908.5 300 908.5 309 910.5 314 916.5 320.5 921.5 323.5 926 328 928 333 929 338 930.5 340.5 933 343 937.5 345 940 345 942 343.5 942.5 342 942.5 334 943 333.5 943 332 944.5 329 949.5 324 954 318.5 956 313.5 955.5 307 950 298 949.5 296.5 950 294.5 952 293 955.5 293 958 294 962.5 294 963.5 293.5 964.5 292 963.5 289 961.5 287 959 285.5 953 279.5 946.5 275ZM858.5 282.5 857.5 277 854 270 851.5 267 849.5 266 846.5 266 845 267 842.5 271 840 273 831 274 827.5 276.5 827.5 279 829 280.5 832.5 281 833 281.5 839.5 281 842 282 845.5 285 851.5 287 855.5 287 857.5 285.5ZM867 254 863.5 254 860 255.5 858.5 257.5 858.5 260.5 860 263 863 263.5 866.5 261 868.5 257.5 868.5 255.5ZM489.5 214.5 489.5 216 489 216.5 489 229 489.5 229.5 489.5 232.5 490.5 234.5 490.5 236 493 242 494 242 497 238 501.5 233.5 504.5 232 508.5 232 510.5 233 512.5 236 512.5 238.5 511 242 506.5 247 501.5 249.5 496.5 249.5 496 249 494.5 249 493 250 491.5 253.5 491.5 259 493.5 264 497 268 503.5 271.5 512.5 274 516.5 274.5 523 277.5 526 277.5 528 276.5 531 273.5 532.5 270.5 532.5 267 530 261.5 530 259 530.5 258 534 255 535.5 254.5 540 254.5 541.5 255 544.5 257.5 548 265 550 266 553 266 559.5 263 563.5 260 567.5 256 574.5 252 575.5 252 578.5 250.5 584 250 588.5 248.5 592 245.5 593 243.5 593 242 593.5 241.5 593 239.5 591.5 237.5 589.5 236.5 587.5 236.5 587 236 573 236 572.5 235.5 570 235.5 565 233 564 233 561 231.5 559.5 231.5 556.5 230 555 228 555 225 557.5 219 557 214.5 555.5 213 554 212.5 547.5 213 547 213.5 541.5 213.5 535.5 211.5 531.5 208 529.5 205 528.5 201.5 529 197 528 195.5 525.5 195.5 518.5 201 514 203.5 510.5 204.5 505 205 494.5 209.5 493.5 209.5 490.5 212ZM801 238.5 800 236.5 798.5 235.5 792 235.5 791.5 236 769 236 762 234 757 231 753 226.5 753 222.5 756 216.5 756.5 213 755.5 209.5 753.5 206.5 750 203 745 200.5 736 199 724.5 193 719.5 192.5 715.5 194 711 197.5 709.5 200.5 709 206.5 707 212 703.5 216 700.5 218 697.5 221.5 695 230 692 235.5 690 238 686 240.5 682.5 241.5 676.5 244.5 675 244.5 668.5 246.5 658 246.5 653.5 248 649.5 248 645 246 640.5 245.5 640 245 636.5 245 636 245.5 632 246 629.5 247.5 627.5 251.5 624.5 255 620.5 257.5 614 259.5 610.5 262.5 609 266 608 277 609 280 611 282 614 282.5 616 281.5 621.5 275.5 624 274.5 629 274.5 630.5 274 635.5 270 637.5 269.5 643.5 272 649 273.5 653 275.5 655 275.5 655.5 276 659.5 275 665 271.5 667.5 271.5 668.5 272.5 670.5 277 682 287 686.5 289 691 289.5 691.5 290 702 289 708 287 711.5 286.5 719.5 283.5 725.5 284 727 283 727 280.5 723.5 275.5 722 272 722 270.5 721.5 270 721.5 263 724.5 256.5 726 254.5 728 246 731 243 732.5 242.5 735.5 242.5 739 244 747.5 245.5 750 247 751.5 249 751.5 253.5 750.5 256.5 750.5 262.5 751 263 751 265.5 751.5 266 752 269.5 753.5 271.5 757 273.5 758 273.5 764 276.5 766.5 276.5 767.5 277 771 276 778 268.5 787.5 264 788.5 262 789 258.5 790.5 254.5 800 244.5 801 241.5Z',
+      'M913 631 910.5 628.5 905.5 625.5 897.5 622 896.5 622 892.5 618.5 891 615.5 889 613.5 888 613 885.5 613 882.5 614 879.5 616 871.5 624 868.5 626 861.5 628.5 855 633.5 851.5 635 849 637.5 847.5 640.5 846 646 839.5 653 829.5 674 824.5 679.5 823 682.5 823 684.5 822.5 685 822.5 705 824 709.5 825.5 711 827 711.5 829 711 831.5 709.5 834 705 836 696.5 844.5 679 854 667 865.5 655 867.5 654 870.5 654 871.5 654.5 875 658 876 660 881 664.5 886 666.5 890 666 893.5 663 896.5 658 900 654.5 910.5 648.5 914 645 915.5 641 915.5 636.5 915 636 915 634.5ZM939 403.5 936.5 403.5 934 405.5 930 411.5 926 415.5 924.5 418.5 924 425 921.5 433.5 921.5 436 923 439.5 924.5 441.5 925 446.5 924 450 922 454 917.5 459.5 908.5 465.5 903.5 470.5 901.5 473.5 898 481 890 490.5 888 495.5 888 500.5 891 508.5 892 514.5 898.5 529.5 898.5 532.5 897.5 535 895 537.5 892 539 890 541.5 890 544 891 546 893.5 548.5 896 550 899.5 550.5 900.5 551.5 898 554.5 896 559 896 561.5 895.5 562 895.5 578.5 896 579 896.5 582.5 897.5 584 901 586 903 586 903.5 586.5 916.5 586.5 917 587 921.5 587.5 925 589 928 589 930 588 931 586.5 933 580.5 935 577 937 574.5 944 568 945 566 944.5 562 941.5 557.5 935.5 551 932.5 548.5 927.5 545.5 924.5 542.5 924 541 920.5 536 917.5 529.5 917.5 524.5 919.5 519 920.5 513 922.5 508.5 923.5 505 923.5 503 924 502.5 924 470.5 924.5 470 925 466 928.5 460.5 934 454.5 936 450 937 443 938.5 439.5 940 433 941.5 430 946 424.5 947.5 421 946 412 942.5 407ZM945.5 269.5 941.5 270 937.5 272 929 274.5 913.5 283 911 285 905 291.5 900 295 896.5 298.5 893.5 304 892 308.5 892 313.5 892.5 314 892.5 315.5 894 318 896.5 320.5 900.5 322 910.5 321.5 915 324.5 917 328 917 335 918.5 339 922 342.5 928 350.5 931 356.5 933.5 359 937 360.5 938.5 360.5 940.5 359 941.5 354.5 943 351.5 947.5 346 948 342.5 948.5 342 948.5 334.5 949 334 949 331.5 951 327 957.5 320 960 318.5 962 316.5 963 314.5 963 312 962 310 959 306.5 958.5 302.5 960 300.5 966 298 967.5 296.5 968.5 293.5 968 289 963.5 280.5 962 276 958.5 273.5 953 272.5ZM492 223 492 225.5 493.5 227 497.5 227 504 224.5 507 224.5 508.5 226 508 229 504 232.5 503 234.5 503.5 238.5 506.5 243.5 506.5 245 504.5 249.5 504.5 253 506 256 508 262.5 509 264 514.5 269 516 274.5 517 276 519.5 278 522 279 526 279 526.5 278.5 528 278.5 537.5 273.5 539 273.5 539.5 273 547.5 273 553 269 557 267 563.5 261 567 259 572.5 257.5 575 256 579.5 254.5 584.5 254 590 252 594 251.5 594.5 253 593.5 254.5 581.5 266 571.5 271.5 564.5 273.5 560 276 556.5 277 548.5 277 545 280 541.5 284.5 540.5 286.5 540.5 288 542 289.5 545.5 290 556 286.5 582.5 286.5 583 286 585 286 588 284.5 589.5 282.5 591 279 592.5 277.5 594 277.5 598.5 281.5 600.5 284.5 603 286.5 608.5 292.5 611.5 294 618 294 619 295 620 297 620.5 300 622 302 627 302 627.5 301.5 631 301.5 632 302 632.5 301.5 635.5 301.5 638.5 300 643 295.5 645 294.5 646.5 294.5 647 294 650.5 294.5 651 294 654 294 656.5 293 661 293 662.5 293.5 670.5 299 677.5 301 679.5 301 680 301.5 691 301.5 691.5 302 695 302 700.5 300 704 297 707.5 295 714.5 295 715 295.5 731.5 295.5 732 295 737.5 295 740 296 743.5 298.5 748.5 299.5 749 299 751 299 758 295.5 766 289 769 287.5 772.5 287 773 286.5 784 286.5 787 288 789 291 790.5 292 793.5 292 799 288.5 803 287 808 287 811 288 815 288 815.5 287.5 820.5 287 821 286.5 827 286.5 829 288.5 829 290 830 292.5 831.5 294 834 295 842.5 296 849 298.5 853.5 298.5 856 297.5 862 297.5 864.5 298.5 869 298.5 872 297 878.5 292 885 290 888 288 890.5 285 891.5 282.5 891.5 280.5 889.5 278 884 275 879 270.5 876 269 873.5 268.5 871 266.5 871 263 873.5 258 873.5 253.5 873 252.5 870 250.5 863.5 249.5 857.5 247 854.5 247 852.5 248 846 254.5 843.5 256 841 258.5 838 263.5 835 266.5 833 267.5 829 268 824 269.5 813.5 275.5 809.5 276 808 274.5 807.5 271.5 809 267 809 262.5 808.5 261.5 806.5 259.5 800.5 257.5 798 254.5 798 250.5 799 247.5 803 240.5 803 237 802 235 800 233.5 796.5 233 789.5 235.5 787 235.5 786.5 236 769 236 768.5 235.5 764.5 235 759 232 755.5 228 755.5 224 759 218.5 760.5 214 759.5 209.5 757.5 206.5 752.5 202 749.5 200.5 742.5 198.5 734.5 194.5 730 190 728 189 723.5 189.5 712.5 193 711.5 194 705 197 704 198 703 198 700.5 199.5 696 200.5 693 202 687 207 679 210.5 677 213.5 676.5 216.5 677.5 220 679 222 681 226.5 681 236.5 679.5 239.5 676 242.5 673 244 669 244.5 668.5 245 655 245 654.5 244.5 652 244.5 644 241 640 240 634.5 237 630 237 620 240 602 249 598 249.5 597.5 249 597.5 247.5 601 241 601 239.5 599.5 237.5 597 236.5 594 236.5 593.5 236 586 236 585.5 235.5 583 235.5 574.5 232 566.5 231 563 228.5 562.5 227.5 562.5 223 564 218.5 564 215 562.5 212 558 208 556.5 205.5 556.5 203.5 560.5 197.5 561 193.5 560 191 556.5 187.5 554.5 186.5 550.5 183 547.5 181.5 546 181.5 543 183 533 193.5 530 195.5 511 205.5 510 206.5 501 210 497.5 213.5ZM556 149.5 554.5 149.5 552.5 151.5 552.5 154.5 553 155.5 554 156 555.5 155.5 557 153.5 557 150.5Z'
+    ],
+    island: [
+      'M792.5 833.5 790 833.5 786.5 836.5 781 837.5 780 838.5 780 844.5 779 846 777.5 846 773 843.5 771 844 770.5 845 771 848.5 773 850.5 776 852 777.5 853.5 780 859 781 864.5 782 865.5 784 865.5 787 866.5 791 866.5 798 863.5 799.5 862.5 800.5 861 800.5 858.5 798 855 798 853 799.5 852 801.5 849.5 800.5 843.5 798 837 796 835ZM787.5 846.5 788.5 846 789.5 847.5 788.5 848ZM791 820.5 789.5 822.5 790 825 791.5 826 793 826 794.5 825 794.5 823 793 821ZM794.5 810.5 793.5 811.5 793.5 814 794 814.5 795.5 814.5 796.5 813 796.5 812 795.5 810.5ZM786 801.5 784.5 800.5 783 800.5 777 804 775.5 804 775 804.5 767 804.5 765.5 805 764 806.5 764 809.5 764.5 810.5 766 811.5 768.5 812 772.5 814.5 774.5 814.5 777 813.5 781 813.5 781.5 813 787 813.5 787.5 812.5 787.5 808.5 786.5 806ZM766 440 765.5 441 767 442 767.5 440.5ZM564.5 231.5 563.5 232.5 563.5 235 564.5 236.5 564.5 249 562 255 562 261.5 562.5 263 564 264.5 566.5 264.5 568 263 568.5 258.5 570.5 252.5 570.5 242 569.5 240 566.5 237 566.5 235 567 234.5 566.5 232ZM992.5 190.5 991.5 191.5 992 193 993.5 194 995 194 996 193 996 191.5 994 190Z',
+      'M766.5 802.5 762.5 805.5 762 806.5 762 809.5 764.5 811.5 768.5 812 772.5 814.5 774.5 814.5 777.5 813.5 781 814.5 784 819 786.5 820.5 788.5 822.5 792 829 792 830.5 791 832 790 832.5 786.5 836.5 782.5 837 780 838.5 780 844.5 779 846 777.5 846 773 843.5 771.5 843.5 770.5 844.5 771 848.5 773 850.5 776 852 778 854.5 778.5 856 778.5 864 779 865.5 780 866.5 782.5 866.5 783 866 791 866.5 792.5 865.5 796 864.5 799.5 862.5 800.5 861 800.5 858.5 798 855 798 853 799.5 852 801.5 849.5 801.5 848 801 847.5 801.5 837.5 800.5 835.5 797.5 832.5 797 831 797 817 799.5 812 797.5 809.5 792.5 808.5 790.5 806.5 788 801.5 785 799 781.5 799 777 801.5 775.5 801.5 775 802 768.5 802 768 802.5ZM787.5 846.5 788.5 846 789.5 847.5 788.5 848ZM766 440 765.5 441 767 442 767.5 440.5ZM563 230.5 561.5 233 564.5 237.5 564.5 249 562 255 562 261.5 562.5 263 564 264.5 566.5 264.5 568 263 568.5 258.5 570.5 252.5 570.5 242 569.5 240 566.5 237 566.5 235.5 567 235 567 232.5 566.5 231.5 565 230.5ZM904 159 902 158.5 900 159.5 899 162 900.5 164 903 164 904.5 162ZM993.5 158.5 993 158 991.5 158 990 160 991 160.5ZM980.5 141 979 142.5 978 147 976.5 148.5 973.5 148.5 970.5 147.5 967.5 148.5 967 149.5 967.5 153.5 968.5 155.5 973.5 160 975.5 163 975.5 164.5 976 165 976 172 975 174.5 974 175.5 974 177 976.5 178.5 979.5 178.5 980.5 179 987 186 989.5 191.5 991.5 193.5 994.5 194.5 998 194.5 1000.5 197 1002.5 197.5 1003.5 197 1005 194.5 1005 192.5 1004 190.5 1001.5 189.5 999 189.5 995.5 187.5 993 187 991 186 989 183 990 179.5 990 177.5 990.5 177 990 173.5 989 171.5 989 169.5 985.5 165.5 985.5 160.5 984.5 158.5 980.5 154.5 979 151 979.5 149 983 147 984.5 145.5 984.5 143 983 141.5Z',
+      'M806.5 907.5 806.5 910 807.5 911 811 912.5 814.5 916 817.5 922 819.5 924 820 925.5 822.5 928.5 824 928.5 827.5 926 829.5 926 831.5 927 833 927 834 926 834 924 830 917.5 828.5 916.5 822.5 914.5 820.5 912 820 909 817.5 906.5 815 905 811 904.5 808.5 905.5ZM1125.5 219 1125.5 222 1127 225 1131.5 228.5 1134.5 229 1133.5 226 1132 224.5 1130 221 1127.5 219ZM895 190.5 895 191.5 898 193.5 901 194 903.5 195.5 905.5 195 905.5 193.5 904.5 192.5 902 191.5 899.5 189 897.5 189ZM875 179 874.5 180.5 876 185 877.5 186.5 879 187 882 186.5 883 185 882.5 183 879 179.5 877 178.5ZM824 162 820 166 819 168.5 819 175 818.5 175.5 818.5 180 819 181 825 185 829 185.5 830.5 186.5 835 187.5 839.5 191.5 841 191.5 841.5 192 847 192 848.5 191.5 850 190 851.5 185.5 851.5 181.5 852 181 852 177 851.5 175.5 850 174 841.5 170.5 839 168 837.5 164 836.5 163 835.5 163 834.5 164 833.5 167 831.5 170 831 171.5 831 179 829.5 180.5 828 178 827.5 161.5 826 161ZM837 177 839.5 178.5 840.5 181 840.5 185 838.5 186.5 836 185 835 182.5 835 179ZM913.5 160 913 159.5 911.5 159.5 910 161 911 162 913 161.5ZM886.5 159.5 885 158 878.5 157.5 874.5 159 867 159 865.5 159.5 864.5 161.5 865.5 163.5 868 165 871.5 166 875 166 879.5 164.5 884 164.5 885.5 163.5 886.5 162ZM904.5 149.5 902.5 151 901.5 153 900.5 153.5 896.5 153 895 155 897.5 164.5 900 167.5 901.5 167.5 903.5 166.5 908 161.5 908 159.5 907 157 907 153 906 150.5ZM976.5 135.5 974.5 136.5 971.5 139.5 968 141 966.5 142.5 965.5 145.5 966 149 967 150.5 967 152 968.5 155.5 974.5 160 976 162 976.5 172.5 974.5 175 974 176.5 974.5 177.5 976.5 178.5 979.5 178.5 980.5 179 987 186.5 989.5 191.5 991.5 193.5 994.5 194.5 996 194.5 996.5 194 1002 194.5 1003 193 1002.5 191.5 1001 190 998 189 994 185 990.5 182.5 990 181.5 990.5 175.5 989.5 173 989.5 170 991 168.5 996 169 997.5 167.5 997.5 166 996.5 164 996.5 161 998.5 158 999 155.5 1000.5 152.5 1000.5 151 1001 150.5 1001 145.5 999 142.5 995.5 140.5 988.5 139 983 136ZM977.5 148.5 979.5 148.5 981 149.5 982 149.5 988.5 153.5 987.5 156.5 986 158 984.5 161 984 165.5 982 167.5 980.5 166 979.5 163.5 976 160.5 976 150ZM818.5 130 818.5 131.5 819.5 133 822 134.5 824.5 137 825.5 139 828.5 140.5 837 140.5 840.5 139 843 136.5 842.5 135 839 135.5 836.5 134.5 835 133 834.5 131 832.5 129 830 128 827 128 824.5 129 821 129ZM995.5 127.5 995.5 130 996 130.5 998.5 130.5 1000 129.5 1000 127.5 998.5 126.5 997 126.5ZM980.5 119 980.5 120 983 121 986 121 987 120.5 987.5 119.5 987 118 986 117.5 982.5 117.5Z',
+      'M857.5 937.5 854 938.5 852.5 941 853 941.5 853 943 855.5 947.5 856.5 947.5 858.5 945.5 860.5 940.5 860 938.5ZM806.5 907.5 806.5 910 807.5 911 811 912.5 814.5 916 816 918.5 816 919.5 820 925 821 927.5 825.5 933 826 934.5 828 937 831 938 835 934.5 839 932 839.5 930.5 839 929.5 836 927 835 925 834.5 921.5 832.5 917 827 912 826 908.5 824 906.5 821.5 905 820 905 819.5 904.5 811 904.5 808.5 905.5ZM1187.5 378 1186 380 1186 382 1185.5 382.5 1185.5 389.5 1183.5 394 1183.5 395.5 1185.5 400.5 1185.5 403 1183 409.5 1183 414.5 1181.5 417.5 1181.5 419.5 1182 421 1184 422.5 1184.5 422 1188 422 1190 424 1191.5 424 1193.5 420 1193.5 413.5 1191.5 408 1191.5 388 1189.5 383 1189 379 1188.5 378ZM1118 206 1117 207 1117 209 1117.5 210 1122 214 1126 221 1127 225 1131.5 229 1136 231.5 1139 234.5 1142 238.5 1143.5 242 1146 244.5 1150 246.5 1152.5 246 1153 245 1153 242.5 1150.5 239 1143.5 232.5 1139 230 1137 228 1134.5 223.5 1134.5 219 1133 217.5 1130.5 216.5 1128.5 214.5 1126.5 211 1122 206.5 1121 206ZM890 184 889.5 188.5 892 191 897.5 193.5 904 194.5 904.5 193.5 901.5 190.5 901.5 187.5 903 185 903 182.5 902.5 182 900.5 181.5 897.5 182.5 894 182.5 893.5 183 891.5 183ZM1103.5 172.5 1101.5 172.5 1100.5 173 1099.5 174.5 1099.5 178 1100.5 179.5 1103 179 1105 176 1105 174.5ZM914.5 158 913 158 912 159.5 913.5 160.5 915 159.5ZM907 153 906 150.5 904.5 149.5 903.5 149.5 901.5 151 894 150.5 890.5 153.5 888.5 154.5 885 154.5 878.5 157 871.5 157 866.5 159 850 159 848.5 159.5 847 161 846.5 163.5 845 165.5 843.5 165 840.5 162 839 161.5 833.5 161.5 833 162 831.5 162 830 160.5 829.5 157.5 828 155.5 820 156.5 818 159 818 160 817 161.5 817 163 814.5 166.5 815 172 814 174 814 177 820 184.5 825.5 187 828.5 189 832.5 189.5 838.5 192 847.5 192 848 191.5 849.5 191.5 852 190 856.5 188.5 858.5 186.5 859.5 184.5 861.5 183 863 183 865 184 867.5 183 869 183 873 186.5 874.5 187 879.5 187 886 184 889.5 183 890.5 178 892.5 176 899.5 175 904 171 906.5 165.5 907 161.5 907.5 161ZM849 166 850.5 164.5 853 163.5 860 163.5 862.5 164.5 867.5 164 871.5 165.5 876.5 166 880 168 882.5 170.5 884 174 884 178 882.5 179.5 881 179.5 877.5 176.5 873 175.5 868 169.5 864 167 862.5 167 858 172.5 857 173 853.5 173 852.5 172.5 849 168.5ZM1053 141.5 1055 143.5 1057 144.5 1062 145 1064 146 1067.5 149 1071 149.5 1073.5 148.5 1074.5 147 1074.5 145 1073.5 143.5 1068.5 141.5 1066.5 141.5 1064.5 142.5 1062.5 142.5 1059.5 140.5 1054.5 140.5ZM944.5 132 942 132 938.5 133.5 937.5 134.5 938 137.5 939.5 138.5 941 138.5 943.5 137.5 945.5 135 945.5 133ZM997.5 126 995 126.5 994 127.5 992 131.5 991.5 136.5 990 138 986.5 138 983 136 981.5 136 981 135.5 976.5 135.5 974.5 136.5 971.5 139.5 968 141 966 143.5 966 146.5 967 148.5 968 153.5 971 156 974 156 975 155 975 149.5 976.5 148 978.5 148 984.5 151 987.5 154 987.5 155.5 985 160 983.5 164.5 981 166 978 166.5 976.5 168 976 169.5 976 174.5 977 176.5 980 178 982 180.5 984 182 986.5 182 987.5 181.5 990 176.5 989.5 170.5 991 168.5 995 168.5 996 167.5 996 162.5 1000.5 154 1000.5 152.5 1001 152 1001 143 1001.5 141.5 1004.5 139 1009.5 139 1010.5 138 1010.5 137 1009 135.5 1004 133 1001.5 130.5 1000 127ZM816 128 816 129.5 818.5 133 821 138.5 822.5 140 829 142.5 834.5 142 836.5 141 839.5 140.5 841.5 139.5 844 137 845 135 845 133 844 132 839.5 132.5 838.5 132 834 127 830 125.5 827 125.5 824.5 126.5 818.5 126.5ZM989 117 987.5 116.5 987 117 984.5 117 978.5 119 974.5 121.5 974.5 123 977.5 124 985.5 123 988.5 120.5 989 119.5Z',
+      'M854 938 851 940 851 943 852 944.5 852 946 853 948 856.5 949 858 948.5 859.5 947 860 945.5 860 941 859.5 939.5 858 938ZM808.5 905.5 806.5 907.5 806.5 910 807.5 911 811 912.5 819 921 822 926.5 822 927.5 827 936 828.5 937.5 832.5 939.5 834 939.5 840 934 840.5 933 840.5 930 836 925 833.5 920 831.5 914 826.5 909 825.5 907 823 905 821.5 904.5 811 904.5ZM1109 536 1108 536.5 1107 538 1107 541 1106.5 541.5 1106.5 550 1109 556.5 1116.5 559 1120 563 1121.5 563.5 1123 561 1123 557 1121 553 1116.5 550.5 1112 550.5 1110 549 1109 547 1109.5 544 1113 540 1113 537.5 1112.5 536.5 1111.5 536ZM1179 443.5 1177.5 444 1177 446 1172 451.5 1171.5 455 1172.5 455.5 1175.5 455 1178 453 1180 448.5 1180 445ZM1191.5 374 1189 374 1186.5 376 1183.5 382 1183.5 387.5 1184 388 1184 389.5 1183 392.5 1183 397.5 1183.5 398 1183 408 1181 413.5 1181 420 1179 425.5 1179.5 430.5 1182 434 1183.5 438 1186 440 1189 439.5 1192 437.5 1194 434 1195.5 429.5 1195.5 385.5 1194 382 1193 375.5ZM1119 194.5 1116.5 197 1116 198.5 1115.5 209 1117 210.5 1119.5 211.5 1122 214 1123 216.5 1126 220.5 1126.5 222 1131.5 226.5 1136 234 1143 240.5 1143.5 242 1146 244.5 1147.5 245 1152 249.5 1153.5 252.5 1158 257.5 1160 259 1163 258.5 1164.5 256 1164.5 254 1162 251 1161.5 246.5 1160.5 244.5 1156 240.5 1153 234 1151 231.5 1147.5 225 1144 221.5 1142.5 218 1141 216 1136 213 1132 212.5 1130 211.5 1126 207 1126 204.5 1129 202 1129 201 1125 197.5 1123.5 195 1122.5 194.5ZM984.5 170 982 171.5 980 174.5 980 177 982.5 181 984 182 985.5 182 987 181 987 177.5 988 175 988 172 987 170.5ZM1116.5 165 1110.5 167 1108.5 170 1106 172 1102 172 1101 172.5 1099.5 174.5 1099.5 179 1101.5 181.5 1108 181 1110.5 183.5 1111.5 184 1114 184 1115.5 182.5 1116 181 1116 175 1116.5 174.5 1116.5 169.5 1117 169 1117 165.5ZM1093 142 1092.5 141.5 1090.5 141.5 1088 143 1087.5 144 1091.5 144ZM1117.5 134.5 1115.5 134.5 1111.5 136 1110 137.5 1109.5 139 1110 143 1110.5 143.5 1110.5 146.5 1111.5 149 1112.5 150 1114 150 1118.5 146 1122.5 146 1123.5 145 1123.5 141 1122.5 139ZM951.5 130 950 129 948 129 941.5 132.5 935 133 929 135.5 921.5 136 915 138.5 913.5 140.5 913 150 910.5 154.5 910.5 155.5 909 157 907.5 155 907.5 152.5 906 149 904 148.5 901 150.5 898.5 150.5 895 149 888 154 886.5 154.5 882.5 154.5 876 157 871.5 157 866.5 159 847 159 840.5 161.5 831.5 161.5 830 160 829 154 827.5 152.5 826 152 822 152 820 153 816.5 157.5 815 162 811.5 167 811.5 176 811 176.5 811.5 179 815 180 816.5 181 820 184.5 823 186 826 190.5 828.5 192 849.5 192 856 189.5 872.5 189.5 878.5 187 881 187 884 186 886.5 186 889 188.5 891.5 189.5 897.5 189.5 899 189 906 183.5 907 181 907 179 908.5 176.5 908.5 175 907 175 905.5 177.5 903.5 179.5 898.5 182 893 182 892.5 181.5 892.5 180 894 178.5 900.5 174.5 904.5 171 907 166.5 908 163.5 909 162.5 914.5 161.5 916.5 160 917 158.5 915.5 154 916 152 918 150 921 149 924 146.5 924 141.5 925 140.5 926.5 140.5 929.5 142 933 142 939 140 947.5 135 951 131.5ZM849.5 166 851.5 164 853 163.5 866.5 163.5 869.5 164.5 876 168 878.5 168.5 881.5 171.5 882.5 173.5 883 179 881.5 181 880.5 181 877 178 876 178 873 176.5 869 171.5 865.5 169.5 862.5 169.5 857 172.5 854 173 852 172 850 170 849.5 169ZM813 126.5 813.5 128.5 817.5 133 821 139.5 823 141.5 826.5 143 832.5 143 833 142.5 834.5 142.5 837 141 839.5 140.5 841.5 139.5 845 135.5 845 132.5 844 131.5 840.5 130 838.5 128 832.5 124.5 831 124.5 830.5 124 816 124 814.5 124.5ZM955.5 128.5 955.5 129 957 130 959 129.5 961.5 127.5 964 126.5 967 124 986.5 124 987.5 124.5 988.5 126 989 136.5 988 137.5 985.5 137.5 985 137 982 137 981 137.5 979.5 139.5 979.5 141.5 981.5 146 986.5 151 989 155 990 155.5 993 155.5 998.5 153.5 1000.5 151 1001 146 1002 143.5 1003 142.5 1015 138 1018.5 138.5 1020.5 139.5 1023 139.5 1027 138 1040 138 1042.5 139 1046.5 142 1054 143 1060.5 148 1065.5 150.5 1068.5 150.5 1073 149 1082.5 144 1082.5 143.5 1075.5 140 1069 140 1065.5 138.5 1063 138.5 1062.5 138 1059.5 138 1059 137.5 1054.5 138 1054 137.5 1052.5 137.5 1042 131 1038.5 130.5 1038 131 1031 131.5 1029 130.5 1025 126.5 1019.5 124 1011.5 118.5 1006.5 119 1005 117 1004.5 114 1003 112.5 1000 112.5 998.5 113.5 994.5 113.5 993 112.5 990.5 112.5 987.5 114 984.5 114.5 978.5 118.5 977 119 972.5 119 969 120.5 968 121.5 964 122.5 960.5 126 957.5 127Z'
+    ]
+  };
+  const REAL_BOX = {ras:  [545,  1305,  186,  657],  safwa:  [481,  976,  141,  719],  island:  [553,  1203,  104,  957]};   // x0, x1, y0, y1 de todo el manglar de cada foto (para los puntos)
+
+  // Iconos
+  const ARROW_R = '<svg viewBox="0 0 51 51" aria-hidden="true" fill="currentColor"><path d="M29.7854 40.9313L44.1151 26.6016C44.2631 26.4537 44.3806 26.2781 44.4607 26.0848C44.5408 25.8915 44.5821 25.6843 44.5821 25.4751C44.5821 25.2658 44.5408 25.0586 44.4607 24.8654C44.3806 24.6721 44.2631 24.4965 44.1151 24.3486L29.7854 10.0189C29.4866 9.72009 29.0814 9.55225 28.6589 9.55225C28.2364 9.55225 27.8312 9.72009 27.5324 10.0189C27.2336 10.3176 27.0658 10.7228 27.0658 11.1453C27.0658 11.5678 27.2336 11.973 27.5324 12.2718L39.1455 23.8829L7.96036 23.8829C7.53808 23.8829 7.1331 24.0506 6.83451 24.3492C6.53591 24.6478 6.36817 25.0528 6.36817 25.4751C6.36817 25.8974 6.53592 26.3023 6.83451 26.6009C7.1331 26.8995 7.53808 27.0673 7.96036 27.0673L39.1455 27.0673L27.5324 38.6783C27.2336 38.9771 27.0658 39.3823 27.0658 39.8048C27.0658 40.2273 27.2336 40.6325 27.5324 40.9313C27.8312 41.2301 28.2364 41.3979 28.6589 41.3979C29.0814 41.3979 29.4866 41.2301 29.7854 40.9313Z"/></svg>';   // icono del Figma («icon»)
+  const ARROW_L = '<svg viewBox="0 0 51 51" aria-hidden="true" fill="currentColor"><path d="M21.1668 10.0189L6.83704 24.3487C6.68901 24.4965 6.57157 24.6721 6.49144 24.8654C6.41132 25.0587 6.37008 25.2659 6.37008 25.4751C6.37008 25.6844 6.41132 25.8916 6.49144 26.0849C6.57157 26.2781 6.68901 26.4537 6.83704 26.6016L21.1668 40.9314C21.4656 41.2301 21.8708 41.398 22.2933 41.398C22.7158 41.398 23.121 41.2301 23.4197 40.9314C23.7185 40.6326 23.8863 40.2274 23.8863 39.8049C23.8863 39.3824 23.7185 38.9772 23.4197 38.6784L11.8067 27.0673L42.9918 27.0673C43.4141 27.0673 43.819 26.8996 44.1176 26.601C44.4162 26.3024 44.584 25.8974 44.584 25.4751C44.584 25.0529 44.4162 24.6479 44.1176 24.3493C43.819 24.0507 43.4141 23.8829 42.9918 23.8829L11.8067 23.8829L23.4197 12.2719C23.7185 11.9731 23.8863 11.5679 23.8863 11.1454C23.8863 10.7229 23.7185 10.3177 23.4197 10.0189C23.121 9.72015 22.7158 9.55231 22.2933 9.55231C21.8708 9.55231 21.4655 9.72015 21.1668 10.0189Z"/></svg>';   // icono del Figma («ArrowDown» girado)
+  const SCAN_IC = '<svg viewBox="0 0 43 43" aria-hidden="true" fill="currentColor"><path d="M27.7224 1.78855C27.7224 2.2625 27.9102 2.71858 28.2455 3.0539C28.5809 3.38925 29.0369 3.57704 29.5109 3.57704L35.6278 3.57704C37.68 3.58152 39.3434 5.24486 39.3478 7.29717L39.3478 13.4142C39.3478 14.4024 40.1482 15.2027 41.1363 15.2027C42.1245 15.2027 42.9248 14.4024 42.9248 13.4142L42.9248 7.29717C42.9203 3.2685 39.6564 0.00458035 35.6278 0L29.5109 0C29.0369 0 28.5809 0.187793 28.2455 0.523142C27.9102 0.858491 27.7224 1.3146 27.7224 1.78855Z"/><path d="M3.57768 13.4142L3.57768 7.29717C3.58215 5.24486 5.24546 3.58151 7.29773 3.57704L13.4146 3.57704C14.4028 3.57704 15.2031 2.7767 15.2031 1.78852C15.2031 0.800344 14.4028 0 13.4146 0L7.29773 0C3.26914 0.00447237 0.00528414 3.2685 0.000705369 7.29717L0.000705102 13.4142C0.000705058 14.4024 0.80103 15.2027 1.78919 15.2027C2.77735 15.2027 3.57768 14.4024 3.57768 13.4142Z"/><path d="M15.2021 41.1364C15.2021 40.1482 14.4018 39.3478 13.4137 39.3478L7.29675 39.3478C5.24449 39.3434 3.58117 37.68 3.5767 35.6277L3.5767 29.5107C3.5767 28.5225 2.77638 27.7222 1.78822 27.7222C0.800055 27.7222 0 28.5225 0 29.5107L0 35.6277C0.00419943 39.6564 3.26817 42.9203 7.29675 42.9249L13.4137 42.9249C13.8876 42.9249 14.3437 42.7371 14.679 42.4017C15.0143 42.0664 15.2021 41.6103 15.2021 41.1364Z"/><path d="M42.9238 35.6277L42.9238 29.5107C42.9238 28.5225 42.1235 27.7222 41.1353 27.7222C40.1472 27.7222 39.3469 28.5225 39.3469 29.5107L39.3469 35.6277C39.3424 37.68 37.6791 39.3434 35.6268 39.3478L29.5099 39.3478C28.5217 39.3478 27.7214 40.1482 27.7214 41.1364C27.7214 42.1245 28.5217 42.9249 29.5099 42.9249L35.6268 42.9249C39.6554 42.9204 42.9193 39.6564 42.9238 35.6277Z"/><path d="M23.251 41.136L23.251 1.78852C23.251 0.800344 22.4507 0 21.4625 0C20.4743 0 19.674 0.800344 19.674 1.78852L19.674 41.136C19.674 42.1242 20.4743 42.9245 21.4625 42.9245C22.4507 42.9245 23.251 42.1242 23.251 41.136Z"/></svg>';   // icono del Figma («ic_scan»)
+  // Checks del Figma («Vector 114»): 32 × 21,5 con trazo de 6 en el círculo de 55,9; 24 × 16,1 con trazo de 4,5 en el de 41,9.
+  const CHECK = '<svg viewBox="0 0 55.9 55.9" aria-hidden="true" fill="none" stroke="#1c4a59" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 29.4l10.2 10.1L44 18"/></svg>';
+  const CHECK_S = '<svg viewBox="0 0 41.9 41.9" aria-hidden="true" fill="none" stroke="#1c4a59" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21.3l7.7 7.6L33 13.4"/></svg>';
+  const RESTART_IC = '<svg viewBox="0 0 43 40" aria-hidden="true" fill="currentColor"><path d="M18.9111 0.36945C22.693 -0.377154 26.6117 0.0132277 30.1719 1.49152C33.7322 2.97002 36.7755 5.47091 38.916 8.67707C41.0564 11.8832 42.1986 15.6522 42.1992 19.5071C42.1996 24.636 40.1801 29.5591 36.5781 33.2103C32.976 36.8614 28.0806 38.9469 22.9521 39.0159H22.6904V39.015C17.7074 39.0272 12.9111 37.1212 9.29688 33.6907V33.6898C9.10516 33.5081 8.9506 33.2912 8.84277 33.0501C8.73478 32.8086 8.67534 32.548 8.66797 32.2835C8.66064 32.019 8.7054 31.7553 8.7998 31.5081C8.89424 31.2611 9.03603 31.0343 9.21777 30.8421C9.39951 30.65 9.61801 30.496 9.85938 30.388C10.1008 30.2801 10.3616 30.2206 10.626 30.2132C10.8904 30.2059 11.1542 30.2506 11.4014 30.345C11.6485 30.4395 11.8752 30.5812 12.0674 30.763H12.0664C14.2797 32.8503 17.0596 34.2392 20.0576 34.7562C23.0555 35.273 26.1395 34.8947 28.9238 33.6693C31.7082 32.4437 34.0701 30.4244 35.7139 27.8646C37.3574 25.3048 38.2102 22.3174 38.166 19.2757C38.1217 16.2338 37.1824 13.272 35.4648 10.7611C33.7473 8.25005 31.3277 6.30059 28.5088 5.15656C25.6899 4.01261 22.5959 3.72458 19.6143 4.32843C16.6328 4.9324 13.8947 6.40147 11.7432 8.55207L11.7422 8.55109C11.7216 8.57269 11.7001 8.59386 11.6777 8.61359L11.6787 8.61457L7.19824 12.721H11.5566C12.0908 12.7211 12.6037 12.9331 12.9814 13.3109C13.3592 13.6886 13.5712 14.2015 13.5713 14.7357C13.5712 15.2696 13.3589 15.7818 12.9814 16.1595C12.6037 16.5372 12.0908 16.7502 11.5566 16.7503H2.01465C1.48036 16.7503 0.967645 16.5373 0.589844 16.1595C0.212212 15.7818 0 15.2698 0 14.7357L0 5.19269C0 4.6585 0.212107 4.14562 0.589844 3.76789C0.967603 3.39036 1.48057 3.17804 2.01465 3.17804C2.54857 3.17821 3.06085 3.39042 3.43848 3.76789C3.81621 4.14562 4.02922 4.6585 4.0293 5.19269V10.1546L8.93457 5.67511C11.6639 2.96147 15.135 1.11501 18.9111 0.36945Z"/></svg>';   // icono del Figma («Union» del botón Restart)
+  const SPIN = '<svg class="spin" viewBox="0 0 60 60" aria-hidden="true">' + Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5; return `<circle cx="${(30 + 22 * Math.sin(a)).toFixed(1)}" cy="${(30 - 22 * Math.cos(a)).toFixed(1)}" r="3.4" fill="#e0f1f3" opacity="${(.2 + i * .08).toFixed(2)}"/>`; }).join('') + '</svg>';
+  const XICON = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+  const REDO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12.5 15.5A15 15 0 1 1 9 26" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M11 6.5v10h10" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  // Globo del botón de idioma de la variante accesible (Tabler «world», MIT). Provisional: no está en el Figma.
+  const GLOBE = '<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"/><path d="M3.6 9h16.8"/><path d="M3.6 15h16.8"/><path d="M11.5 3a17 17 0 0 0 0 18"/><path d="M12.5 3a17 17 0 0 1 0 18"/></svg>';
+
+  // ---------- estado
+  const stage = document.getElementById('stage'), viewport = document.getElementById('viewport'), hint = document.getElementById('hint');
+  const backBtn = document.getElementById('back'), fwdBtn = document.getElementById('fwd');
+  stage.style.width = W + 'px'; stage.style.height = H + 'px';
+  stage.setAttribute('aria-label', 'Interactive screen, ' + W + ' × ' + H);
+  const fresh = () => ({ screen: 'intro', year: 0, seen: [], zone: 'ras', slid: false });   // seen: zonas ya vistas en esta visita; slid: ya se ha movido el año
+  let S = fresh();
+  const pref = (k, def, ok) => { try { const v = localStorage.getItem(KEY + '-' + k); if (ok.includes(v)) return v; } catch (e) {} return def; };
+  const V = {
+    mang: 'mancha',      // siempre mancha: sin la variante de puntos desde el 18/11 (Montse)
+    color: 'grises',     // siempre en grises: sin la variante de color desde el 18/11 (Montse)
+    menu: 'visible'      // siempre idioma y Restart visibles (opción A): sin la variante de Restart desde el 18/11 (Montse)
+  };
+  let LANG = 'en';
+  let past = [], future = [], cur = null, paused = false, timers = [], current = {};
+  const later = (fn, ms) => timers.push(setTimeout(fn, ms));
+  // cambio de pantalla solo; se para con Atrás/Adelante y espera mientras está abierta la confirmación de Restart
+  // (la pestaña sale también en pantallas que pasan solas: Montse, 19/11)
+  const auto = (fn, ms) => later(function tick() { if (paused) return; if (menuOpen) { later(tick, 300); return; } fn(); }, ms);
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+  const RM = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // ---------- ayudas para pintar (px de la pantalla real, del Figma)
+  const scene = document.createElement('div'); scene.className = 'scene'; stage.appendChild(scene);
+  const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  const add = e => (scene.appendChild(e), e);
+  const at = (e, x, y) => { e.style.left = Math.round(x) + 'px'; e.style.top = Math.round(y) + 'px'; return e; };
+  const size = (e, w, h) => { if (w != null) e.style.width = w + 'px'; if (h != null) e.style.height = h + 'px'; return e; };
+  const on = (e, fn) => { e.addEventListener('click', ev => { ev.stopPropagation(); paused = false; fn(); }); return e; };
+  const layer = (src, cls) => { const b = add(mk('div', 'layer' + (cls ? ' ' + cls : ''))); if (src) b.style.backgroundImage = 'url("img/' + src + '")'; return b; };
+  const btn = (x, y, w, h, cls, html, fn, label) => { const b = mk('button', 'abs ' + cls, html); b.type = 'button'; if (label) b.setAttribute('aria-label', label); return add(on(size(at(b, x, y), w, h), fn)); };
+  const FX = {
+    fade: [{ opacity: 0 }, { opacity: 1 }],
+    rise: [{ opacity: 0, transform: 'translateY(28px)' }, { opacity: 1, transform: 'none' }],
+    pop: [{ opacity: 0, transform: 'scale(.6)' }, { opacity: 1, transform: 'scale(1.05)', offset: .7 }, { opacity: 1, transform: 'none' }]
+  };
+  const anim = (el, k = 'fade', delay = 0, dur = 450) => { if (!RM) el.animate(FX[k], { duration: dur, delay, easing: 'cubic-bezier(.2,.8,.3,1)', fill: 'backwards' }); return el; };
+  const place = (n, s, right, top, op) => {
+    const p = add(mk('div', 'abs place', '<div class="n">' + n + '</div><div class="s">' + s + '</div>'));
+    p.style.right = (W - right) + 'px'; p.style.top = top + 'px'; p.style.opacity = op; return p;
+  };
+  const tarutPlace = op => place('Tarout Bay', 'Saudi Arabia', 1847, 909, op);
+  const viewfinder = (animate) => {
+    const L = 100, { x, y, w, h } = VF;
+    return [['c-tl', x, y], ['c-tr', x + w - L, y], ['c-bl', x, y + h - L], ['c-br', x + w - L, y + h - L]].map(([c, cx, cy], i) => {
+      const e = add(mk('div', 'vf ' + c)); at(e, cx, cy); if (animate) anim(e, 'pop', i * 60, 500); return e;
+    });
+  };
+  // Manchas de manglar real en la vista de Tarout Bay: trazo de 5 px y brillo para que se vean a esta escala (unos 40 m por píxel)
+  const realEls = key => { const svgNS = 'http://www.w3.org/2000/svg', svg = add(document.createElementNS(svgNS, 'svg'));
+    svg.setAttribute('class', 'mreal keep'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    return TREAL[key].map(([cx, cy, d]) => { const el = document.createElementNS(svgNS, 'path'); el.setAttribute('d', d); svg.appendChild(el); return { el, cx, cy }; }); };
+
+  // ---------- pantallas: cada una pinta y devuelve { tap, hint, wait }
+  const SCREENS = {
+    intro() {
+      const box = add(mk('div', 'intro')); box.style.backgroundImage = 'url("img/intro.jpg")';
+      const put = e => (box.appendChild(e), e);
+      // Rectángulos #184a5a del Figma que tapan los textos antiguos de la imagen.
+      [[722, 579, 601, 203], [804, 674, 421, 142], [0, 993, 763, 142], [1463, 921, 601, 203]].forEach(([x, y, w, h]) => put(size(at(mk('div', 'cover'), x, y), w, h)));
+      put(size(at(mk('div', 'abs i-title', TX.title), 781, 629), 488));
+      const en = put(mk('div', 'abs i-en', TX.scanEn)); en.style.right = '104px'; en.style.top = '991px';
+      const ar = put(mk('div', 'abs i-ar', TX.scanAr)); ar.dir = 'rtl'; ar.lang = 'ar'; ar.style.right = '104px'; ar.style.top = '1027px';
+      [[77, 7.9], [116, 5.9], [153, 2]].forEach(([d, sw]) => { const r = put(mk('div', 'rf')); const D = d + sw; size(at(r, 2070.5 - D / 2, 1022.5 - D / 2), D, D); r.style.borderWidth = sw + 'px'; });
+      return { tap: () => go('earth'), hint: '<b>Tap the screen</b> to start (in the museum, scanning the wristband also works).' };
+    },
+    earth() {
+      // Figma (18/11): vista muy lejana de la Tierra (el mundo, imagen de Montse) con «Every landscape tells a story»; luego, zoom a la península
+      layer('tierra-mundo.jpg');
+      const c1 = add(mk('div', 'abs card-l', '<p>' + TX.pen1 + '</p>')); size(at(c1, 454, 384), 683, 137); anim(c1, 'rise', T.card);
+      later(() => c1.classList.add('out'), T.earth - 400);
+      auto(() => go('zoomPen'), T.earth);
+      return { hint: 'Earth from afar with «Every landscape tells a story». Moves on to the zoom by itself (' + (T.earth / 1000).toFixed(1) + ' s, provisional).' };
+    },
+    zoomPen() {
+      zoomScene('tierra-mundo.jpg', EARTH_ZR, PEN_IN_EARTH, 'peninsula.jpg', T.zoomPen, () => go('pen'));
+      return { hint: 'Zoom from Earth to the peninsula with Montse’s three images (' + (T.zoomPen / 1000).toFixed(1) + ' s, provisional). Moves on by itself.' };
+    },
+    pen() {
+      // Figma (18/11): en la península sale «Satellites take impressive pictures…»; ya no hay botón «Start»: pasa sola (Montse)
+      layer('peninsula.jpg');
+      const c2 = add(mk('div', 'abs card-l b2', '<p>' + TX.pen2 + '</p>')); size(at(c2, 750, 574), 674, 208); anim(c2, 'rise', T.card);
+      later(() => c2.classList.add('out'), T.pen - 400);
+      auto(() => go('zoom'), T.pen);
+      return { hint: 'Peninsula with «Satellites take impressive pictures…». Moves on to the Tarout Bay zoom by itself (' + (T.pen / 1000).toFixed(1) + ' s, provisional).' };
+    },
+    zoom() {
+      zoomScene('peninsula.jpg', ZR, TARUT_IN_Z1, 'tarut.jpg', T.zoom, () => go('tarut'));
+      return { hint: 'Zoom from the peninsula to Tarout Bay with the Figma images (6 levels; ' + (T.zoom / 1000).toFixed(1) + ' s, provisional). Moves on by itself.' };
+    },
+    zoomZone() {
+      // el mismo zoom corto para las tres zonas, desde la vista de Tarout Bay hasta la foto de la zona elegida
+      const k = S.zone, Z = ZONES[k];
+      zoomScene('tarut.jpg', [], Z.rect, Z.img, T.zoomRas, () => go('ras', 0, k), true);
+      return { hint: 'Zoom from Tarout Bay to ' + Z.name + ' (' + (T.zoomRas / 1000).toFixed(1) + ' s, provisional). Moves on by itself.' };
+    },
+    tarut() {
+      // Figma (18/11): tarjeta oscura → burbuja «Let’s see how they do it in Tarout Bay!» → se va la tarjeta y sale «Start»
+      layer('tarut.jpg'); tarutPlace(.9);
+      const card = add(mk('div', 'abs card-d', '<p>' + TX.cta + '</p>')); size(at(card, 1037, 252), 504, 260); anim(card, 'rise', T.card);
+      const bub = add(mk('div', 'abs bubble', TX.see)); size(at(bub, 1179, 542), 460, 164); bub.style.visibility = 'hidden';
+      later(() => { bub.style.visibility = ''; anim(bub, 'pop'); }, T.bubble);
+      later(() => {
+        card.classList.add('out');
+        anim(btn(1179, 738, 196, 91, 'btn-scan sm call', SCAN_IC + '<span>' + TX.scan + '</span>', () => go('scan')), 'pop', 250);
+      }, T.bubbleMove);
+      return { wait: true, hint: 'The card and the bubble appear by themselves; then the card leaves and the button appears. <b>Tap «Start»</b>.' };
+    },
+    scan() {
+      // Figma (18/11): al tocar «Start» salen el visor y las ondas; al poco, la 1.ª tarjeta mientras carga; luego van saliendo los
+      // puntos con la 2.ª tarjeta, y pasa solo a «detectado». Solo ondas (Montse, 18/11: sin variantes de escaneo).
+      layer('tarut-scan.jpg'); tarutPlace(.38);
+      anim(layer(null, 'dark'), 'fade', 0, 500);
+      viewfinder(true);
+      const spots = realEls('scan'), box = add(mk('div', 'scanbox'));
+      const R = Math.hypot(VF.w / 2, VF.h / 2), cx = VF.x + VF.w / 2, cy = VF.y + VF.h / 2;
+      [0, 1, 2].forEach(i => {
+        const w = box.appendChild(mk('div', 'wave')); size(at(w, VF.w / 2 - R, VF.h / 2 - R), 2 * R, 2 * R);
+        if (!RM) w.animate([{ transform: 'scale(.02)', opacity: 1 }, { transform: 'scale(1)', opacity: .15 }], { duration: T.wave, delay: i * T.wave / 3, iterations: document.body.classList.contains('shot') ? 8 : Infinity, easing: 'linear', fill: 'both' });
+      });
+      spots.forEach(({ el, cx: x, cy: y }) => { const k = Math.hypot(x - cx, y - cy) / R;
+        if (!RM) el.animate([{ opacity: 0, transform: 'scale(.2)' }, { opacity: 1, transform: 'scale(1.8)', offset: .4 }, { opacity: 1, transform: 'none' }], { duration: 520, delay: T.scanDots + k * T.scanFx, fill: 'backwards', easing: 'ease-out' }); });
+      at(add(mk('div', 'abs', SPIN)), 1432, 415);
+      size(at(add(mk('div', 'abs scan-t', TX.scanning)), 1316, 506), 298);
+      const m1 = add(mk('div', 'abs card-sc m1', '<p>' + TX.light1 + '</p>')); size(at(m1, 1022, 618), 460, 140); m1.style.visibility = 'hidden';
+      const m2 = add(mk('div', 'abs card-sc m2', '<p>' + TX.light2 + '</p>')); size(at(m2, 1096, 618), 644, 260); m2.style.visibility = 'hidden';
+      later(() => { m1.style.visibility = ''; anim(m1, 'rise'); }, T.scanCard);
+      later(() => { m1.classList.add('out'); m2.style.visibility = ''; anim(m2, 'rise', 250); }, T.scanDots);
+      auto(() => go('detected'), T.scanEnd);
+      return { hint: 'Scanning with waves: the first card appears shortly after, then the mangroves appear with the second card. Moves on by itself (' + (T.scanEnd / 1000).toFixed(1) + ' s, provisional).' };
+    },
+    detected() {
+      // Figma (18/11): check + «Grey mangroves detected» → sale la 3.ª tarjeta → se van la tarjeta y las esquinas → elegir zona
+      layer('tarut-scan.jpg'); tarutPlace(.38); layer(null, 'dark'); const vf = viewfinder(false); realEls('scan');
+      at(anim(add(mk('div', 'abs check', CHECK)), 'pop'), 1436, 402.1);
+      size(at(anim(add(mk('div', 'abs scan-t ok', TX.detected)), 'fade', T.gap), 1327, 505), 274);
+      const m3 = add(mk('div', 'abs card-sc m3', '<p>' + TX.light3 + '</p>')); size(at(m3, 988, 667), 533, 155); m3.style.visibility = 'hidden';
+      later(() => { m3.style.visibility = ''; anim(m3, 'rise'); }, T.det3);
+      later(() => { m3.classList.add('out'); vf.forEach(e => { if (!RM) e.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }); else e.remove(); }); }, T.detOut);
+      auto(() => go('choose'), T.detected);
+      return { hint: 'Mangroves detected: the third card appears; then the card and the corners leave and it moves on to choosing an area (' + (T.detected / 1000).toFixed(1) + ' s, provisional).' };
+    },
+    choose() {
+      const seen = S.seen;
+      if (ZKEYS.every(k => seen.includes(k))) return SCREENS.great();
+      layer('tarut.jpg'); layer(null, 'dark light'); realEls('tarut');
+      // Tras entrar en una zona, la tarjeta dice solo «Select another area», con la letra del título, y se ajusta a su texto
+      // con el mismo margen arriba y abajo (Montse, 18/11)
+      const again = seen.length >= 1;
+      const c = add(mk('div', 'abs card-xl')); at(c, 1050, 257); anim(c, 'rise', T.card);
+      const t = add(mk('div', 'abs xl-t', again ? TX.another : TX.evolved)); size(at(t, 1132, 328.5), 394); anim(t, 'rise', T.card);
+      if (again) size(c, 547, t.offsetHeight + 2 * 71.5);
+      else { size(c, 547, 388); size(at(anim(add(mk('div', 'abs xl-s', TX.choose)), 'rise', T.card + T.gap), 1132, 530.5), 394); }
+      ZKEYS.forEach((k, i) => anim(pill(k, seen.includes(k), () => go('zoomZone', 0, k)), 'pop', T.card + 300 + i * T.gap));
+      const done = ZKEYS.filter(k => seen.includes(k)).map(k => ZONES[k].name.replace('&amp;', '&'));
+      return { wait: true, hint: (done.length ? 'Already seen: <b>' + done.join('</b>, <b>') + '</b> (outline and check). ' : '') + '<b>Tap an area.</b> Only Ras Tanura is designed; the others use Montse’s photos with the same timeline.' };
+    },
+    great() {
+      // Figma «los tres con check»: las tres zonas vistas y «Great job!»; pasa solo al final
+      layer('tarut.jpg'); layer(null, 'dark'); realEls('tarut');
+      ZKEYS.forEach(k => pill(k, true, null));
+      anim(size(at(add(mk('div', 'abs card-gj', TX.great)), 1154, 331), 451, 235), 'pop', T.card);
+      auto(() => go('mission'), T.great);
+      return { hint: 'All three areas seen: <b>Great job!</b> Moves on to the ending by itself (' + T.great / 1000 + ' s, provisional).' };
+    },
+    mission() {
+      // Figma: «Mission successfully completed!» sobre la península (saturación −35 %); el botón «Restart» sale después
+      layer('peninsula-fin.jpg');
+      const c = add(mk('div', 'abs card-m')); size(at(c, 647, 371), 736, 244); anim(c, 'rise', T.card);
+      size(at(anim(add(mk('div', 'abs m-t', TX.mission)), 'rise', T.card), 711, 411), 608);
+      size(at(anim(add(mk('div', 'abs m-b', TX.thanks)), 'rise', T.card + T.gap), 711, 489), 608);
+      later(() => anim(btn(895, 669, 245.9, 98.9, 'btn-s fin call', '<span>' + TX.restart + '</span>' + RESTART_IC, () => { S = fresh(); go('intro'); }, 'Restart: volver al reposo'), 'pop'), T.finBtn);
+      return { hint: 'Ending. After a moment <b>Restart</b> appears and goes back to the idle screen. <b>Pending:</b> what happens if nobody taps it.' };
+    },
+    ras(year) { return rasScreen(year); },
+    still() { return SCREENS.choose(); }
+  };
+
+  // píldora de zona: normal (Figma «name») o vista (borde + check en la esquina, Figma «los tres con check»)
+  function pill(k, vis, fn) {
+    const Z = ZONES[k], [x, y, w, h] = vis ? Z.seen : Z.box;
+    const cls = 'pill' + (vis ? ' seen' + (Z.same ? ' same' : '') : '') + (fn ? ' call' : '');
+    const b = fn ? btn(x, y, w, h, cls, Z.pill, fn) : add(size(at(mk('div', 'abs ' + cls, Z.pill), x, y), w, h));
+    if (vis) { const d = b.appendChild(mk('span', 'badge', CHECK_S)); at(d, Z.badge[0] - x - 4, Z.badge[1] - y - 4); }
+    return b;
+  }
+
+  // ---------- zoom: la cámara se acerca a un punto fijo a velocidad constante (escala exponencial); cada imagen entra
+  // cuando ya ocupa casi toda la pantalla y la última, sin difuminar, cierra exactamente en la vista de la pantalla siguiente.
+  function zoomScene(base, steps, fin, finSrc, dur, next, fadeDark) {
+    const world = add(mk('div', 'world'));
+    const put = (src, r, cls) => { const i = mk('img', 'zl' + (cls ? ' ' + cls : '')); i.src = 'img/' + src; i.alt = ''; i.draggable = false;
+      Object.assign(i.style, { left: r[0] + 'px', top: r[1] + 'px', width: r[2] + 'px', height: r[2] * H / W + 'px' }); world.appendChild(i); return i; };
+    put(base, [0, 0, W]);
+    let P = [0, 0, W];
+    const nest = r => [P[0] + r[0] * P[2] / W, P[1] + r[1] * P[2] / W, r[2] * P[2] / W];
+    const layers = steps.map(([src, x, y, w]) => { P = nest([x, y, w]); return { el: put(src, P, 'soft'), w: P[2], from: 2.0, to: 1.4 }; });
+    const R = nest(fin); layers.push({ el: put(finSrc, R), w: R[2], from: steps.length ? 1.3 : 2.0, to: steps.length ? 1.0 : 1.15 });
+    const Z = W / R[2], F = [R[0] * Z / (Z - 1), R[1] * Z / (Z - 1)];
+    if (fadeDark) { const d = layer(null, 'dark light'); if (!RM) d.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' }); }
+    const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    const draw = e => {
+      const z = Math.pow(Z, e), cx = F[0] * (1 - 1 / z), cy = F[1] * (1 - 1 / z), cw = W / z;
+      world.style.transform = `scale(${z}) translate(${-cx}px, ${-cy}px)`;
+      layers.forEach(L => { L.el.style.opacity = Math.max(0, Math.min(1, (L.from - cw / L.w) / (L.from - L.to))); });
+    };
+    if (RM) { draw(1); auto(next, 300); return; }
+    draw(0);
+    let t0 = null;
+    const frame = now => {
+      if (!world.isConnected) return;
+      if (t0 === null) t0 = now;
+      const t = Math.min(1, (now - t0) / dur); draw(ease(t));
+      if (t < 1) requestAnimationFrame(frame); else auto(next, 120);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Ras Tanura: línea de tiempo que solo se arrastra (Montse, 16/11)
+  const NX = YEARS.map((_, i) => 602 + i * 715 / 4), TY = 985.5;
+  const candidates = {};
+  function mangDots(k = S.zone) {
+    if (candidates[k]) return candidates[k];
+    // Puntos candidatos (rejilla con algo de desorden, siempre igual) y, para cada año, los que caen dentro de sus manchas.
+    let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const [x0, x1, y0, y1] = REAL_BOX[k];
+    const pts = []; for (let y = y0; y < y1; y += 8) for (let x = x0; x < x1; x += 8) pts.push([x + (rnd() - .5) * 5, y + (rnd() - .5) * 5, 3.6 + rnd() * 2]);
+    const ctx = document.createElement('canvas').getContext('2d');
+    candidates[k] = REAL[k].map(d => { const path = new Path2D(d); return pts.filter(([x, y]) => ctx.isPointInPath(path, x, y, 'evenodd')); });
+    return candidates[k];
+  }
+  function rasScreen(year) {
+    S.year = year;
+    const Z = ZONES[S.zone] || ZONES.ras, designed = S.zone === 'ras';
+    layer(Z.img);
+    // Figma v5: en 1985, al entrar, solo «Slide to see the evolution!»; con tarjeta (2015, 2025) la foto lleva un oscurecido del 30 %
+    const dim = layer(null, 'dark'), fresh1985 = year === 0 && !S.slid;
+    dim.style.opacity = fresh1985 ? 0 : 1;
+    // manglar por año: una capa por año, se enciende la del año elegido
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = add(document.createElementNS(svgNS, 'svg')); svg.setAttribute('class', 'mang keep'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    // contorno discontinuo del manglar de 1985, para comparar
+    const zk = ZONES[S.zone] ? S.zone : 'ras';
+    // Más visible (Montse, 18/11: «el punteado no se ve»): trazo blanco de 3,5 px con raya larga, sobre un borde oscuro de 7 px
+    const outline = document.createElementNS(svgNS, 'g'), has1985 = !!REAL[zk][0];
+    [['rgba(12,12,13,.6)', 7, null], ['#ffffff', 3.5, '9 6']].forEach(([c, w, dash]) => {
+      const o = document.createElementNS(svgNS, 'path'); outline.appendChild(o);
+      o.setAttribute('d', REAL[zk][0]); o.setAttribute('fill', 'none'); o.setAttribute('stroke', c); o.setAttribute('stroke-width', w);
+      o.setAttribute('stroke-linejoin', 'round'); o.setAttribute('stroke-linecap', 'round'); if (dash) o.setAttribute('stroke-dasharray', dash);
+    });
+    const groups = YEARS.map((_, i) => {
+      const g = document.createElementNS(svgNS, 'g'); svg.appendChild(g);
+      if (V.mang === 'mancha') { const p = document.createElementNS(svgNS, 'path'); p.setAttribute('d', REAL[zk][i]); p.setAttribute('fill', MANG_C); p.setAttribute('fill-rule', 'evenodd'); g.appendChild(p); }
+      else mangDots(zk)[i].forEach(([x, y, r]) => { const c = document.createElementNS(svgNS, 'circle'); c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.setAttribute('r', r.toFixed(1)); c.setAttribute('fill', MANG_C); g.appendChild(c); });
+      return g;
+    });
+    svg.appendChild(outline);
+    place(Z.name, Z.sub, 1826, 81, 1);
+    const src = add(mk('div', 'abs src', TX.source)); src.style.right = (W - 1826) + 'px'; src.style.top = '39px';   // en las tres zonas y todos los años (Montse, 19/11)
+    btn(1638, 191, 188, 91, 'back call sh', ARROW_L + '<span>' + TX.back + '</span>', () => go('choose'), 'Back: volver a elegir zona');
+    let cardEl = null, legend = null, hintEl = null;
+    legend = add(mk('div', 'abs legend sh')); at(legend, 1440, 900);   // leyenda siempre (Montse, 17/11)
+    if (fresh1985) { hintEl = add(mk('div', 'abs slide-hint sh', TX.slide)); size(at(hintEl, 625, 794), 391.3, 70.7); anim(hintEl, 'pop', 400); }
+    // línea de tiempo (Figma «timeline»)
+    const tl = add(mk('div', 'abs tl')); size(at(tl, 522, 894), 875, 146);
+    tl.setAttribute('role', 'slider'); tl.setAttribute('aria-label', 'Year (drag)'); tl.setAttribute('aria-valuemin', YEARS[0]); tl.setAttribute('aria-valuemax', YEARS[4]); tl.tabIndex = 0;
+    const tr = add(mk('div', 'abs tr')); size(at(tr, 602, 984), 715, 3);
+    const fill = add(mk('div', 'abs tr-f')); at(fill, 602, 984);
+    const dots = NX.map(x => add(at(mk('div', 'abs tdot'), x - 5, TY - 5)));
+    const labs = YEARS.map((y, i) => add(at(mk('div', 'abs tlab', String(y)), NX[i] - 70, 940)));
+    const halo = add(mk('div', 'abs halo')), thumb = add(mk('div', 'abs thumb call'));
+    let tx = NX[year];
+    const setX = x => { tx = x; at(halo, x - 23, TY - 23); at(thumb, x - 14.5, TY - 14.5); fill.style.width = (x - 602) + 'px'; };
+    const showYear = (i, first) => {
+      S.year = i; if (cur) cur.year = i;
+      groups.forEach((g, k) => g.style.opacity = k === i ? 1 : 0);
+      outline.style.opacity = (i > 0) ? 1 : 0;
+      dots.forEach((d, k) => d.classList.toggle('past', k < i || (k === i)));
+      labs.forEach((l, k) => l.classList.toggle('on', k === i));
+      tl.setAttribute('aria-valuenow', YEARS[i]);
+      if (!first) {
+        S.slid = true; if (cur) cur.slid = true; dim.style.opacity = 1;
+        if (hintEl) { const h = hintEl; hintEl = null; h.style.opacity = 0; setTimeout(() => h.remove(), 300); }
+      }
+      const C = CARDS[S.zone][i];
+      if (cardEl) { const old = cardEl; if (!RM) old.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 200, fill: 'forwards' }); setTimeout(() => old.remove(), 210); cardEl = null; }
+      if (!(first && fresh1985)) {
+        // junto al slider, en su año (Montse, 18/11): la esquina recta de abajo a la izquierda queda encima del año, 20 px por encima de la línea de tiempo
+        cardEl = add(mk('div', 'abs ycard sh', '<h3>' + C.t + '</h3><p>' + C.b + '</p>')); at(cardEl, NX[i], 0);
+        cardEl.style.top = (894 - 20 - cardEl.offsetHeight) + 'px';   // alto según el texto, mismo margen arriba y abajo (Montse, 18/11)
+        anim(cardEl, 'rise', first ? 300 : 60, 380);
+      }
+      if (legend) legend.innerHTML = '<div class="row"><span class="sw ' + (V.mang === 'mancha' ? 'fill' : 'dots') + '"></span>Grey mangroves in ' + YEARS[i] + '</div>' + (i > 0 && has1985 ? '<div class="row"><span class="sw line"></span>Grey mangroves in 1985</div>' : '');   // sin línea de 1985 donde no había manglar (Ras Tanura)
+      current.hint = Z.name.replace('&amp;', '&') + ' · <b>' + YEARS[i] + '</b>. <b>Drag</b> the circle on the timeline (drag only). ' + (cardEl && C.ex ? '<b>Example</b> text. ' : '') + 'Patches: the real mangroves of ' + YEARS[i] + ' from Global Mangrove Watch.';
+      if (!first) showHint();
+    };
+    setX(tx); showYear(year, true);
+    // arrastre: desde cualquier punto de la línea, el círculo se mueve lo mismo que el dedo (tocar sin mover no hace nada)
+    let drag = null;
+    const sx = e => { const r = stage.getBoundingClientRect(); return (e.clientX - r.left) * W / r.width; };
+    tl.addEventListener('pointerdown', e => {
+      e.preventDefault(); e.stopPropagation();
+      drag = { x0: sx(e), t0: tx, moved: false }; tl.setPointerCapture(e.pointerId); tl.classList.add('drag'); scene.classList.remove('snap');
+      paused = false; armStill();
+    });
+    tl.addEventListener('pointermove', e => {
+      if (!drag) return;
+      const dx = sx(e) - drag.x0; if (Math.abs(dx) > 4) drag.moved = true;
+      if (!drag.moved) return;
+      if (hintEl) { const h = hintEl; hintEl = null; h.style.opacity = 0; setTimeout(() => h.remove(), 300); if (!S.slid) showYear(S.year); }
+      setX(Math.max(602, Math.min(1317, drag.t0 + dx)));
+      const i = Math.round((tx - 602) / (715 / 4)); if (i !== S.year) showYear(i);
+    });
+    const end = () => { if (!drag) return; drag = null; tl.classList.remove('drag'); scene.classList.add('snap'); setX(NX[S.year]); armStill(); };
+    tl.addEventListener('pointerup', end); tl.addEventListener('pointercancel', end);
+    tl.addEventListener('click', e => e.stopPropagation());
+    tl.addEventListener('keydown', e => {   // accesibilidad: flechas arriba / abajo mueven el año (las de los lados son Atrás / Adelante)
+      if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); e.stopPropagation(); const i = Math.max(0, Math.min(4, S.year + (e.key === 'ArrowUp' ? 1 : -1))); scene.classList.add('snap'); setX(NX[i]); showYear(i); }
+    });
+    return { wait: true, hint: current.hint };
+  }
+
+  // ---------- Restart (la bolita y los botones accesibles de idioma y Restart se quitaron el 18/11: Montse)
+  let menuOpen = false, cfEl = null;
+  const lock = el => { el.dataset.until = performance.now() + T.holdover; };   // 0,5 s sin aceptar toques al aparecer la confirmación
+  const locked = el => performance.now() < +(el.dataset.until || 0);
+  // Pestaña «Restart» del Figma (info-card-86'', 18/11): abajo a la izquierda, a su tamaño, en todas las pantallas desde la
+  // península, como en la página de Figma «↳ 19/11 v1» (Montse, 19/11: «en todas»): península, zooms, Tarout Bay, escaneo,
+  // detectado, elegir zona, las tres zonas y «Great job!». No sale en el reposo, en la Tierra de lejos ni en el final, que tiene
+  // su propio botón «Restart». Sin botón de idioma (no está en el Figma). Pide confirmación.
+  const RTAB = new Set(['pen', 'zoom', 'tarut', 'scan', 'detected', 'choose', 'zoomZone', 'ras', 'great', 'still']);
+  function menu() {
+    const b = at(add(mk('button', 'abs rtab', RESTART_IC + '<span>' + TX.restart + '</span>')), 0, 829); b.type = 'button';
+    b.setAttribute('aria-label', 'Restart: start again (asks for confirmation)');
+    on(b, confirmRestart); return b;
+  }
+  // «Start again?»: Yes vuelve al reposo (como Restart); No, tocar fuera o 10 s sin tocar la cierran.
+  // Mientras está abierta no sale el aviso de inactividad; al cerrarse vuelve a contar.
+  function confirmRestart() {
+    if (cfEl) return;
+    clearTimeout(stillTimer); stillTimer = null; menuOpen = true;
+    const o = cfEl = add(mk('div', 'cf'));
+    const put = e => (o.appendChild(e), e);
+    size(at(put(mk('div', 'glow')), 650, 240), 621, 503);
+    put(at(mk('div', 'abs q', 'Start again?'), 560, 380));
+    const yes = put(at(mk('button', 'abs b', 'Yes'), 689, 500)); yes.type = 'button';
+    const no = put(at(mk('button', 'abs b', 'No'), 1028, 500)); no.type = 'button';
+    yes.setAttribute('aria-label', 'Yes: start again'); no.setAttribute('aria-label', 'No: continue');
+    let tm = null;
+    const close = () => {
+      clearTimeout(tm);
+      if (cfEl !== o) return;
+      cfEl = null; menuOpen = false;
+      o.classList.add('leaving'); setTimeout(() => o.remove(), 260);
+      showHint(); armStill();
+    };
+    tm = setTimeout(close, T.confirm);
+    lock(o);
+    o.addEventListener('click', ev => { ev.stopPropagation(); if (!locked(o)) close(); }); // tocar fuera = No
+    no.addEventListener('click', ev => { ev.stopPropagation(); if (!locked(o)) close(); });
+    yes.addEventListener('click', ev => {
+      ev.stopPropagation(); if (locked(o)) return;
+      clearTimeout(tm); cfEl = null; menuOpen = false; paused = false; S = fresh(); go('intro');
+    });
+    try { no.focus({ preventScroll: true }); } catch (e) {}
+    hint.innerHTML = '<b>Start again?</b> <b>Yes</b> goes back to the idle screen; <b>No</b> or tapping outside closes it. It closes by itself, like «No», after ' + T.confirm / 1000 + ' s without a tap, and the inactivity count restarts. The first 0.5 s ignore taps. Texts and timings provisional, pending content.';
+  }
+
+  // ---------- «Hello? Are you still there?» (como Planning Recovery, pero a los 20 s sin tocar —Montse, 17/11— en las pantallas que esperan un toque)
+  let stillTimer = null, stillEl = null;
+  function armStill() {
+    clearTimeout(stillTimer); stillTimer = null;
+    if (stillEl || menuOpen || !current.wait) return;
+    stillTimer = setTimeout(showStill, T.still);
+  }
+  function showStill() {
+    clearTimeout(stillTimer); stillTimer = null;
+    if (stillEl) stillEl.remove();
+    const o = stillEl = add(mk('div', 'still'));
+    o.addEventListener('click', ev => ev.stopPropagation());
+    const put = e => (o.appendChild(e), e);
+    size(at(put(mk('div', 'glow')), 650, 289), 621, 503);
+    at(anim(put(mk('div', 'abs hello', 'Hello?<br>Are you still there?')), 'fade'), 560, 410);
+    const yes = put(mk('button', 'abs yes call', 'Yes')); yes.type = 'button';
+    at(anim(yes, 'fade', T.gap), 859, 601);
+    yes.addEventListener('click', ev => { ev.stopPropagation(); paused = false; hideStill(); });
+    try { yes.focus({ preventScroll: true }); } catch (e) {}
+    hint.innerHTML = '<b>Are you still there?</b> Appears after ' + T.still / 1000 + ' s without a tap on screens waiting for a tap (as in Planning Recovery). Tap <b>Yes</b> to continue. <b>Pending:</b> what happens if nobody answers.';
+  }
+  function hideStill() {
+    const o = stillEl; if (!o) return;
+    stillEl = null; o.classList.add('leaving'); setTimeout(() => o.remove(), 330);
+    showHint(); armStill();
+  }
+
+  // ---------- navegación y revisión
+  const NEXT = {
+    intro: () => go('earth'), earth: () => go('zoomPen'), zoomPen: () => go('pen'), pen: () => go('zoom'), zoom: () => go('tarut'), tarut: () => go('scan'), scan: () => go('detected'),
+    detected: () => go('choose'), zoomZone: () => go('ras', 0, S.zone),
+    // Adelante recorre las tres zonas en orden (Ras Tanura, Safwa & Qatif, Tarout Island) y luego el final
+    choose: () => { const k = ZKEYS.find(z => !S.seen.includes(z)); if (!k) go('mission'); else go('zoomZone', 0, k); },
+    ras: () => (S.year < 4 ? go('ras', S.year + 1) : go('choose')),
+    great: () => go('mission'), mission: () => go('intro')
+  };
+  const snap = () => ({ ...S });
+  function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (Back / Next, or tap the screen to continue). ' : '') + (current.hint || ''); }
+  function render() {
+    clearTimers();
+    scene.replaceChildren(); scene.className = 'scene';
+    stillEl = null; menuOpen = false; cfEl = null;
+    stage.dataset.color = V.color;
+    current = SCREENS[S.screen](S.year) || {};
+    if (RTAB.has(S.screen)) menu();   // pestaña «Restart», encima de todo lo de la pantalla
+    stage.classList.toggle('tap', !!current.tap);
+    showHint(); armStill();
+    cur = snap();
+    backBtn.disabled = !past.length;
+  }
+  function go(id, year = 0, zone) {
+    if (cur) past.push(cur); future = [];
+    zone = zone || S.zone || 'ras';
+    const seen = id === 'intro' ? [] : (id === 'ras' && !S.seen.includes(zone) ? [...S.seen, zone] : S.seen);   // al volver al reposo empieza otra visita
+    const slid = id === 'ras' && S.screen === 'ras' && S.zone === zone ? S.slid : false;   // dentro de la misma zona se recuerda que ya se movió el año
+    S = { screen: id, year, seen, zone, slid }; render();
+  }
+  function back() { if (!past.length) return; paused = true; future.push(cur); S = past.pop(); render(); }
+  function fwd() { paused = true; if (future.length) { past.push(cur); S = future.pop(); render(); } else NEXT[S.screen](); }
+  function reset() { S = fresh(); LANG = 'en'; past = []; future = []; cur = null; paused = false; render(); }
+
+  stage.addEventListener('pointerdown', () => { if (!stillEl) armStill(); });
+  stage.addEventListener('click', () => { if (stillEl) return; const was = paused; paused = false; if (current.tap) current.tap(); else if (was) showHint(); });
+  backBtn.addEventListener('click', back);
+  fwdBtn.addEventListener('click', fwd);
+  document.getElementById('restart').addEventListener('click', reset);
+
+  // ir a
+  const jump = document.getElementById('jump');
+  ORDER.forEach(([id, label]) => { const o = document.createElement('option'); o.value = id; o.textContent = label; jump.appendChild(o); });
+  jump.addEventListener('change', () => {
+    const v = jump.value; jump.value = ''; if (!v) return; paused = false;
+    if (v === 'still') { if (!current.wait) go('choose'); showStill(); return; }
+    if (v === 'confirm') {   // solo existe en la variante accesible: si hay otra elegida, se cambia a esa
+      if (!current.wait) go('choose'); else render();
+      confirmRestart(); return;
+    }
+    if (v === 'choose:seen') { S = { ...S, seen: ['ras'] }; go('choose'); return; }
+    if (v === 'great') { S = { ...S, seen: [...ZKEYS] }; go('great'); return; }
+    const [id, y, z] = v.split(':');
+    if (id === 'ras' || id === 'zoomZone') { const before = { ras: [], safwa: ['ras'], island: ['ras', 'safwa'] }[z || 'ras']; S = { ...S, seen: before, screen: 'choose' }; }
+    go(id, y ? +y : 0, z || (id === 'ras' || id === 'zoomZone' ? 'ras' : undefined));
+  });
+  // notas
+  const notes = document.getElementById('notes');   // notas: siguen en el código, sin botón en la barra (Montse, 18/11)
+  document.addEventListener('keydown', e => {
+    if (e.target.closest && e.target.closest('select')) return;
+    if (e.key === 'ArrowLeft') { e.preventDefault(); back(); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); fwd(); }
+  });
+
+  // escalar la pantalla al hueco disponible
+  function fit() {
+    const cs = getComputedStyle(viewport);
+    const pl = parseFloat(cs.paddingLeft), pr = parseFloat(cs.paddingRight), pt = parseFloat(cs.paddingTop), pb = parseFloat(cs.paddingBottom);
+    const pw = viewport.clientWidth - pl - pr, ph = viewport.clientHeight - pt - pb;
+    const s = Math.max(0.01, Math.min(pw / W, ph / H));
+    stage.style.transform = `translate(${pl + (pw - W * s) / 2}px, ${pt + (ph - H * s) / 2}px) scale(${s})`;
+  }
+  new ResizeObserver(fit).observe(viewport); fit();
+
+  // Las posiciones dependen del tamaño del texto: esperar a las fuentes antes de la primera pantalla.
+  const fonts = document.fonts && document.fonts.load
+    ? Promise.all(['400 32px Roboto', '500 41px Roboto', '600 41px Roboto', '700 40px Roboto', '600 27px "Noto Sans Arabic"', '400 35px Ilmi', '500 35px Ilmi', '600 35px Ilmi', '700 35px Ilmi'].map(f => document.fonts.load(f)))
+    : Promise.resolve();
+  // Modo captura para el MB (19/11): «#shot=<pantalla de Go to>» oculta la barra y deja la pantalla a 1:1 (ventana de 1920 × 1080).
+  const SHOT = (location.hash.match(/^#shot=([^&]+)/) || [])[1];
+  if (SHOT) document.body.classList.add('shot');
+  const first = () => {
+    render(); if (!SHOT) return;
+    const v = decodeURIComponent(SHOT), j = document.getElementById('jump');
+    if (![...j.options].some(o => o.value === v)) { const o = document.createElement('option'); o.value = v; o.textContent = v; j.appendChild(o); }
+    j.value = v; j.dispatchEvent(new Event('change'));
+  };
+  fonts.then(first, first);
+})();
+</script>
