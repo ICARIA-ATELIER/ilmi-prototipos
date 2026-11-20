@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Prototipo Tide Timelapse</title>
+<title>Proto Tide Timelapse</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -68,12 +68,17 @@ button.bub { cursor: pointer; }
 .scan { text-align: right; font-weight: 600; font-size: 47px; line-height: 63px; color: #000; pointer-events: none; white-space: nowrap; }
 .ar { font-family: var(--ar); direction: rtl; }
 .ring { position: absolute; box-sizing: border-box; border-radius: 50%; border: solid #000; pointer-events: none; }
-.closing { text-align: center; font-weight: 600; font-size: 58px; line-height: 1.12; color: #000; pointer-events: none; text-wrap: balance; }
+.closing { text-align: center; font-weight: 600; font-size: 58px; line-height: 1.12; color: #000; pointer-events: none; }
+/* Each paragraph balances its own lines; the gap between them is the empty line of Montse's text. */
+.closing span { display: block; text-wrap: balance; }
+.closing span + span { margin-top: 1.12em; }
 
 /* Tide staff (mareómetro): grey block on a pole, with its reading. */
 .staff { position: absolute; background: #616161; }
 .pole { position: absolute; width: 7px; background: #616161; }
 .gm { position: absolute; font-weight: 700; font-size: 82px; line-height: 98px; color: #616161; white-space: nowrap; }
+/* Red = Claude's proposal, still to be confirmed by Montse. */
+.gm.prop { color: #e00000; }
 
 /* Tide slider: High → Falling → Low → Lowest. Drag the point or tap a stage. */
 .slider { width: 1864px; height: 324px; border-radius: 162px; background: #3e3e3e; box-shadow: 0 16px 30px rgba(0,0,0,.22); touch-action: none; cursor: grab; }
@@ -129,43 +134,43 @@ button.bub { cursor: pointer; }
 
 <div class="app">
   <header class="bar">
-    <div class="ttl"><strong>Tide Timelapse</strong><span>WR2-403-IA01 · prototipo happy path (Figma 05/11), baja fidelidad</span></div>
+    <div class="ttl"><strong>Tide Timelapse</strong><span>WR2-403-IA01 · happy path from Figma (05/11), changes of 20/11 · low fidelity</span></div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ctrls">
-      <span class="ctl"><button id="back" type="button" aria-label="Paso anterior">← Atrás</button><button id="fwd" type="button" aria-label="Paso siguiente">Adelante →</button></span>
-      <span class="ctl"><label for="mode">Inactividad</label>
+      <span class="ctl"><button id="back" type="button" aria-label="Previous step">← Back</button><button id="fwd" type="button" aria-label="Next step">Next →</button></span>
+      <span class="ctl"><label for="mode">Idle</label>
       <select id="mode">
-        <option value="happy">Como el Figma (solo happy path)</option>
-        <option value="unhappy">Con unhappy I2–I7 (tiempos provisionales)</option>
+        <option value="happy">As in Figma (happy path only)</option>
+        <option value="unhappy">With unhappy I2–I7 (provisional times)</option>
       </select></span>
-      <span class="ctl"><label for="jump">Ir a</label>
+      <span class="ctl"><label for="jump">Go to</label>
       <select id="jump">
-        <option value="">Pantalla…</option>
-        <option value="s1">1 · Reposo</option>
-        <option value="s2">2 · Intro · Pregunta</option>
-        <option value="s3">3 · Intro · Raíces que respiran</option>
-        <option value="s4">4 · Intro · Burbuja iluminada</option>
-        <option value="s5">5 · Intro · Tarjeta «Guess what?»</option>
-        <option value="s6">6 · Intro · Sube la marea</option>
-        <option value="s7a">7a · Marea alta · Pargo (bocadillo)</option>
-        <option value="s7b">7b · Marea alta · Pargo (tarjeta)</option>
-        <option value="s8">8 · Marea alta · Medir la marea</option>
-        <option value="s9">9 · Mareómetro y slider</option>
-        <option value="s10">10 · High Tide · Pista para arrastrar</option>
-        <option value="s11">11 · Falling Tide · Propágulo</option>
-        <option value="s12">12 · Falling Tide · El propágulo deriva</option>
-        <option value="s13">13 · Low Tide · Cangrejos</option>
-        <option value="s14">14 · Low Tide · Texto del cangrejo</option>
-        <option value="s15">15 · Lowest Tide · Chorlito cangrejero</option>
-        <option value="s16">16 · Lowest Tide · El ave caza</option>
-        <option value="s17">17 · Lowest Tide · El ave se va</option>
-        <option value="s18">18 · Final · Reflexión</option>
+        <option value="">Screen…</option>
+        <option value="s1">1 · Attract screen</option>
+        <option value="s2">2 · Intro · Question</option>
+        <option value="s3">3 · Intro · Breathing roots</option>
+        <option value="s4">4 · Intro · Glowing bubble</option>
+        <option value="s5">5 · Intro · “Guess what?” card</option>
+        <option value="s6">6 · Intro · The tide comes in</option>
+        <option value="s7a">7a · High tide · Snapper (bubble)</option>
+        <option value="s7b">7b · High tide · Snapper (card)</option>
+        <option value="s8">8 · High tide · Measure the tide</option>
+        <option value="s9">9 · Tide gauge and slider</option>
+        <option value="s10">10 · High Tide · Drag hint</option>
+        <option value="s11">11 · Falling Tide · Propagule</option>
+        <option value="s12">12 · Falling Tide · The propagule drifts</option>
+        <option value="s13">13 · Low Tide · Crabs</option>
+        <option value="s14">14 · Low Tide · Crab text</option>
+        <option value="s15">15 · Lowest Tide · Crab plover</option>
+        <option value="s16">16 · Lowest Tide · The bird catches a crab</option>
+        <option value="s17">17 · Lowest Tide · The bird flies away</option>
+        <option value="s18">18 · Final film and prompt</option>
       </select></span>
-      <button id="restart" type="button">Reiniciar</button>
+      <button id="restart" type="button">Reset</button>
     </div>
   </header>
   <main class="viewport" id="viewport">
-    <div class="stage" id="stage" aria-label="Pantalla del interactivo, 86 pulgadas en vertical, 2160 × 3840"></div>
+    <div class="stage" id="stage" aria-label="Exhibit screen, 86 inch portrait, 2160 × 3840"></div>
   </main>
 </div>
 
@@ -256,20 +261,21 @@ button.bub { cursor: pointer; }
     size(e, w); e.style.minHeight = h + 'px';
     at(e, x, o.bottom ? y + h - e.offsetHeight : y);
     if (o.close) {
-      const b = mk('button', 'xbtn', XSVG); b.type = 'button'; b.setAttribute('aria-label', 'Cerrar la tarjeta');
+      const b = mk('button', 'xbtn', XSVG); b.type = 'button'; b.setAttribute('aria-label', 'Close the card');
       e.appendChild(b); on(b, o.close); e.closeBtn = b;
     }
     return anim(e, o.anim === undefined ? 'a-rise' : o.anim);
   }
-  // Tide staff. high: top of the water (screens 9–10); low: screens 12–14; lowest: screens 15–18 (as drawn in Figma).
-  function gauge(kind, cls) {
+  // Tide staff. high: top of the water (screens 9–10); low: screens 11–14; lowest: screens 15–18 (as drawn in Figma).
+  // Readings (Montse, 20/11): 1.5 m at High Tide (top of the staff), 1 m at Falling Tide. Low Tide 0.5 m = proposal (red).
+  function gauge(kind, cls, val, prop) {
     const g = add(mk('div', 'abs')); at(g, 0, 0);
     const put = (c, x, y, w, h, html) => { const e = mk('div', c, html); g.appendChild(size(at(e, x, y), w, h)); return e; };
     if (kind === 'high') {
       put('pole', 101, 2232, null, H - 2232); put('staff', 61, 1999, 87, 233);
-      const t = put('gm', 0, 1962, null, null, '2 m'); t.style.left = Math.round(245 - t.offsetWidth / 2) + 'px';
+      const t = put('gm', 0, 1962, null, null, '1.5 m'); t.style.left = Math.round(245 - t.offsetWidth / 2) + 'px';
     } else if (kind === 'low') {
-      put('pole', 97, 3305, null, H - 3305); put('staff', 57, 3166, 87, 139); put('gm', 190, 3161, null, null, '2 m');
+      put('pole', 97, 3305, null, H - 3305); put('staff', 57, 3166, 87, 139); const t = put('gm', 190, 3161, null, null, val); if (prop) t.classList.add('prop');
     } else {
       const s = put('staff', 10, 3697, 87, 139); s.style.transformOrigin = '0 0'; s.style.transform = 'rotate(-40deg)';
     }
@@ -289,7 +295,7 @@ button.bub { cursor: pointer; }
     el.appendChild(knob);
     const setX = x => { knob.style.left = x + 'px'; fill.style.width = Math.max(0, x - rel(0)) + 'px'; };
     setX(rel(curIdx));
-    el.setAttribute('role', 'slider'); el.setAttribute('aria-label', 'Nivel de la marea');
+    el.setAttribute('role', 'slider'); el.setAttribute('aria-label', 'Tide level');
     el.setAttribute('aria-valuemin', '0'); el.setAttribute('aria-valuemax', '3');
     el.setAttribute('aria-valuenow', String(curIdx)); el.setAttribute('aria-valuetext', NAMES[curIdx]);
     el.addEventListener('click', ev => ev.stopPropagation());
@@ -330,7 +336,7 @@ button.bub { cursor: pointer; }
   // Restart tab on the left edge: back to the idle screen (Figma: "Restart → 1").
   function restartTab() {
     const b = add(mk('button', 'abs rs', REDO + '<span>Restart</span>')); b.type = 'button';
-    b.setAttribute('aria-label', 'Restart: volver a la pantalla de reposo');
+    b.setAttribute('aria-label', 'Restart: back to the attract screen');
     on(b, toIdle);
     return b;
   }
@@ -350,6 +356,7 @@ button.bub { cursor: pointer; }
     idleTimer = setTimeout(() => { if (!paused) toIdle(); }, T.idle);
   }
   const uh = txt => UNHAPPY() ? ' <b>Unhappy:</b> ' + txt : '';
+  const LOW_NOTE = ' The gauge reads <b>0.5 m</b> in red: proposal, to be confirmed (Montse only fixed 1.5 m and 1 m).';
 
   // ---------- where each screen goes next (used by timers, taps, the slider and the forward button)
   const fall = () => S.seed ? 's12' : 's11';
@@ -375,7 +382,8 @@ button.bub { cursor: pointer; }
     seed: 'Mangrove seedlings drift with the tide, searching for a place to grow.<br>Where will they land?',
     crab: 'Low tide reveals a busy feeding ground. How many birds feed on the mudflat?',
     lorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing eli',
-    closing: 'Prompt y reflexión final que cuente lo que queramos resumir de esta pieza. Contenido manda.'
+    // Final film and prompt (Montse, 20/11).
+    closing: '<span>What can the tide tell us?</span><span>Scientists use tide measurements to understand and help restore mangrove forests.</span>'
   };
   // Boxes [x, y, w, h] in the 2160 × 3840 screen, from the Figma prototype.
   const BX = {
@@ -391,51 +399,51 @@ button.bub { cursor: pointer; }
   const SCREENS = {
     s1() {
       bg(null);
-      const t = add(mk('div', 'abs big', 'Thrive<br>on<br>tides!')); at(t, 944, 1607);
+      const t = add(mk('div', 'abs big', 'Thrive<br>on<br>tides')); at(t, 944, 1607);
       const en = add(mk('div', 'abs scan', 'Scan your wristband or tap to start')); at(en, 1954 - en.offsetWidth, 3132);
       const ar = add(mk('div', 'abs scan ar', 'مرّر سوارك أو المس للبدء')); at(ar, 1954 - ar.offsetWidth, 3195);
       [[2013, 3054, 267, 3.4], [2046, 3087, 202, 10.3], [2080, 3121, 134, 13.7]].forEach(([x, y, d, b]) => {
         const r = add(mk('div', 'ring')); size(at(r, x, y), d, d); r.style.borderWidth = b + 'px';
       });
-      return { tap: NEXT.s1, hint: '<b>Toca la pantalla</b> para empezar (o pasa la pulsera).' };
+      return { tap: NEXT.s1, hint: '<b>Tap the screen</b> to start (or scan the wristband).' };
     },
     s2() {
       bg('media');
       bub(TX.q, BX.q, { anim: 'a-rise' });
       auto(NEXT.s2, T.s2);
-      return { hint: 'Intro con la marea media: sale la pregunta. Sigue sola en ' + T.s2 / 1000 + ' s.' };
+      return { hint: 'Intro at mid tide: the question appears. Moves on by itself in ' + T.s2 / 1000 + ' s.' };
     },
     s3() {
       bg('bajamar');
       bub(TX.q, BX.q);
       bub(TX.a, BX.a, { anim: 'a-rise' });
       auto(NEXT.s3, T.s3);
-      return { hint: 'Sale la respuesta. En ' + T.s3 / 1000 + ' s se ilumina.' };
+      return { hint: 'The answer appears. It lights up in ' + T.s3 / 1000 + ' s.' };
     },
     s4() {
       bg('bajamar');
-      bub(TX.a, BX.a, { cls: 'lit call', fn: NEXT.s4, label: TX.a + ' Toca para saber más.' });
+      bub(TX.a, BX.a, { cls: 'lit call', fn: NEXT.s4, label: TX.a + ' Tap to find out more.' });
       auto(() => go('s6'), T.s4);
-      return { hint: '<b>Toca la burbuja iluminada</b> para ver la tarjeta. Si no la tocas, en ' + T.s4 / 1000 + ' s sigue sola sin tarjeta (unhappy I1).' };
+      return { hint: '<b>Tap the glowing bubble</b> to open the card. If nobody taps it, it moves on without the card in ' + T.s4 / 1000 + ' s (unhappy I1).' };
     },
     s5() {
       bg('bajamar');
       bub(TX.a, BX.a);
       const c = card('<h3>' + TX.guessH + '</h3><p>' + TX.guess + '</p>', BX.guess, { close: NEXT.s5 });
       cardIdle(c);
-      return { hint: '<b>Toca la X</b> para cerrar la tarjeta.' + uh('a los ' + T.glowX / 1000 + ' s se ilumina la X y, si nadie toca en ' + T.cardIdle / 1000 + ' s más, vuelve al reposo (I2).') };
+      return { hint: '<b>Tap the X</b> to close the card.' + uh('the X lights up after ' + T.glowX / 1000 + ' s and, if nobody taps in ' + T.cardIdle / 1000 + ' s more, it goes back to the attract screen (I2).') };
     },
     s6() {
       bg('media');
       bub(TX.tideIn, BX.tideIn, { cls: 'dark', nowrap: true, anim: 'a-rise' });
       auto(NEXT.s6, T.s6);
-      return { hint: 'Sube la marea. Sigue sola en ' + T.s6 / 1000 + ' s.' };
+      return { hint: 'The tide comes in. Moves on by itself in ' + T.s6 / 1000 + ' s.' };
     },
     s7a() {
       bg('submarina');
       pic('pargo.png', 167, 2193, 303, 120, 'a-swim');
-      bub(TX.food, BX.food, { cls: 'dark call', nowrap: true, fn: NEXT.s7a, anim: 'a-rise', delay: 600, label: TX.food + ' Toca para saber más.' });
-      return { hint: 'Marea alta: aparece el pargo juvenil. <b>Toca el bocadillo iluminado.</b>' };
+      bub(TX.food, BX.food, { cls: 'dark call', nowrap: true, fn: NEXT.s7a, anim: 'a-rise', delay: 600, label: TX.food + ' Tap to find out more.' });
+      return { hint: 'High tide: the juvenile snapper appears. <b>Tap the glowing bubble.</b>' };
     },
     s7b() {
       bg('submarina');
@@ -443,7 +451,7 @@ button.bub { cursor: pointer; }
       bub(TX.food, BX.food, { cls: 'dark', nowrap: true });
       const c = card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b });
       cardIdle(c);
-      return { hint: '<b>Toca la X</b> para cerrar la tarjeta.' + uh('a los ' + T.glowX / 1000 + ' s se ilumina la X y, si nadie toca en ' + T.cardIdle / 1000 + ' s más, vuelve al reposo (I2).') };
+      return { hint: '<b>Tap the X</b> to close the card.' + uh('the X lights up after ' + T.glowX / 1000 + ' s and, if nobody taps in ' + T.cardIdle / 1000 + ' s more, it goes back to the attract screen (I2).') };
     },
     s8() {
       bg('submarina');
@@ -452,67 +460,68 @@ button.bub { cursor: pointer; }
       const b = mk('button', 'dbtn', 'Tide up!'); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
       at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
       if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
-      return { hint: '<b>Toca «Tide up!»</b> para medir la marea.' + uh('si nadie toca, a los ' + T.staffAuto / 1000 + ' s la tarjeta se cierra y el mareómetro se despliega solo (I3).') };
+      return { hint: '<b>Tap “Tide up!”</b> to measure the tide.' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (I3).') };
     },
     s9() {
       bg('submarina');
       gauge('high', 'a-deploy');
       anim(slider(0, { 1: () => go(fall()) }), 'a-deploy', 150);
       auto(NEXT.s9, T.s9);
-      return { hint: 'Se despliegan el mareómetro y el slider en High Tide. <b>Arrastra el punto</b> o toca «Falling Tide». A los ' + T.s9 / 1000 + ' s sale la pista.' };
+      return { hint: 'The tide gauge (1.5 m, its top) and the slider open at High Tide. <b>Drag the point</b> or tap “Falling Tide”. The hint appears after ' + T.s9 / 1000 + ' s.' };
     },
     s10() {
       bg('submarina');
       gauge('high');
       slider(0, { 1: () => go(fall()) }, { callIdx: UNHAPPY() ? 1 : null });
       bub(TX.drag, BX.drag, { cls: 'tip', nowrap: true, anim: 'a-pop' });
-      return { hint: 'Pista «Drag to set the tide!». <b>Arrastra el punto hasta Falling Tide</b> (o toca la etiqueta). En High Tide no hay nada que tocar.' + uh('además se ilumina el punto de Falling Tide (I4).') };
+      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + uh('the Falling Tide point also lights up (I4).') };
     },
     s11() {
       bg('submarina');
+      gauge('low', null, '1 m');
       slider(1, { 0: () => go('s10') });
       pic('propagulo.png', 358, 1001, 448, 672, 'glowing a-fade');
-      hot(358, 994, 448, 679, 'Semilla de mangle: tócala para soltarla', NEXT.s11);
+      hot(358, 994, 448, 679, 'Mangrove propagule: tap it to drop it', NEXT.s11);
       bub(TX.seed, BX.seed, { anim: 'a-rise', delay: 300 });
       if (UNHAPPY()) auto(NEXT.s11, T.seedAuto);
-      return { hint: '<b>Toca la semilla iluminada.</b> Hasta entonces el slider solo deja volver a High Tide.' + uh('a los ' + T.seedAuto / 1000 + ' s la semilla cae sola al agua (I6).') };
+      return { hint: 'Falling Tide: the gauge reads 1 m. <b>Tap the glowing propagule.</b> Until then the slider only goes back to High Tide.' + uh('after ' + T.seedAuto / 1000 + ' s the propagule drops into the water by itself (I6).') };
     },
     s12() {
       bg('alta');
       // Figma stacks two copies of the faded seedling here.
       for (let n = 0; n < 2; n++) { pic('plantula-arriba.png', 963, 2163, 357, 531); pic('plantula-abajo.png', 976, 2384, 373, 316); }
       pic('semilla-deriva.png', 1741, 2163, 306, 459, 'a-bob');
-      gauge('low');
+      gauge('low', null, '1 m');
       slider(1, { 0: () => go('s10'), 2: () => go(low()) });
-      return { hint: 'La semilla va a la deriva. <b>Arrastra hasta Low Tide.</b>' };
+      return { hint: 'The propagule drifts (gauge at 1 m). <b>Drag to Low Tide.</b>' };
     },
     s13() {
       bg('media');
       seedling();
       pic('cangrejo.png', 1677, 2389, 243, 162, 'glowing a-fade');
-      hot(1660, 2330, 300, 230, 'Cangrejo: tócalo', NEXT.s13);
-      gauge('low');
+      hot(1660, 2330, 300, 230, 'Crab: tap it', NEXT.s13);
+      gauge('low', null, '0.5 m', true);
       slider(2, { 0: () => go('s10'), 1: () => go('s12') });
       if (UNHAPPY()) auto(NEXT.s13, T.crabAuto);
-      return { hint: '<b>Toca el cangrejo iluminado.</b> El slider no pasa de Low Tide hasta entonces.' + uh('a los ' + T.crabAuto / 1000 + ' s el texto del cangrejo sale solo (I7).') };
+      return { hint: '<b>Tap the glowing crab.</b> Until then the slider stops at Low Tide.' + LOW_NOTE + uh('after ' + T.crabAuto / 1000 + ' s the crab text appears by itself (I7).') };
     },
     s14() {
       bg('media');
       seedling();
       pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
       bub(TX.crab, BX.crab, { anim: 'a-rise', delay: 300 });
-      gauge('low');
+      gauge('low', null, '0.5 m', true);
       slider(2, { 0: () => go('s10'), 1: () => go('s12'), 3: NEXT.s14 });
-      return { hint: 'El cangrejo se mueve y sale su texto. <b>Arrastra hasta Lowest Tide.</b>' };
+      return { hint: 'The crab moves and its text appears. <b>Drag to Lowest Tide.</b>' + LOW_NOTE };
     },
     s15() {
       bg('bajamar');
       pic('cangrejo.png', 1785, 2361, 243, 162);
       pic('ave-vuela.png', -521, 856, 956, 713, 'glowing a-flyin');
-      hot(0, 960, 330, 420, 'Chorlito cangrejero: tócalo', NEXT.s15);
+      hot(0, 960, 330, 420, 'Crab plover: tap it', NEXT.s15);
       gauge('lowest');
       slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
-      return { hint: '<b>Toca el chorlito cangrejero</b> que entra por la izquierda.' };
+      return { hint: '<b>Tap the crab plover</b> flying in from the left.' };
     },
     s16() {
       bg('bajamar');
@@ -521,7 +530,7 @@ button.bub { cursor: pointer; }
       gauge('lowest');
       slider(3, {}, { locked: true });
       auto(NEXT.s16, T.s16);
-      return { hint: 'El ave caza un cangrejo; el slider queda bloqueado mientras está posada. <b>Pendiente:</b> el texto (lorem ipsum en el Figma). Sigue sola en ' + T.s16 / 1000 + ' s.' };
+      return { hint: 'The bird catches a crab; the slider is locked while it stands there. <b>Pending:</b> the text (lorem ipsum in Figma). Moves on by itself in ' + T.s16 / 1000 + ' s.' };
     },
     s17() {
       bg('bajamar');
@@ -529,15 +538,16 @@ button.bub { cursor: pointer; }
       gauge('lowest');
       slider(3, {}, { locked: true });
       auto(NEXT.s17, T.s17);
-      return { hint: 'El ave se va volando. Sigue sola en ' + T.s17 / 1000 + ' s.' };
+      return { hint: 'The bird flies away. Moves on by itself in ' + T.s17 / 1000 + ' s.' };
     },
     s18() {
       bg('bajamar', true);
       gauge('lowest');
-      const t = add(mk('div', 'abs closing', TX.closing)); size(t, BX.closing[2]); at(t, BX.closing[0], BX.closing[1]); anim(t, 'a-fade');
-      const b = add(mk('button', 'abs dbtn', 'Restart')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
+      // The text is longer than the Figma placeholder: it keeps the placeholder's lower edge, so the gap above the button is the same.
+      const t = add(mk('div', 'abs closing', TX.closing)); size(t, BX.closing[2]); at(t, BX.closing[0], BX.closing[1] + BX.closing[3] - t.offsetHeight); anim(t, 'a-fade');
+      const b = add(mk('button', 'abs dbtn', 'Play again')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
       on(b, toIdle);
-      return { hint: 'Cierre. <b>Pendiente:</b> la película automática de la marea (no está en el prototipo de Figma) y el texto final, que decide contenido. <b>Restart</b> vuelve al reposo.' };
+      return { hint: 'Final film and prompt. <b>Pending:</b> the automatic tide film (not in the Figma prototype). <b>Play again</b> goes back to the attract screen (as Restart in Figma).' };
     }
   };
 
@@ -545,7 +555,7 @@ button.bub { cursor: pointer; }
   const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab });
   const load = s => { S = { ...s }; };
   let current = { tap: null };
-  function showHint() { hint.innerHTML = (paused ? '<b>En pausa</b> (usa Atrás / Adelante o toca la pantalla para seguir). ' : '') + (current.hint || ''); }
+  function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (use Back / Next or tap the screen to continue). ' : '') + (current.hint || ''); }
   function render() {
     clearTimers();
     scene.replaceChildren();
