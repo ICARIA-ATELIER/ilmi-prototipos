@@ -77,8 +77,6 @@ button.bub { cursor: pointer; }
 .staff { position: absolute; background: #616161; }
 .pole { position: absolute; width: 7px; background: #616161; }
 .gm { position: absolute; font-weight: 700; font-size: 82px; line-height: 98px; color: #616161; white-space: nowrap; }
-/* Red = Claude's proposal, still to be confirmed by Montse. */
-.gm.prop { color: #e00000; }
 
 /* Tide slider: High → Falling → Low → Lowest. Drag the point or tap a stage. */
 .slider { width: 1864px; height: 324px; border-radius: 162px; background: #3e3e3e; box-shadow: 0 16px 30px rgba(0,0,0,.22); touch-action: none; cursor: grab; }
@@ -119,12 +117,12 @@ button.bub { cursor: pointer; }
 .a-walk { animation: walk 1s ease-out both; }
 .a-flyin { animation: flyin 1.3s cubic-bezier(.2,.8,.3,1) both; }
 .a-flyout { animation: flyout 1.6s ease-in both; }
-/* What to tap next: a steady white glow, no blinking and no colour (Montse: black and white only, 20/11). */
+/* What to tap next: the steady blue focus of the gallery (#39B8D8), no blinking (Montse, 20/11). Bubbles themselves stay black and white. */
 .call::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(255,255,255,.95); }
+  box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(57,184,216,.85); }
 .xbtn.call::after { --glow-blur: 50px; --glow-spread: 14px; }
 .slider .dot.call { --glow-blur: 40px; --glow-spread: 18px; background: #ffffff; }
-.glowing { filter: drop-shadow(0 0 20px rgba(255,255,255,1)) drop-shadow(0 0 55px rgba(255,255,255,.9)); }
+.glowing { filter: drop-shadow(0 0 22px rgba(57,184,216,.95)) drop-shadow(0 0 60px rgba(57,184,216,.7)); }
 @media (prefers-reduced-motion: reduce) { .stage *, .stage { animation: none !important; transition: none !important; } }
 </style>
 
@@ -137,7 +135,7 @@ button.bub { cursor: pointer; }
       <span class="ctl"><label for="mode">Idle</label>
       <select id="mode">
         <option value="happy">As in Figma (happy path only)</option>
-        <option value="unhappy">With unhappy I2–I7 (provisional times)</option>
+        <option value="unhappy">With unhappy U2–U6 (provisional times)</option>
       </select></span>
       <span class="ctl"><label for="jump">Go to</label>
       <select id="jump">
@@ -180,14 +178,14 @@ button.bub { cursor: pointer; }
   const ORDER = ['s1', 's2', 's3', 's4', 's5', 's6', 's7a', 's7b', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17', 's18'];
 
   // Timings (ms). The first seven are the AFTER_TIMEOUT values of the Figma prototype (05/11), all provisional.
-  // The rest only apply with "unhappy I2–I7" on; their values are still to be decided (Figma notes I1–I7).
+  // The rest only apply with "unhappy U2–U6" on; their values are still to be decided (Figma notes; U2 «card left open» was removed on 20/11).
   // s5: the two bubbles move on by themselves (Montse, 20/11; 6 s provisional).
   // s9: gauge → bubble 1 → bubble 2 → slider (Montse, 20/11); the three steps are provisional.
   // s14 / s16: the second bubble comes after the first (Montse, 20/11); s16 now waits 9 s so both can be read (Figma: 4 s). Provisional.
   const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s14b2: 3000, s16b2: 3000, s16: 9000,
               // s17: after the bird leaves, at least 10 s to touch the slider before the final reflection (Montse, 20/11).
               s17: 10000,
-              glowX: 6000, cardIdle: 30000, staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
+              staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
 
   // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
   const STOPS = [365, 842, 1320, 1797], NAMES = ['High Tide', 'Falling Tide', 'Low Tide', 'Lowest Tide'];
@@ -269,14 +267,14 @@ button.bub { cursor: pointer; }
   }
   // Tide staff. high: top of the water (screens 9–10); low: screens 11–14; lowest: screens 15–18 (as drawn in Figma).
   // Readings (Montse, 20/11): 1.5 m at High Tide (top of the staff), 1 m at Falling Tide. Low Tide 0.5 m = proposal (red).
-  function gauge(kind, cls, val, prop) {
+  function gauge(kind, cls, val) {
     const g = add(mk('div', 'abs')); at(g, 0, 0);
     const put = (c, x, y, w, h, html) => { const e = mk('div', c, html); g.appendChild(size(at(e, x, y), w, h)); return e; };
     if (kind === 'high') {
       put('pole', 101, 2232, null, H - 2232); put('staff', 61, 1999, 87, 233);
       const t = put('gm', 0, 1962, null, null, '1.5 m'); t.style.left = Math.round(245 - t.offsetWidth / 2) + 'px';
     } else if (kind === 'low') {
-      put('pole', 97, 3305, null, H - 3305); put('staff', 57, 3166, 87, 139); const t = put('gm', 190, 3161, null, null, val); if (prop) t.classList.add('prop');
+      put('pole', 97, 3305, null, H - 3305); put('staff', 57, 3166, 87, 139); put('gm', 190, 3161, null, null, val);
     } else {
       const s = put('staff', 10, 3697, 87, 139); s.style.transformOrigin = '0 0'; s.style.transform = 'rotate(-40deg)';
     }
@@ -343,13 +341,7 @@ button.bub { cursor: pointer; }
   }
   function toIdle() { S.seed = false; S.crab = false; S.bird = false; go('s1'); }
 
-  // Unhappy I2: card left open. The X lights up, then the piece restarts if nobody touches it.
-  function cardIdle(c) {
-    if (!UNHAPPY()) return;
-    later(() => c.closeBtn.classList.add('call'), T.glowX);
-    auto(toIdle, T.glowX + T.cardIdle);
-  }
-  // Unhappy I5: no touch for T.idle on any screen but idle → back to idle.
+  // Unhappy U4: no touch for T.idle on any screen but idle → back to idle.
   let idleTimer = null;
   function armIdle() {
     clearTimeout(idleTimer); idleTimer = null;
@@ -357,7 +349,6 @@ button.bub { cursor: pointer; }
     idleTimer = setTimeout(() => { if (!paused) toIdle(); }, T.idle);
   }
   const uh = txt => UNHAPPY() ? ' <b>Unhappy:</b> ' + txt : '';
-  const LOW_NOTE = ' The gauge reads <b>0.5 m</b> in red: proposal, to be confirmed (Montse only fixed 1.5 m and 1 m).';
 
   // ---------- where each screen goes next (used by timers, taps, the slider and the forward button)
   const fall = () => S.seed ? 's12' : 's11';
@@ -436,7 +427,7 @@ button.bub { cursor: pointer; }
       bg('bajamar');
       bub(TX.a, BX.a, { cls: 'lit call', fn: NEXT.s4, label: TX.a + ' Tap to find out more.' });
       auto(() => go('s6'), T.s4);
-      return { hint: '<b>Tap the glowing bubble</b> to find out more. If nobody taps it, it moves on by itself in ' + T.s4 / 1000 + ' s (unhappy I1).' };
+      return { hint: '<b>Tap the glowing bubble</b> to find out more. If nobody taps it, it moves on by itself in ' + T.s4 / 1000 + ' s (unhappy U1).' };
     },
     s5() {
       // Montse, 20/11: two bubbles instead of the “Guess what?” card; no X, it moves on by itself.
@@ -462,9 +453,8 @@ button.bub { cursor: pointer; }
       bg('submarina');
       pic('pargo.png', 167, 2193, 303, 120);
       bub(TX.food, BX.food, { cls: 'dark', nowrap: true });
-      const c = card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b });
-      cardIdle(c);
-      return { hint: '<b>Tap the X</b> to close the card.' + uh('the X lights up after ' + T.glowX / 1000 + ' s and, if nobody taps in ' + T.cardIdle / 1000 + ' s more, it goes back to the attract screen (I2).') };
+      card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b });
+      return { hint: '<b>Tap the X</b> to close the card.' };
     },
     s8() {
       bg('submarina');
@@ -473,7 +463,7 @@ button.bub { cursor: pointer; }
       const b = mk('button', 'dbtn', TX.gaugeBtn); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
       at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
       if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
-      return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (I3).') };
+      return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (U2).') };
     },
     s9() {
       // Montse, 20/11: the gauge rises, then its two bubbles, then the slider (in Figma it is all on one screen).
@@ -491,7 +481,7 @@ button.bub { cursor: pointer; }
       gauge('high');
       slider(0, { 1: () => go(fall()) }, { callIdx: UNHAPPY() ? 1 : null });
       bub(TX.drag, BX.drag, { cls: 'tip', nowrap: true, anim: 'a-pop' });
-      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + uh('the Falling Tide point also lights up (I4).') };
+      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + uh('the Falling Tide point also lights up (U3).') };
     },
     s11() {
       bg('submarina');
@@ -501,7 +491,7 @@ button.bub { cursor: pointer; }
       hot(358, 994, 448, 679, 'Mangrove propagule: tap it to drop it', NEXT.s11);
       bub(TX.seed, BX.seed, { anim: 'a-rise', delay: 300 });
       if (UNHAPPY()) auto(NEXT.s11, T.seedAuto);
-      return { hint: 'Falling Tide: the gauge reads 1 m. <b>Tap the glowing propagule.</b> Until then the slider only goes back to High Tide.' + uh('after ' + T.seedAuto / 1000 + ' s the propagule drops into the water by itself (I6).') };
+      return { hint: 'Falling Tide: the gauge reads 1 m. <b>Tap the glowing propagule.</b> Until then the slider only goes back to High Tide.' + uh('after ' + T.seedAuto / 1000 + ' s the propagule drops into the water by itself (U5).') };
     },
     s12() {
       bg('alta');
@@ -517,10 +507,10 @@ button.bub { cursor: pointer; }
       seedling();
       pic('cangrejo.png', 1677, 2389, 243, 162, 'glowing a-fade');
       hot(1660, 2330, 300, 230, 'Crab: tap it', NEXT.s13);
-      gauge('low', null, '0.5 m', true);
+      gauge('low', null, '0.5 m');
       slider(2, { 0: () => go('s10'), 1: () => go('s12') });
       if (UNHAPPY()) auto(NEXT.s13, T.crabAuto);
-      return { hint: '<b>Tap the glowing crab.</b> Until then the slider stops at Low Tide.' + LOW_NOTE + uh('after ' + T.crabAuto / 1000 + ' s the crab text appears by itself (I7).') };
+      return { hint: '<b>Tap the glowing crab.</b> Until then the slider stops at Low Tide (gauge at 0.5 m).' + uh('after ' + T.crabAuto / 1000 + ' s the crab text appears by itself (U6).') };
     },
     s14() {
       bg('media');
@@ -528,9 +518,9 @@ button.bub { cursor: pointer; }
       pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
       bub(TX.crab1, BX.crab1, { anim: 'a-rise', delay: 300 });
       later(() => bub(TX.crab2, BX.crab2, { anim: 'a-rise' }), 300 + T.s14b2);
-      gauge('low', null, '0.5 m', true);
+      gauge('low', null, '0.5 m');
       slider(2, { 0: () => go('s10'), 1: () => go('s12'), 3: NEXT.s14 });
-      return { hint: 'The crab moves; its two bubbles appear one after the other. <b>Drag to Lowest Tide.</b>' + LOW_NOTE };
+      return { hint: 'The crab moves; its two bubbles appear one after the other. <b>Drag to Lowest Tide.</b>' };
     },
     s15() {
       bg('bajamar');
