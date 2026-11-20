@@ -637,8 +637,8 @@ button.bub { cursor: pointer; }
     clearTimers();
     scene.replaceChildren();
     current = SCREENS[S.screen]() || {};
-    // Restart tab on screens 2–17 (Figma); not during the final film or on the final prompt.
-    if (!['s1', 'sFilm', 's18'].includes(S.screen)) restartTab();
+    // Restart tab on screens 2–17 (Figma) and during the final film (Montse, 20/11); not on the final prompt.
+    if (!['s1', 's18'].includes(S.screen)) restartTab();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armIdle();
