@@ -49,7 +49,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .pic { display: block; object-fit: cover; pointer-events: none; }
 .hot { background: transparent; cursor: pointer; border-radius: 40px; }
 
-.bub { display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 34px 90px; text-align: center; text-wrap: balance; border-radius: 90px; background: linear-gradient(180deg, #e6e6e6, #d2d2d2); color: #222; font-weight: 700; font-size: 58px; line-height: 1.08; box-shadow: 0 16px 34px rgba(0,0,0,.16); }
+.bub { display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 34px 90px; text-align: center; text-wrap: balance; border-radius: 0 112px 112px 112px; background: linear-gradient(180deg, #e6e6e6, #d2d2d2); color: #222; font-weight: 700; font-size: 58px; line-height: 1.08; box-shadow: 0 16px 34px rgba(0,0,0,.16); }
 button.bub { cursor: pointer; }
 .bub.lit { background: linear-gradient(180deg, #f1fafc, #d8ecf2); }
 .bub.dark { padding: 30px 80px; border-radius: 74px 74px 74px 0; background: linear-gradient(100deg, #2d4f58, #4b8592 62%, #63a2b0); color: #eef4f5; font-weight: 600; font-size: 59px; box-shadow: inset 0 8px 12px rgba(255,255,255,.22), 0 14px 30px rgba(0,0,0,.24); }
@@ -150,7 +150,7 @@ button.bub { cursor: pointer; }
         <option value="s2">2 · Intro · Question</option>
         <option value="s3">3 · Intro · Breathing roots</option>
         <option value="s4">4 · Intro · Glowing bubble</option>
-        <option value="s5">5 · Intro · “Guess what?” card</option>
+        <option value="s5">5 · Intro · Roots and lenticels</option>
         <option value="s6">6 · Intro · The tide comes in</option>
         <option value="s7a">7a · High tide · Snapper (bubble)</option>
         <option value="s7b">7b · High tide · Snapper (card)</option>
@@ -185,7 +185,9 @@ button.bub { cursor: pointer; }
 
   // Timings (ms). The first seven are the AFTER_TIMEOUT values of the Figma prototype (05/11), all provisional.
   // The rest only apply with "unhappy I2–I7" on; their values are still to be decided (Figma notes I1–I7).
-  const T = { s2: 3000, s3: 3000, s4: 6000, s6: 3000, s9: 4000, s16: 4000, s17: 3000,
+  // s5: the two bubbles move on by themselves (Montse, 20/11; 6 s provisional).
+  // s9: gauge → bubble 1 → bubble 2 → slider (Montse, 20/11); the three steps are provisional.
+  const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s16: 4000, s17: 3000,
               glowX: 6000, cardIdle: 30000, staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
 
   // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
@@ -370,16 +372,22 @@ button.bub { cursor: pointer; }
 
   // ---------- texts (Figma v6, 05/11)
   const TX = {
-    q: 'Take a guess! Can roots hold their breath?',
-    a: 'Not exactly... but these help mangroves breathe when tides cover the ground!',
+    // Intro bubbles (Montse, 20/11).
+    q: 'Living where the sea rises and falls twice a day is not easy.',
+    a: 'Discover how mangroves do to survive.',
+    snorkel: 'Mangroves use snorkel-like roots to breathe.',
+    lenticels: 'Tiny pores or “lenticels” open at low tide and close when the water rises.',
+    gauge1: 'Look! This gauge helps scientists measure the tide.',
+    gauge2: 'In the Red Sea, tides are usually less than 1 metre and happen twice a day.',
     guessH: 'Guess What?',
     guess: 'Living where the sea rises and falls every day is not easy! Mangroves have developed special aerial roots that work like snorkels. When the tide is out, they take in air. When the tide comes in, they close up their pores to keep water out.',
     tideIn: 'The tide is coming in!',
     food: 'That means more food too!',
     foodCard: 'As the tide comes and goes, it brings nutrients, balances salt levels, and creates a healthy home for fish, crabs, and many other species.',
-    measure: 'Flooded roots shelter juvenile fish.<br>Do you want to measure the tide?',
+    measure: 'Flooded roots shelter juvenile fish.',
+    gaugeBtn: 'Check out the gauge.',
     drag: 'Drag to set the tide!',
-    seed: 'Mangrove seedlings drift with the tide, searching for a place to grow.<br>Where will they land?',
+    seed: 'Mangrove seedlings drift with the tide, searching for a place to grow.',
     crab: 'Low tide reveals a busy feeding ground. How many birds feed on the mudflat?',
     lorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing eli',
     // Final film and prompt (Montse, 20/11).
@@ -387,9 +395,10 @@ button.bub { cursor: pointer; }
   };
   // Boxes [x, y, w, h] in the 2160 × 3840 screen, from the Figma prototype.
   const BX = {
-    q: [390, 2205, 900, 204], a: [543, 2732, 900, 266], tideIn: [645, 2236, 690, 148], food: [391, 2045, 828, 148],
+    q: [390, 2143, 900, 266], a: [543, 2794, 900, 204], snorkel: [645, 1737, 900, 206], lenticels: [543, 2732, 900, 266],
+    gauge1: [360, 1906, 900, 206], gauge2: [360, 2152, 900, 268], tideIn: [645, 2236, 690, 148], food: [391, 2045, 828, 148],
     guess: [712, 1523, 738, 571], foodCard: [698, 1484, 738, 369], measure: [766, 1848, 740, 465],
-    drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 328], crab: [975, 2114, 900, 266], lorem: [540, 1669, 900, 204],
+    drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 266], crab: [975, 2114, 900, 266], lorem: [540, 1669, 900, 204],
     closing: [626, 1834, 910, 225]
   };
   // Faded seedling (the seed has taken root). Its PNGs already carry the 40 % opacity of the Figma layers.
@@ -411,27 +420,28 @@ button.bub { cursor: pointer; }
       bg('media');
       bub(TX.q, BX.q, { anim: 'a-rise' });
       auto(NEXT.s2, T.s2);
-      return { hint: 'Intro at mid tide: the question appears. Moves on by itself in ' + T.s2 / 1000 + ' s.' };
+      return { hint: 'Intro at mid tide: the first bubble appears. Moves on by itself in ' + T.s2 / 1000 + ' s.' };
     },
     s3() {
       bg('bajamar');
       bub(TX.q, BX.q);
       bub(TX.a, BX.a, { anim: 'a-rise' });
       auto(NEXT.s3, T.s3);
-      return { hint: 'The answer appears. It lights up in ' + T.s3 / 1000 + ' s.' };
+      return { hint: 'The second bubble appears. It lights up in ' + T.s3 / 1000 + ' s.' };
     },
     s4() {
       bg('bajamar');
       bub(TX.a, BX.a, { cls: 'lit call', fn: NEXT.s4, label: TX.a + ' Tap to find out more.' });
       auto(() => go('s6'), T.s4);
-      return { hint: '<b>Tap the glowing bubble</b> to open the card. If nobody taps it, it moves on without the card in ' + T.s4 / 1000 + ' s (unhappy I1).' };
+      return { hint: '<b>Tap the glowing bubble</b> to find out more. If nobody taps it, it moves on by itself in ' + T.s4 / 1000 + ' s (unhappy I1).' };
     },
     s5() {
+      // Montse, 20/11: two bubbles instead of the “Guess what?” card; no X, it moves on by itself.
       bg('bajamar');
-      bub(TX.a, BX.a);
-      const c = card('<h3>' + TX.guessH + '</h3><p>' + TX.guess + '</p>', BX.guess, { close: NEXT.s5 });
-      cardIdle(c);
-      return { hint: '<b>Tap the X</b> to close the card.' + uh('the X lights up after ' + T.glowX / 1000 + ' s and, if nobody taps in ' + T.cardIdle / 1000 + ' s more, it goes back to the attract screen (I2).') };
+      bub(TX.snorkel, BX.snorkel, { anim: 'a-rise' });
+      bub(TX.lenticels, BX.lenticels, { anim: 'a-rise', delay: 400 });
+      auto(NEXT.s5, T.s5);
+      return { hint: 'Two bubbles about the roots. Moves on by itself in ' + T.s5 / 1000 + ' s (provisional).' };
     },
     s6() {
       bg('media');
@@ -457,17 +467,21 @@ button.bub { cursor: pointer; }
       bg('submarina');
       pic('pargo.png', 246, 2313, 303, 120);
       const c = card('<p>' + TX.measure + '</p>', BX.measure, { cls: 'ask', bottom: true });
-      const b = mk('button', 'dbtn', 'Tide up!'); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
+      const b = mk('button', 'dbtn', TX.gaugeBtn); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
       at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
       if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
-      return { hint: '<b>Tap “Tide up!”</b> to measure the tide.' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (I3).') };
+      return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (I3).') };
     },
     s9() {
+      // Montse, 20/11: the gauge rises, then its two bubbles, then the slider (in Figma it is all on one screen).
       bg('submarina');
       gauge('high', 'a-deploy');
-      anim(slider(0, { 1: () => go(fall()) }), 'a-deploy', 150);
-      auto(NEXT.s9, T.s9);
-      return { hint: 'The tide gauge (1.5 m, its top) and the slider open at High Tide. <b>Drag the point</b> or tap “Falling Tide”. The hint appears after ' + T.s9 / 1000 + ' s.' };
+      const t1 = T.s9b1, t2 = t1 + T.s9b2, t3 = t2 + T.s9slider;
+      later(() => bub(TX.gauge1, BX.gauge1, { anim: 'a-rise' }), t1);
+      later(() => bub(TX.gauge2, BX.gauge2, { anim: 'a-rise' }), t2);
+      later(() => anim(slider(0, { 1: () => go(fall()) }), 'a-deploy'), t3);
+      auto(NEXT.s9, t3 + T.s9);
+      return { hint: 'The tide gauge rises (1.5 m, its top), then its two bubbles one after the other, and then the slider at High Tide. <b>Drag the point</b> or tap “Falling Tide”. The hint appears ' + T.s9 / 1000 + ' s after the slider. Times provisional.' };
     },
     s10() {
       bg('submarina');
