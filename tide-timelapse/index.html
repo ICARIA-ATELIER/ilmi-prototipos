@@ -184,7 +184,9 @@ button.bub { cursor: pointer; }
   // s5: the two bubbles move on by themselves (Montse, 20/11; 6 s provisional).
   // s9: gauge → bubble 1 → bubble 2 → slider (Montse, 20/11); the three steps are provisional.
   // s14 / s16: the second bubble comes after the first (Montse, 20/11); s16 now waits 9 s so both can be read (Figma: 4 s). Provisional.
-  const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s14b2: 2500, s16b2: 3000, s16: 9000, s17: 3000,
+  const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s14b2: 3000, s16b2: 3000, s16: 9000,
+              // s17: after the bird leaves, at least 10 s to touch the slider before the final reflection (Montse, 20/11).
+              s17: 10000,
               glowX: 6000, cardIdle: 30000, staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
 
   // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
@@ -192,7 +194,7 @@ button.bub { cursor: pointer; }
   const SL = { x: 149, y: 2550 };
 
   // seed / crab: already seen. Going back on the slider counts them as done (Montse, 03/11).
-  let S = { screen: 's1', seed: false, crab: false };
+  let S = { screen: 's1', seed: false, crab: false, bird: false };
   let MODE = 'happy';
   try { MODE = localStorage.getItem('tt-mode') === 'unhappy' ? 'unhappy' : 'happy'; } catch (e) {}
   const UNHAPPY = () => MODE === 'unhappy';
@@ -339,7 +341,7 @@ button.bub { cursor: pointer; }
     on(b, toIdle);
     return b;
   }
-  function toIdle() { S.seed = false; S.crab = false; go('s1'); }
+  function toIdle() { S.seed = false; S.crab = false; S.bird = false; go('s1'); }
 
   // Unhappy I2: card left open. The X lights up, then the piece restarts if nobody touches it.
   function cardIdle(c) {
@@ -360,10 +362,12 @@ button.bub { cursor: pointer; }
   // ---------- where each screen goes next (used by timers, taps, the slider and the forward button)
   const fall = () => S.seed ? 's12' : 's11';
   const low = () => S.crab ? 's14' : 's13';
+  // Once the bird has caught its crab, Lowest Tide is the free slider before the final reflection.
+  const lowest = () => S.bird ? 's17' : 's15';
   const NEXT = {
     s1: () => go('s2'), s2: () => go('s3'), s3: () => go('s4'), s4: () => go('s5'), s5: () => go('s6'),
     s6: () => go('s7a'), s7a: () => go('s7b'), s7b: () => go('s8'), s8: () => go('s9'), s9: () => go('s10'),
-    s10: () => go(fall()), s11: () => go('s12'), s12: () => go(low()), s13: () => go('s14'), s14: () => go('s15'),
+    s10: () => go(fall()), s11: () => go('s12'), s12: () => go(low()), s13: () => go('s14'), s14: () => go(lowest()),
     s15: () => go('s16'), s16: () => go('s17'), s17: () => go('s18'), s18: toIdle
   };
 
@@ -549,11 +553,12 @@ button.bub { cursor: pointer; }
     },
     s17() {
       bg('bajamar');
-      pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
+      // The bird only flies away when coming from screen 16; coming back on the slider it is already gone.
+      if (past.length && past[past.length - 1].screen === 's16') pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
       gauge('lowest');
-      slider(3, {}, { locked: true });
+      slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
       auto(NEXT.s17, T.s17);
-      return { hint: 'The bird flies away. Moves on by itself in ' + T.s17 / 1000 + ' s.' };
+      return { hint: 'The bird flies away and the slider is free again: the visitor has ' + T.s17 / 1000 + ' s to move it before the final reflection (Montse: at least 10 s). Seed, crab and bird count as seen.' };
     },
     s18() {
       bg('bajamar', true);
@@ -567,7 +572,7 @@ button.bub { cursor: pointer; }
   };
 
   // ---------- navigation
-  const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab });
+  const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab, bird: S.bird });
   const load = s => { S = { ...s }; };
   let current = { tap: null };
   function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (use Back / Next or tap the screen to continue). ' : '') + (current.hint || ''); }
@@ -588,6 +593,7 @@ button.bub { cursor: pointer; }
     S.screen = screen;
     if (screen === 's12') S.seed = true;
     if (screen === 's14') S.crab = true;
+    if (screen === 's16') S.bird = true;
     render();
   }
   function back() { if (!past.length) return; paused = true; future.push(cur); load(past.pop()); render(); }
@@ -596,7 +602,7 @@ button.bub { cursor: pointer; }
     if (future.length) { past.push(cur); load(future.pop()); render(); }
     else NEXT[S.screen]();
   }
-  function reset() { S = { screen: 's1', seed: false, crab: false }; past = []; future = []; cur = null; paused = false; render(); }
+  function reset() { S = { screen: 's1', seed: false, crab: false, bird: false }; past = []; future = []; cur = null; paused = false; render(); }
 
   // Any touch restarts the inactivity countdown.
   stage.addEventListener('pointerdown', armIdle);
@@ -628,7 +634,7 @@ button.bub { cursor: pointer; }
     if (!v) return;
     paused = false;
     const i = ORDER.indexOf(v);
-    S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14');
+    S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14'); S.bird = i >= ORDER.indexOf('s16');
     go(v);
   });
 
