@@ -203,7 +203,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           mask-image: radial-gradient(circle 560px at var(--cx) var(--cy), transparent 55%, #000 100%); }
 .fxwrap.fast .cam.walk { animation-duration: 4.5s; animation-delay: .1s; }
 .fx .tide { stroke: rgba(30,30,30,.32); stroke-width: 7; stroke-dasharray: 34 70; animation: tide 2s linear infinite; }
-@keyframes tide { to { stroke-dashoffset: -208; } }
+@keyframes tide { to { stroke-dashoffset: 208; } }   /* 20/11 (Montse): the current ran the wrong way; now it flows from the culvert out to the right */
 .fx .ripple { fill: none; stroke: rgba(30,30,30,.4); stroke-width: 5; transform-box: fill-box; transform-origin: center; animation: ripple 2.1s ease-out infinite; }
 @keyframes ripple { from { transform: scale(.3); opacity: .9; } to { transform: scale(1.6); opacity: 0; } }
 /* 18/11 · Nueva interactividad (Figma v6, «Puzzle · 02»): the square corner of each name points to its zone. */
@@ -782,8 +782,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
       else if (walk) { c.classList.add('walk'); c.querySelector('img').style.animationDelay = { c2: '0s', c3: '-.27s', c7: '-.53s' }[k]; }
     }
   }
-  // Blocked Tide: the water comes from the right towards the small culvert under the road and piles up against it
-  // (currents running to the culvert, ripples at its mouth). Points read off the drawing.
+  // Blocked Tide: currents along the channel by the small culvert under the road, ripples at its mouth. Points read off
+  // the drawing, from the right end to the culvert. 20/11 (Montse: «la corriente va al contrario»): the dashes now run
+  // the other way, from the culvert out to the right (keyframes `tide`).
   const TIDE = [
     [[2974, 2079], [2871, 2051], [2790, 2021], [2721, 1998], [2664, 1980]],
     [[2974, 2136], [2871, 2101], [2779, 2062], [2711, 2023], [2669, 1998]]
