@@ -120,7 +120,9 @@ button.bub { cursor: pointer; }
 /* What to tap next: the steady blue focus of the gallery (#39B8D8), no blinking (Montse, 20/11). Bubbles themselves stay black and white. */
 .call::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
   box-shadow: 0 0 var(--glow-blur, 90px) var(--glow-spread, 30px) rgba(57,184,216,.85); }
-.xbtn.call::after { --glow-blur: 50px; --glow-spread: 14px; }
+.xbtn.call::after, .dbtn.call::after { --glow-blur: 50px; --glow-spread: 14px; }
+/* The button inside a card needs its own box for the glow (the one on the final screen is already absolute). */
+.card .dbtn { position: relative; }
 .slider .dot.call { --glow-blur: 40px; --glow-spread: 18px; background: #ffffff; }
 .glowing { filter: drop-shadow(0 0 22px rgba(57,184,216,.95)) drop-shadow(0 0 60px rgba(57,184,216,.7)); }
 @media (prefers-reduced-motion: reduce) { .stage *, .stage { animation: none !important; transition: none !important; } }
@@ -453,14 +455,14 @@ button.bub { cursor: pointer; }
       bg('submarina');
       pic('pargo.png', 167, 2193, 303, 120);
       bub(TX.food, BX.food, { cls: 'dark', nowrap: true });
-      card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b });
+      card('<p>' + TX.foodCard + '</p>', BX.foodCard, { cls: 'mid', close: NEXT.s7b }).closeBtn.classList.add('call');
       return { hint: '<b>Tap the X</b> to close the card.' };
     },
     s8() {
       bg('submarina');
       pic('pargo.png', 246, 2313, 303, 120);
       const c = card('<p>' + TX.measure + '</p>', BX.measure, { cls: 'ask', bottom: true });
-      const b = mk('button', 'dbtn', TX.gaugeBtn); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
+      const b = mk('button', 'dbtn call', TX.gaugeBtn); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
       at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
       if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
       return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (U2).') };
@@ -555,7 +557,7 @@ button.bub { cursor: pointer; }
       gauge('lowest');
       // The text is longer than the Figma placeholder: it keeps the placeholder's lower edge, so the gap above the button is the same.
       const t = add(mk('div', 'abs closing', TX.closing)); size(t, BX.closing[2]); at(t, BX.closing[0], BX.closing[1] + BX.closing[3] - t.offsetHeight); anim(t, 'a-fade');
-      const b = add(mk('button', 'abs dbtn', 'Play again')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
+      const b = add(mk('button', 'abs dbtn call', 'Play again')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
       on(b, toIdle);
       return { hint: 'Final film and prompt. <b>Pending:</b> the automatic tide film (not in the Figma prototype). <b>Play again</b> goes back to the attract screen (as Restart in Figma).' };
     }
