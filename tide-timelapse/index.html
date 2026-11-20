@@ -187,7 +187,8 @@ button.bub { cursor: pointer; }
   // The rest only apply with "unhappy I2–I7" on; their values are still to be decided (Figma notes I1–I7).
   // s5: the two bubbles move on by themselves (Montse, 20/11; 6 s provisional).
   // s9: gauge → bubble 1 → bubble 2 → slider (Montse, 20/11); the three steps are provisional.
-  const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s16: 4000, s17: 3000,
+  // s14 / s16: the second bubble comes after the first (Montse, 20/11); s16 now waits 9 s so both can be read (Figma: 4 s). Provisional.
+  const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s14b2: 2500, s16b2: 3000, s16: 9000, s17: 3000,
               glowX: 6000, cardIdle: 30000, staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
 
   // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
@@ -388,8 +389,10 @@ button.bub { cursor: pointer; }
     gaugeBtn: 'Check out the gauge.',
     drag: 'Drag to set the tide!',
     seed: 'Mangrove seedlings drift with the tide, searching for a place to grow.',
-    crab: 'Low tide reveals a busy feeding ground. How many birds feed on the mudflat?',
-    lorem: 'Lorem ipsum dolor sit amet, consectetur adipiscing eli',
+    crab1: 'Crabs are nature\'s recyclers!',
+    crab2: 'At low tide, they pop out to feed on leaves and algae, returning nutrients to the mud.',
+    bird1: 'Low tide reveals a feast beneath the water.',
+    bird2: 'Migratory and resident birds hunt for crabs and other animals in the exposed mud.',
     // Final film and prompt (Montse, 20/11).
     closing: '<span>What can the tide tell us?</span><span>Scientists use tide measurements to understand and help restore mangrove forests.</span>'
   };
@@ -398,7 +401,7 @@ button.bub { cursor: pointer; }
     q: [390, 2143, 900, 266], a: [543, 2794, 900, 204], snorkel: [645, 1737, 900, 206], lenticels: [543, 2732, 900, 266],
     gauge1: [360, 1906, 900, 206], gauge2: [360, 2152, 900, 268], tideIn: [645, 2236, 690, 148], food: [391, 2045, 828, 148],
     guess: [712, 1523, 738, 571], foodCard: [698, 1484, 738, 369], measure: [766, 1848, 740, 465],
-    drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 266], crab: [975, 2114, 900, 266], lorem: [540, 1669, 900, 204],
+    drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 266], crab1: [975, 1930, 900, 144], crab2: [975, 2114, 900, 328], bird1: [540, 1361, 900, 206], bird2: [540, 1607, 900, 266],
     closing: [626, 1834, 910, 225]
   };
   // Faded seedling (the seed has taken root). Its PNGs already carry the 40 % opacity of the Figma layers.
@@ -523,10 +526,11 @@ button.bub { cursor: pointer; }
       bg('media');
       seedling();
       pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
-      bub(TX.crab, BX.crab, { anim: 'a-rise', delay: 300 });
+      bub(TX.crab1, BX.crab1, { anim: 'a-rise', delay: 300 });
+      later(() => bub(TX.crab2, BX.crab2, { anim: 'a-rise' }), 300 + T.s14b2);
       gauge('low', null, '0.5 m', true);
       slider(2, { 0: () => go('s10'), 1: () => go('s12'), 3: NEXT.s14 });
-      return { hint: 'The crab moves and its text appears. <b>Drag to Lowest Tide.</b>' + LOW_NOTE };
+      return { hint: 'The crab moves; its two bubbles appear one after the other. <b>Drag to Lowest Tide.</b>' + LOW_NOTE };
     },
     s15() {
       bg('bajamar');
@@ -540,11 +544,12 @@ button.bub { cursor: pointer; }
     s16() {
       bg('bajamar');
       pic('ave-caza.png', 874, 1873, 979, 730, 'a-fade');
-      bub(TX.lorem, BX.lorem, { anim: 'a-rise', delay: 300 });
+      bub(TX.bird1, BX.bird1, { anim: 'a-rise', delay: 300 });
+      later(() => bub(TX.bird2, BX.bird2, { anim: 'a-rise' }), 300 + T.s16b2);
       gauge('lowest');
       slider(3, {}, { locked: true });
       auto(NEXT.s16, T.s16);
-      return { hint: 'The bird catches a crab; the slider is locked while it stands there. <b>Pending:</b> the text (lorem ipsum in Figma). Moves on by itself in ' + T.s16 / 1000 + ' s.' };
+      return { hint: 'The bird catches a crab and its two bubbles appear one after the other; the slider is locked while it stands there. Moves on by itself in ' + T.s16 / 1000 + ' s (provisional).' };
     },
     s17() {
       bg('bajamar');
