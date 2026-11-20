@@ -95,6 +95,9 @@ button.bub { cursor: pointer; }
 .slider .knob { position: absolute; top: 152px; width: 112px; height: 112px; margin-left: -56px; border-radius: 50%; background: rgba(232,232,232,.2); pointer-events: none; }
 .slider .knob::after { content: ""; position: absolute; inset: 20px; border-radius: 50%; background: #e8e8e8; box-shadow: 0 2px 6px rgba(0,0,0,.35); }
 .slider.snap .knob, .slider.snap .fill { transition: left .25s ease, width .25s ease; }
+/* Final film: the slider follows the water on its own, slowly. */
+.slider.film .knob, .slider.film .fill { transition: left 1.2s ease-in-out, width 1.2s ease-in-out; }
+.slider.film .lab, .slider.film .dot { transition: top .6s ease, font-size .6s ease, line-height .6s ease, color .6s ease, background-color .6s ease; }
 
 /* Restart: tab on the left edge, on screens 2–17 (Figma). */
 .rs { left: 0; top: 2477px; width: 167px; height: 123px; box-sizing: border-box; border-radius: 0 50px 50px 0; background: linear-gradient(180deg, #666, #505050); color: #ffffff; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; font-weight: 700; font-size: 28px; line-height: 1; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,.25); }
@@ -162,7 +165,8 @@ button.bub { cursor: pointer; }
         <option value="s15">15 · Lowest Tide · Crab plover</option>
         <option value="s16">16 · Lowest Tide · The bird catches a crab</option>
         <option value="s17">17 · Lowest Tide · The bird flies away</option>
-        <option value="s18">18 · Final film and prompt</option>
+        <option value="sFilm">17b · Final film (automatic)</option>
+        <option value="s18">18 · Final prompt</option>
       </select></span>
       <button id="restart" type="button">Reset</button>
     </div>
@@ -179,7 +183,7 @@ button.bub { cursor: pointer; }
   const backBtn = document.getElementById('back'), fwdBtn = document.getElementById('fwd');
   const REDO = '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M12.5 15.5A15 15 0 1 1 9 26" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round"/><path d="M11 6.5v10h10" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   const XSVG = '<svg viewBox="0 0 56 56" aria-hidden="true"><path d="M14 14l28 28M42 14L14 42" stroke="#fff" stroke-width="7" stroke-linecap="round"/></svg>';
-  const ORDER = ['s1', 's2', 's3', 's4', 's5', 's6', 's7a', 's7b', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17', 's18'];
+  const ORDER = ['s1', 's2', 's3', 's4', 's5', 's6', 's7a', 's7b', 's8', 's9', 's10', 's11', 's12', 's13', 's14', 's15', 's16', 's17', 'sFilm', 's18'];
 
   // Timings (ms). The first seven are the AFTER_TIMEOUT values of the Figma prototype (05/11), all provisional.
   // The rest only apply with "unhappy U2–U6" on; their values are still to be decided (Figma notes; U2 «card left open» was removed on 20/11).
@@ -189,6 +193,8 @@ button.bub { cursor: pointer; }
   const T = { s2: 3000, s3: 3000, s4: 6000, s5: 6000, s6: 3000, s9: 4000, s9b1: 900, s9b2: 3000, s9slider: 4500, s14b2: 3000, s16b2: 3000, s16: 9000,
               // s17: after the bird leaves, at least 10 s to touch the slider before the final reflection (Montse, 20/11).
               s17: 10000,
+              // Final film (Montse, 20/11): it starts once nobody has touched the slider for 4 s; each tide stage of the simulated film lasts filmStep (provisional).
+              filmIdle: 4000, filmStep: 1600,
               staffAuto: 8000, seedAuto: 8000, crabAuto: 8000, idle: 60000 };
 
   // Slider: x of each stage in the 2160 × 3840 screen and its label (Figma, screens 9–17).
@@ -363,7 +369,7 @@ button.bub { cursor: pointer; }
     s1: () => go('s2'), s2: () => go('s3'), s3: () => go('s4'), s4: () => go('s5'), s5: () => go('s6'),
     s6: () => go('s7a'), s7a: () => go('s7b'), s7b: () => go('s8'), s8: () => go('s9'), s9: () => go('s10'),
     s10: () => go(fall()), s11: () => go('s12'), s12: () => go(low()), s13: () => go('s14'), s14: () => go(lowest()),
-    s15: () => go('s16'), s16: () => go('s17'), s17: () => go('s18'), s18: toIdle
+    s15: () => go('s16'), s16: () => go('s17'), s17: () => go('sFilm'), sFilm: () => go('s18'), s18: toIdle
   };
 
   // ---------- texts (Figma v6, 05/11)
@@ -563,8 +569,37 @@ button.bub { cursor: pointer; }
       if (past.length && past[past.length - 1].screen === 's16') pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
       gauge('lowest');
       slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
-      auto(NEXT.s17, T.s17);
-      return { hint: 'The bird flies away and the slider is free again: the visitor has ' + T.s17 / 1000 + ' s to move it before the final reflection (Montse: at least 10 s). Seed, crab and bird count as seen.' + CARRIED };
+      // At least T.s17 with the slider free; then, as soon as nobody has touched it for T.filmIdle, the final film starts.
+      const start = Date.now(); lastTouch = start;
+      const tick = () => {
+        if (!paused && Date.now() - start >= T.s17 && Date.now() - lastTouch >= T.filmIdle) NEXT.s17(); else later(tick, 250);
+      };
+      later(tick, 250);
+      return { hint: 'The bird flies away and the slider is free again for at least ' + T.s17 / 1000 + ' s. After that, once nobody has touched it for ' + T.filmIdle / 1000 + ' s, the final film starts. Seed, crab and bird count as seen.' + CARRIED };
+    },
+    sFilm() {
+      // Simulated final film (placeholder for the 3D film): the tide rises from Lowest to High and falls back,
+      // with the slider, the tide gauge and the propagule following the water.
+      bg('bajamar');
+      drift(3);
+      const sl = slider(3, {}, { locked: true });
+      sl.classList.add('film');
+      const READ = { 0: ['high', '1.5 m'], 1: ['low', '1 m'], 2: ['low', '0.5 m'], 3: ['lowest', null] };
+      let g = gauge('lowest');
+      const SEQ = [[2, 'media'], [1, 'alta'], [0, 'submarina'], [1, 'alta'], [2, 'media'], [3, 'bajamar']];
+      const setStage = i => {
+        const rel = k => STOPS[k] - SL.x;
+        sl.querySelector('.knob').style.left = rel(i) + 'px';
+        sl.querySelector('.fill').style.width = (rel(i) - rel(0)) + 'px';
+        sl.querySelectorAll('.dot').forEach((d, k) => d.classList.toggle('on', k <= i));
+        sl.querySelectorAll('.lab').forEach((l, k) => { l.classList.toggle('cur', k === i); l.classList.toggle('on', k < i); });
+        g.remove(); g = gauge(READ[i][0], 'a-fade', READ[i][1]);
+        const w = scene.querySelector('.drift'); if (w) at(w, SEED[i][0], SEED[i][1]);
+        S.seedAt = i;
+      };
+      SEQ.forEach(([i, b], k) => later(() => { bg(b); setStage(i); }, (k + 1) * T.filmStep));
+      auto(NEXT.sFilm, (SEQ.length + 1) * T.filmStep);
+      return { hint: 'Final film (simulated): the tide rises from Lowest to High Tide and falls back again; then the final reflection appears. Placeholder for the 3D film; times provisional.' };
     },
     s18() {
       bg('bajamar', true);
@@ -573,7 +608,7 @@ button.bub { cursor: pointer; }
       const t = add(mk('div', 'abs closing', TX.closing)); size(t, BX.closing[2]); at(t, BX.closing[0], BX.closing[1] + BX.closing[3] - t.offsetHeight); anim(t, 'a-fade');
       const b = add(mk('button', 'abs dbtn call', 'Play again')); b.type = 'button'; size(at(b, 885, 2148), 388); anim(b, 'a-fade', 300);
       on(b, toIdle);
-      return { hint: 'Final film and prompt. <b>Pending:</b> the automatic tide film (not in the Figma prototype). <b>Play again</b> goes back to the attract screen (as Restart in Figma).' };
+      return { hint: 'Final prompt, after the final film. <b>Play again</b> goes back to the attract screen (as Restart in Figma).' };
     }
   };
 
@@ -586,7 +621,8 @@ button.bub { cursor: pointer; }
     clearTimers();
     scene.replaceChildren();
     current = SCREENS[S.screen]() || {};
-    if (!['s1', 's18'].includes(S.screen)) restartTab();
+    // Restart tab on screens 2–17 (Figma); not during the final film or on the final prompt.
+    if (!['s1', 'sFilm', 's18'].includes(S.screen)) restartTab();
     stage.classList.toggle('tap', !!current.tap);
     showHint();
     armIdle();
@@ -611,7 +647,9 @@ button.bub { cursor: pointer; }
   function reset() { S = { screen: 's1', seed: false, crab: false, bird: false, seedAt: null }; past = []; future = []; cur = null; paused = false; render(); }
 
   // Any touch restarts the inactivity countdown.
-  stage.addEventListener('pointerdown', armIdle);
+  // Last touch on the exhibit screen (screen 17 waits for 4 s without one before the film).
+  let lastTouch = Date.now();
+  stage.addEventListener('pointerdown', () => { lastTouch = Date.now(); armIdle(); });
   stage.addEventListener('click', () => {
     const was = paused; paused = false;
     if (current.tap) current.tap();
@@ -641,7 +679,7 @@ button.bub { cursor: pointer; }
     paused = false;
     const i = ORDER.indexOf(v);
     S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14'); S.bird = i >= ORDER.indexOf('s16');
-    S.seedAt = { s13: 2, s14: 2, s15: 3, s16: 3, s17: 3 }[v] ?? null;
+    S.seedAt = { s13: 2, s14: 2, s15: 3, s16: 3, s17: 3, sFilm: 3 }[v] ?? null;
     go(v);
   });
 
