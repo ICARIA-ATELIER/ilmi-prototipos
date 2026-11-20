@@ -863,8 +863,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 
   const closingText = () => {
     glow(1919, 1020, 1900, 1250);
-    const t = add(mk('div', 'abs big', 'Finding the problem is the first step to helping nature recover.')); place(t, 1919, 800, false);
-    const s = add(mk('div', 'abs sub', 'What signs of change would you look for in a mangrove forest?')); at(s, 1919 - 750, t.offsetTop + t.offsetHeight + 60);
+    const t = add(mk('div', 'abs big', 'Recovery takes time and careful monitoring. Finding the problem is the first step.')); place(t, 1919, 800, false);
+    const s = add(mk('div', 'abs sub', 'What changes would you look for to know a mangrove forest is recovering?')); at(s, 1919 - 750, t.offsetTop + t.offsetHeight + 60);
     // 12/11: closing button is «Play again» (was «Start»), as in the Draft Text and Figma.
     const b = add(mk('button', 'abs btn call', 'Play again' + ARROW)); b.type = 'button'; place(b, 1919, s.offsetTop + s.offsetHeight + 180, false);
     on(b, () => NEXT.closing());
