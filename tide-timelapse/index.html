@@ -56,6 +56,8 @@ button.bub { cursor: pointer; }
 .bub.lit { background: linear-gradient(180deg, #ffffff, #ececec); }
 .bub.dark { padding: 30px 80px; border-radius: 74px 74px 74px 0; background: linear-gradient(180deg, #4b4b4b, #2e2e2e); color: #ffffff; font-weight: 600; font-size: 59px; box-shadow: inset 0 8px 12px rgba(255,255,255,.22), 0 14px 30px rgba(0,0,0,.24); }
 .bub.tip { padding: 30px 70px; border-radius: 84px; }
+/* Stages skipped (MB U8, Montse 20/11): grey pill under the slider, below the stage that still has something to see. */
+.bub.pend { padding: 26px 50px; border-radius: 60px; background: #8c8c8c; color: #ffffff; font-weight: 600; font-size: 50px; line-height: 1.15; box-shadow: 0 10px 24px rgba(0,0,0,.2); }
 .card { box-sizing: border-box; padding: 72px 75px 80px; border-radius: 70px 70px 70px 0; background: #d8d8d8; color: #262626; box-shadow: 0 16px 34px rgba(0,0,0,.18); }
 .card h3 { margin: 0 0 22px; font-weight: 700; font-size: 58px; line-height: 1.05; }
 .card p { margin: 0; font-weight: 600; font-size: 41px; line-height: 1.17; }
@@ -142,7 +144,7 @@ button.bub { cursor: pointer; }
       <span class="ctl"><label for="mode">Idle</label>
       <select id="mode">
         <option value="happy">As in Figma (happy path only)</option>
-        <option value="unhappy">With unhappy U2–U6 (provisional times)</option>
+        <option value="unhappy">With unhappy paths (provisional times)</option>
       </select></span>
       <span class="ctl"><label for="jump">Go to</label>
       <select id="jump">
@@ -165,6 +167,7 @@ button.bub { cursor: pointer; }
         <option value="s15">15 · Lowest Tide · Crab plover</option>
         <option value="s16">16 · Lowest Tide · The bird catches a crab</option>
         <option value="s17">17 · Lowest Tide · The bird flies away</option>
+        <option value="s17skip">17 · Unhappy: stage skipped (crab still to see)</option>
         <option value="sFilm">17b · Final film (automatic)</option>
         <option value="s18">18 · Final prompt</option>
       </select></span>
@@ -394,6 +397,9 @@ button.bub { cursor: pointer; }
     crab2: 'At low tide, they pop out to feed on leaves and algae, returning nutrients to the mud.',
     bird1: 'Low tide reveals a feast beneath the water.',
     bird2: 'Migratory and resident birds hunt for crabs and other animals in the exposed mud.',
+    // Stages skipped (MB U8, Montse 20/11): text under the stage that still has something to see.
+    pendSeed: 'Help this seedling find a new home!',
+    pendCrab: 'Someone’s hiding in the mud!',
     // Final film and prompt (Montse, 20/11).
     closing: '<span>What can the tide tell us?</span><span>Scientists use tide measurements to understand and help restore mangrove forests.</span>'
   };
@@ -482,7 +488,7 @@ button.bub { cursor: pointer; }
       const b = mk('button', 'dbtn call', TX.gaugeBtn); b.type = 'button'; c.appendChild(b); on(b, NEXT.s8);
       at(c, BX.measure[0], BX.measure[1] + BX.measure[3] - c.offsetHeight);
       if (UNHAPPY()) auto(NEXT.s8, T.staffAuto);
-      return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself (U2).') };
+      return { hint: '<b>Tap “Check out the gauge.”</b>' + uh('if nobody taps, after ' + T.staffAuto / 1000 + ' s the card closes and the tide gauge opens by itself.') };
     },
     s9() {
       // Montse, 20/11: the gauge rises, then its two bubbles, then the slider (in Figma it is all on one screen).
@@ -501,17 +507,18 @@ button.bub { cursor: pointer; }
       gauge('high');
       slider(0, { 1: () => go(fall()) }, { callIdx: UNHAPPY() ? 1 : null });
       bub(TX.drag, BX.drag, { cls: 'tip', nowrap: true, anim: 'a-pop' });
-      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + (S.seed ? CARRIED : '') + uh('the Falling Tide point also lights up (U3).') };
+      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + (S.seed ? CARRIED : '') + uh('the Falling Tide point also lights up.') };
     },
     s11() {
       bg('submarina');
       gauge('low', null, '1 m');
-      slider(1, { 0: () => go('s10') });
+      // Unhappy (stages skipped): the visitor can drag on to Low Tide without dropping the propagule.
+      slider(1, UNHAPPY() ? { 0: () => go('s10'), 2: () => go(low()) } : { 0: () => go('s10') });
       pic('propagulo.png', 358, 1001, 448, 672, 'glowing a-fade');
       hot(358, 994, 448, 679, 'Mangrove propagule: tap it to drop it', NEXT.s11);
       bub(TX.seed, BX.seed, { anim: 'a-rise', delay: 300 });
       if (UNHAPPY()) auto(NEXT.s11, T.seedAuto);
-      return { hint: 'Falling Tide: the gauge reads 1 m. <b>Tap the glowing propagule.</b> Until then the slider only goes back to High Tide.' + uh('after ' + T.seedAuto / 1000 + ' s the propagule drops into the water by itself (U5).') };
+      return { hint: 'Falling Tide: the gauge reads 1 m. <b>Tap the glowing propagule.</b> Until then the slider only goes back to High Tide.' + uh('after ' + T.seedAuto / 1000 + ' s the propagule drops into the water by itself; the visitor can also drag on to Low Tide without dropping it (stage skipped).') };
     },
     s12() {
       bg('alta');
@@ -523,37 +530,38 @@ button.bub { cursor: pointer; }
     },
     s13() {
       bg('media');
-      drift(2);
+      if (S.seed) drift(2);
       pic('cangrejo.png', 1677, 2389, 243, 162, 'glowing a-fade');
       hot(1660, 2330, 300, 230, 'Crab: tap it', NEXT.s13);
       gauge('low', null, '0.5 m');
-      slider(2, { 0: () => go('s10'), 1: () => go('s12') });
+      // Unhappy (stages skipped): the visitor can drag on to Lowest Tide without tapping the crab.
+      slider(2, Object.assign({ 0: () => go('s10'), 1: () => go(fall()) }, UNHAPPY() ? { 3: () => go(lowest()) } : {}));
       if (UNHAPPY()) auto(NEXT.s13, T.crabAuto);
-      return { hint: '<b>Tap the glowing crab.</b> Until then the slider stops at Low Tide (gauge at 0.5 m).' + uh('after ' + T.crabAuto / 1000 + ' s the crab text appears by itself (U6).') };
+      return { hint: '<b>Tap the glowing crab.</b> Until then the slider stops at Low Tide (gauge at 0.5 m).' + uh('after ' + T.crabAuto / 1000 + ' s the crab text appears by itself; the visitor can also drag on to Lowest Tide without tapping it (stage skipped).') };
     },
     s14() {
       bg('media');
-      drift(2);
+      if (S.seed) drift(2);
       pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
       bub(TX.crab1, BX.crab1, { anim: 'a-rise', delay: 300 });
       later(() => bub(TX.crab2, BX.crab2, { anim: 'a-rise' }), 300 + T.s14b2);
       gauge('low', null, '0.5 m');
-      slider(2, { 0: () => go('s10'), 1: () => go('s12'), 3: NEXT.s14 });
+      slider(2, { 0: () => go('s10'), 1: () => go(fall()), 3: NEXT.s14 });
       return { hint: 'The crab moves; its two bubbles appear one after the other. <b>Drag to Lowest Tide.</b>' };
     },
     s15() {
       bg('bajamar');
-      drift(3);
-      pic('cangrejo.png', 1785, 2361, 243, 162);
+      if (S.seed) drift(3);
+      if (S.crab) pic('cangrejo.png', 1785, 2361, 243, 162);
       pic('ave-vuela.png', -521, 856, 956, 713, 'glowing a-flyin');
       hot(0, 960, 330, 420, 'Crab plover: tap it', NEXT.s15);
       gauge('lowest');
-      slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
+      slider(3, { 0: () => go('s10'), 1: () => go(fall()), 2: () => go(low()) });
       return { hint: '<b>Tap the crab plover</b> flying in from the left.' };
     },
     s16() {
       bg('bajamar');
-      drift(3);
+      if (S.seed) drift(3);
       pic('ave-caza.png', 874, 1873, 979, 730, 'a-fade');
       bub(TX.bird1, BX.bird1, { anim: 'a-rise', delay: 300 });
       later(() => bub(TX.bird2, BX.bird2, { anim: 'a-rise' }), 300 + T.s16b2);
@@ -564,11 +572,19 @@ button.bub { cursor: pointer; }
     },
     s17() {
       bg('bajamar');
-      drift(3);
+      if (S.seed) drift(3);
       // The bird only flies away when coming from screen 16; coming back on the slider it is already gone.
-      if (past.length && past[past.length - 1].screen === 's16') pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
+      const fromBird = past.length && past[past.length - 1].screen === 's16';
+      if (fromBird) pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
       gauge('lowest');
-      slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
+      // Stages skipped (MB U8): once every stage has been visited, the stage that still has something to see
+      // gets the blue focus on its point and a text under the slider. Nearest first (Low, then Falling): Claude's proposal.
+      const todo = [!S.crab ? 2 : null, !S.seed ? 1 : null].filter(i => i != null)[0];
+      slider(3, { 0: () => go('s10'), 1: () => go(fall()), 2: () => go(low()) }, { callIdx: todo ?? null });
+      if (todo != null) {
+        bub(todo === 2 ? TX.pendCrab : TX.pendSeed, [STOPS[todo] - 310, 2900, 620, 150], { cls: 'pend', anim: 'a-rise', delay: fromBird ? 1600 : 300 });
+        return { hint: '<b>Unhappy · stage skipped:</b> the visitor dragged past ' + (todo === 2 ? 'Low Tide without tapping the crab' : 'Falling Tide without dropping the propagule') + '. Its point glows and the text below the slider points to it; there the ' + (todo === 2 ? 'crab' : 'propagule') + ' glows again. The final film only plays when everything has been seen.' };
+      }
       // At least T.s17 with the slider free; then, as soon as nobody has touched it for T.filmIdle, the final film starts.
       const start = Date.now(); lastTouch = start;
       const tick = () => {
@@ -674,11 +690,13 @@ button.bub { cursor: pointer; }
     paused = false; render();
   });
   document.getElementById('jump').addEventListener('change', e => {
-    const v = e.target.value; e.target.value = '';
+    let v = e.target.value; e.target.value = '';
     if (!v) return;
     paused = false;
+    // "Stage skipped" entry: screen 17 with the crab still to see (MB U8).
+    const skip = v === 's17skip'; if (skip) v = 's17';
     const i = ORDER.indexOf(v);
-    S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14'); S.bird = i >= ORDER.indexOf('s16');
+    S.seed = i >= ORDER.indexOf('s12'); S.crab = !skip && i >= ORDER.indexOf('s14'); S.bird = i >= ORDER.indexOf('s16');
     S.seedAt = { s13: 2, s14: 2, s15: 3, s16: 3, s17: 3, sFilm: 3 }[v] ?? null;
     go(v);
   });
