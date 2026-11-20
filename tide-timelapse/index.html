@@ -47,6 +47,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 :where(button.abs) { font-family: var(--ex); border: 0; padding: 0; margin: 0; }
 .stage button:focus-visible, .slider:focus-visible { outline: 14px solid #111; outline-offset: 10px; }
 .pic { display: block; object-fit: cover; pointer-events: none; }
+/* The fallen propagule travels with the water when the tide changes. */
+.drift { pointer-events: none; transition: left 1.6s ease-in-out, top 1.6s ease-in-out; }
 .hot { background: transparent; cursor: pointer; border-radius: 40px; }
 
 .bub { display: flex; align-items: center; justify-content: center; box-sizing: border-box; padding: 34px 90px; text-align: center; text-wrap: balance; border-radius: 0 112px 112px 112px; background: linear-gradient(180deg, #e6e6e6, #d2d2d2); color: #222; font-weight: 700; font-size: 58px; line-height: 1.08; box-shadow: 0 16px 34px rgba(0,0,0,.16); }
@@ -194,7 +196,7 @@ button.bub { cursor: pointer; }
   const SL = { x: 149, y: 2550 };
 
   // seed / crab: already seen. Going back on the slider counts them as done (Montse, 03/11).
-  let S = { screen: 's1', seed: false, crab: false, bird: false };
+  let S = { screen: 's1', seed: false, crab: false, bird: false, seedAt: null };
   let MODE = 'happy';
   try { MODE = localStorage.getItem('tt-mode') === 'unhappy' ? 'unhappy' : 'happy'; } catch (e) {}
   const UNHAPPY = () => MODE === 'unhappy';
@@ -341,7 +343,7 @@ button.bub { cursor: pointer; }
     on(b, toIdle);
     return b;
   }
-  function toIdle() { S.seed = false; S.crab = false; S.bird = false; go('s1'); }
+  function toIdle() { S.seed = false; S.crab = false; S.bird = false; S.seedAt = null; go('s1'); }
 
   // Unhappy U4: no touch for T.idle on any screen but idle → back to idle.
   let idleTimer = null;
@@ -397,8 +399,17 @@ button.bub { cursor: pointer; }
     drag: [365, 2910, 655, 168], seed: [722, 1404, 900, 266], crab1: [975, 1930, 900, 144], crab2: [975, 2114, 900, 328], bird1: [540, 1361, 900, 206], bird2: [540, 1607, 900, 266],
     closing: [626, 1834, 910, 225]
   };
-  // Faded seedling (the seed has taken root). Its PNGs already carry the 40 % opacity of the Figma layers.
-  const seedling = () => { pic('plantula-arriba.png', 1064, 2098, 222, 410); pic('plantula-abajo.png', 1013, 2262, 296, 251); };
+  // Once it has fallen, the propagule is carried by the tide: it goes and comes with the water and never goes back to the tree (Montse, 03/11 and 20/11).
+  // One place per tide stage. Falling and Low come from Figma (screens 12–14); High and Lowest are Claude's proposal (provisional).
+  const SEED = { tree: [430, 1110], 0: [1450, 1630], 1: [1741, 2163], 2: [1040, 2080], 3: [420, 2200] };
+  function drift(stage) {
+    const from = S.seedAt == null ? SEED.tree : SEED[S.seedAt], to = SEED[stage];
+    const w = add(mk('div', 'abs drift')); size(at(w, from[0], from[1]), 306, 459);
+    const im = mk('img', 'pic a-bob'); im.src = 'img/semilla-deriva.png'; im.alt = ''; im.draggable = false; size(im, 306, 459); w.appendChild(im);
+    if (from !== to) requestAnimationFrame(() => requestAnimationFrame(() => at(w, to[0], to[1])));
+    S.seedAt = stage;
+  }
+  const CARRIED = ' The propagule is carried by the tide; it never goes back to the tree.';
 
   // ---------- screens
   const SCREENS = {
@@ -480,10 +491,11 @@ button.bub { cursor: pointer; }
     },
     s10() {
       bg('submarina');
+      if (S.seed) drift(0);
       gauge('high');
       slider(0, { 1: () => go(fall()) }, { callIdx: UNHAPPY() ? 1 : null });
       bub(TX.drag, BX.drag, { cls: 'tip', nowrap: true, anim: 'a-pop' });
-      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + uh('the Falling Tide point also lights up (U3).') };
+      return { hint: 'Hint “Drag to set the tide!”. <b>Drag the point to Falling Tide</b> (or tap its label). Nothing to tap at High Tide.' + (S.seed ? CARRIED : '') + uh('the Falling Tide point also lights up (U3).') };
     },
     s11() {
       bg('submarina');
@@ -497,16 +509,15 @@ button.bub { cursor: pointer; }
     },
     s12() {
       bg('alta');
-      // Figma stacks two copies of the faded seedling here.
-      for (let n = 0; n < 2; n++) { pic('plantula-arriba.png', 963, 2163, 357, 531); pic('plantula-abajo.png', 976, 2384, 373, 316); }
-      pic('semilla-deriva.png', 1741, 2163, 306, 459, 'a-bob');
+      // Coming from screen 11 the propagule falls from the tree into the water; coming back it drifts in from where the tide left it.
+      drift(1);
       gauge('low', null, '1 m');
       slider(1, { 0: () => go('s10'), 2: () => go(low()) });
-      return { hint: 'The propagule drifts (gauge at 1 m). <b>Drag to Low Tide.</b>' };
+      return { hint: 'The propagule drifts (gauge at 1 m). <b>Drag to Low Tide.</b>' + CARRIED };
     },
     s13() {
       bg('media');
-      seedling();
+      drift(2);
       pic('cangrejo.png', 1677, 2389, 243, 162, 'glowing a-fade');
       hot(1660, 2330, 300, 230, 'Crab: tap it', NEXT.s13);
       gauge('low', null, '0.5 m');
@@ -516,7 +527,7 @@ button.bub { cursor: pointer; }
     },
     s14() {
       bg('media');
-      seedling();
+      drift(2);
       pic('cangrejo.png', 1785, 2361, 243, 162, 'a-walk');
       bub(TX.crab1, BX.crab1, { anim: 'a-rise', delay: 300 });
       later(() => bub(TX.crab2, BX.crab2, { anim: 'a-rise' }), 300 + T.s14b2);
@@ -526,6 +537,7 @@ button.bub { cursor: pointer; }
     },
     s15() {
       bg('bajamar');
+      drift(3);
       pic('cangrejo.png', 1785, 2361, 243, 162);
       pic('ave-vuela.png', -521, 856, 956, 713, 'glowing a-flyin');
       hot(0, 960, 330, 420, 'Crab plover: tap it', NEXT.s15);
@@ -535,6 +547,7 @@ button.bub { cursor: pointer; }
     },
     s16() {
       bg('bajamar');
+      drift(3);
       pic('ave-caza.png', 874, 1873, 979, 730, 'a-fade');
       bub(TX.bird1, BX.bird1, { anim: 'a-rise', delay: 300 });
       later(() => bub(TX.bird2, BX.bird2, { anim: 'a-rise' }), 300 + T.s16b2);
@@ -545,12 +558,13 @@ button.bub { cursor: pointer; }
     },
     s17() {
       bg('bajamar');
+      drift(3);
       // The bird only flies away when coming from screen 16; coming back on the slider it is already gone.
       if (past.length && past[past.length - 1].screen === 's16') pic('ave-vuela.png', 1797, 801, 956, 713, 'a-flyout');
       gauge('lowest');
       slider(3, { 0: () => go('s10'), 1: () => go('s12'), 2: () => go('s14') });
       auto(NEXT.s17, T.s17);
-      return { hint: 'The bird flies away and the slider is free again: the visitor has ' + T.s17 / 1000 + ' s to move it before the final reflection (Montse: at least 10 s). Seed, crab and bird count as seen.' };
+      return { hint: 'The bird flies away and the slider is free again: the visitor has ' + T.s17 / 1000 + ' s to move it before the final reflection (Montse: at least 10 s). Seed, crab and bird count as seen.' + CARRIED };
     },
     s18() {
       bg('bajamar', true);
@@ -564,7 +578,7 @@ button.bub { cursor: pointer; }
   };
 
   // ---------- navigation
-  const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab, bird: S.bird });
+  const snap = () => ({ screen: S.screen, seed: S.seed, crab: S.crab, bird: S.bird, seedAt: S.seedAt });
   const load = s => { S = { ...s }; };
   let current = { tap: null };
   function showHint() { hint.innerHTML = (paused ? '<b>Paused</b> (use Back / Next or tap the screen to continue). ' : '') + (current.hint || ''); }
@@ -594,7 +608,7 @@ button.bub { cursor: pointer; }
     if (future.length) { past.push(cur); load(future.pop()); render(); }
     else NEXT[S.screen]();
   }
-  function reset() { S = { screen: 's1', seed: false, crab: false, bird: false }; past = []; future = []; cur = null; paused = false; render(); }
+  function reset() { S = { screen: 's1', seed: false, crab: false, bird: false, seedAt: null }; past = []; future = []; cur = null; paused = false; render(); }
 
   // Any touch restarts the inactivity countdown.
   stage.addEventListener('pointerdown', armIdle);
@@ -627,6 +641,7 @@ button.bub { cursor: pointer; }
     paused = false;
     const i = ORDER.indexOf(v);
     S.seed = i >= ORDER.indexOf('s12'); S.crab = i >= ORDER.indexOf('s14'); S.bird = i >= ORDER.indexOf('s16');
+    S.seedAt = { s13: 2, s14: 2, s15: 3, s16: 3, s17: 3 }[v] ?? null;
     go(v);
   });
 
