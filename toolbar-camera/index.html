@@ -124,6 +124,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .notes .close:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .notes[open] summary { background: var(--fg); color: var(--bg); border-color: var(--fg); }
 @media (max-width: 760px) { .notes .panel { position: fixed; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px)); top: 96px; width: auto; } }
+/* botón físico del disparador, simulado fuera de la pantalla (23/11); aspecto propuesto */
+.phys { position: absolute; width: 128px; height: 128px; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 0; border: 0; background: none; cursor: pointer; color: var(--fg); font: 600 12px var(--ui); -webkit-tap-highlight-color: transparent; z-index: 2; }
+.phys:focus-visible { outline: 2px solid var(--fg); outline-offset: 4px; border-radius: 14px; }
+.physBezel { width: 88px; height: 88px; flex: none; border-radius: 50%; display: grid; place-items: center; background: radial-gradient(circle at 50% 38%, #70747b, #2c2f34 68%, #17191c); box-shadow: 0 6px 14px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.28), inset 0 -3px 6px rgba(0,0,0,.55); }
+.physCap { width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle at 38% 30%, #ff8b76, #e2412f 55%, #a6251a); box-shadow: 0 5px 0 #7a1a11, 0 7px 10px rgba(0,0,0,.4), inset 0 2px 2px rgba(255,255,255,.35); transform: translateY(-3px); transition: transform .07s, box-shadow .07s; }
+.phys:hover .physCap { filter: brightness(1.06); }
+.phys.down .physCap, .phys:active .physCap { transform: translateY(2px); box-shadow: 0 0 0 #7a1a11, 0 2px 4px rgba(0,0,0,.4), inset 0 2px 2px rgba(255,255,255,.25); }
+.physLbl { display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
+.physLbl small { font-weight: 400; font-size: 11px; color: var(--muted); }
 .viewport { flex: 1; min-height: 0; position: relative; overflow: hidden; background: var(--well); padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
 
 /* --- pantalla de la pieza --- */
@@ -219,7 +228,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .cSci{position:absolute;left:622px;top:314px;margin:0;font-size:36px;font-weight:600;line-height:39px;color:var(--acc);white-space:nowrap}
 .card .desc{position:absolute;left:622px;top:370.5px;width:351px;margin:0;font-size:28px;font-weight:600;line-height:33px;color:#fff}
 .cardHint{position:absolute;left:640px;top:692px;transform:translateX(-50%);color:#fff;font-size:35.5px;font-weight:700;line-height:39px;white-space:nowrap;text-shadow:0 1px 4px rgba(16,21,43,.7),0 2px 18px rgba(16,21,43,.5);pointer-events:none;opacity:0;transition:opacity .3s}
-/* Revisión del 16/11: lente nítida y sin lupa (1 y 2) y UI sin sombra (4). Las versiones anteriores quedan en «Variantes» */
+/* Revisión del 16/11: lente nítida y sin lupa (1 y 2) y UI sin sombra (4); fijo desde el 23/11 */
 .stage.lensclear .lens{display:none}
 .stage.noshadow .ring,.stage.noshadow .reticle,.stage.noshadow .chev{filter:none}
 .stage.noshadow .attractTxt,.stage.noshadow .ins,.stage.noshadow .cardHint{text-shadow:none}
@@ -236,76 +245,59 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 
 <div class="app">
   <header class="bar">
-    <div class="ttl"><strong>Explorer's Toolbar Camera</strong><span>WR1-303-IA01 · prototipo (Figma «Toolbar Mockup», página v3 · 16/11), colores WR1</span></div>
+    <div class="ttl"><strong>Explorer's Toolbar Camera</strong><span>WR1-303-IA01 · prototype (Figma “Toolbar Mockup”, page v3 · 16/11), WR1 colours</span></div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ctrls">
-      <span class="ctl"><button id="back" type="button" aria-label="Pantalla anterior">← Atrás</button><button id="fwd" type="button" aria-label="Pantalla siguiente">Adelante →</button></span>
-      <button id="bShot" class="shot" type="button" title="En la pieza es un botón físico. Atajo: barra espaciadora">Disparador (espacio)</button>
-      <button id="bAuto" type="button" aria-pressed="true">❚❚ Pausa</button>
-      <!-- Menú «Variantes» (Montse, 12/11): un desplegable por aspecto; cada opción empieza por el aspecto -->
-      <span class="ctl"><label for="ret">Variantes</label>
-        <select id="fondoV" aria-label="Variantes: fondo de la cámara">
-          <option value="ballena">Fondo · maqueta de la ballena (WR1-303, render, 23/11)</option>
-          <option value="mar">Fondo · bajorrelieve de mar (WR2, render)</option>
-          <option value="tierra">Fondo · bajorrelieve de tierra (WR2, render)</option>
-          <option value="video">Fondo · pared del vídeo (10/11)</option>
+      <span class="ctl"><button id="back" type="button" aria-label="Previous screen">← Back</button><button id="fwd" type="button" aria-label="Next screen">Next →</button></span>
+      <!-- "Variants" menu (Montse, 12/11): one dropdown per aspect; each option starts with the aspect -->
+      <span class="ctl"><label for="fondoV">Variants</label>
+        <select id="fondoV" aria-label="Variants: camera background">
+          <option value="ballena">Background · whale model (WR1-303, render, 23/11)</option>
+          <option value="mar">Background · sea bas-relief (WR2, render)</option>
+          <option value="tierra">Background · land bas-relief (WR2, render)</option>
+          <option value="video">Background · wall from the video (10/11)</option>
         </select>
-        <select id="ret" aria-label="Variantes: retícula">
-          <option value="b">Retícula · rayas en el centro (v3, 10/11)</option>
-          <option value="a">Retícula · objetivo (v1, 10/11)</option>
-          <option value="n">Retícula · solo círculo, sin cruceta (16/11)</option>
+        <select id="sizeV" aria-label="Variants: viewfinder size">
+          <option value="small">Viewfinder · circle 30% smaller (23/11)</option>
+          <option value="big">Viewfinder · original size (10/11)</option>
         </select>
-        <select id="lensV" aria-label="Variantes: lente">
-          <option value="clear">Lente · nítida, sin lupa (16/11)</option>
-          <option value="lupa">Lente · esmerilada con lupa (10/11)</option>
+        <select id="ret" aria-label="Variants: reticle">
+          <option value="b">Reticle · lines in the centre (v3, 10/11)</option>
+          <option value="a">Reticle · target (v1, 10/11)</option>
+          <option value="n">Reticle · circle only, no crosshair (16/11)</option>
         </select>
-        <select id="shadowV" aria-label="Variantes: sombras">
-          <option value="none">Sombras · UI sin sombra (16/11)</option>
-          <option value="on">Sombras · con sombra (anterior)</option>
-        </select>
-        <select id="dotV" aria-label="Variantes: color del punto">
-          <option value="ref">Punto · azul eléctrico con brillo, como la referencia (17/11)</option>
-          <option value="acc">Punto · naranja de la sala #EDA481</option>
-          <option value="cyan">Punto · azul eléctrico plano #33F1E8 (16/11)</option>
-          <option value="orange">Punto · naranja vivo #FF7A1F (propuesta)</option>
-        </select>
-        <select id="ringV" aria-label="Variantes: anillo">
-          <option value="acc">Anillo · se carga en naranja</option>
-          <option value="white">Anillo · se carga en blanco</option>
-        </select>
-        <select id="dur" aria-label="Variantes: dwell">
-          <option value="0.8">Dwell · 0,8 s</option>
-          <option value="1.2">Dwell · 1,2 s (provisional)</option>
-          <option value="1.6">Dwell · 1,6 s</option>
-        </select>
-        <select id="tol" aria-label="Variantes: zona de detección">
-          <option value="50">Detección · 50 px</option>
-          <option value="65">Detección · 65 px (10/11)</option>
-          <option value="88">Detección · 88 px, toda la lente</option>
+        <select id="ringV" aria-label="Variants: ring fill">
+          <option value="acc">Ring · fills in orange</option>
+          <option value="white">Ring · fills in white</option>
         </select></span>
-      <span class="ctl"><label for="jump">Ir a</label><select id="jump"><option value="">Pantalla…</option></select></span>
-      <button id="bReset" type="button">Reiniciar</button>
-      <details class="notes" id="notes"><summary>Notas</summary><div class="panel">
-        <button class="close" id="closeNotes" type="button" aria-label="Cerrar notas">✕ Cerrar</button>
+      <span class="ctl"><label for="jump">Go to</label><select id="jump"><option value="">Screen…</option></select></span>
+      <button id="bReset" type="button">Reset</button>
+      <details class="notes" id="notes"><summary>Notes</summary><div class="panel">
+        <button class="close" id="closeNotes" type="button" aria-label="Close notes">✕ Close</button>
         <ol>
-          <li><b>1 · Inicio (atracción):</b> «Move the camera to explore» sobre la imagen de la cámara desenfocada y oscurecida (azul noche al 45 %). La cámara recorre sola los cuatro topes de giro; al llegar a cada uno, la flecha de ese lado se aplana en la línea recta del tope y la imagen rebota un poco. En la pieza real la imagen es la cámara en directo, así que este recorrido tendría que ser un vídeo o una animación en bucle. En cuanto alguien mueve la cámara, pasa a las instrucciones.</li>
-          <li><b>2 · Instrucciones:</b> el visor con las cuatro flechas en ola y «Centre an dot and press», el texto del Figma (16/11), como «Move the camera to explore» pero en negrita. Si llegas a un tope de giro, la flecha de ese lado se convierte en la línea recta.</li>
-          <li><b>3 · Detectado:</b> el punto cuenta en cuanto queda a menos de 65 px del centro (variante «Detección»). La retícula pasa a naranja, el punto da un salto y lanza una onda, las flechas desaparecen y el anillo se carga (con «Lente · esmerilada con lupa», además la lente enfoca y aumenta). Si te sales, vuelven las flechas. Al llenarse el anillo pasa sola a «Listo».</li>
-          <li><b>4 · Listo:</b> el aviso «Press the shutter» en la píldora marrón oscura (gallery-accent/950) con texto claro (gallery-accent/50).</li>
-          <li><b>Disparador:</b> en la pieza es un botón físico, el elemento mecánico de la cámara. Aquí es el botón «Disparador» de la barra o la barra espaciadora. Hace la foto cuando está listo y cierra la ficha. Sonaría un SFX de obturador.</li>
-          <li><b>5 · Foto:</b> flash blanco y el mensaje «Got it» del Figma en la misma píldora; en las fotos siguientes rota con «Great shot» y «Nice find», los del vídeo. Después la imagen se desenfoca, el visor desaparece y los puntos quedan muy tenues.</li>
-          <li><b>6 · Ficha (v3 de Figma, 16/11):</b> hexágono con la foto y borde melocotón, y panel azul noche con punta. Nombre y nombre científico en melocotón y descripción en blanco. Debajo, «Press the button to close». Fondo desenfocado y oscurecido al 40 %. Se cierra con el disparador.</li>
-          <li><b>7 · Peces:</b> al cerrar la primera ficha entra un banco de peces por la izquierda y se queda nadando, anclado a la sala. No se pueden fotografiar. Ya no salen las flechas ni la instrucción, y el animal fotografiado queda pequeño y apagado.</li>
-          <li><b>Puntos:</b> cuatro puntos naranjas de 24 px, uno por cada especie del vídeo (Squat lobster, Black hagfish, Ghostly grenadier y Snow crab), cada uno con su texto.</li>
-          <li><b>Comentarios del 16/11:</b> (1) y (2) la lente del visor ya no desenfoca ni aumenta: se ve la imagen tal cual. (3) nueva opción de retícula «solo círculo, sin cruceta». (4) la UI va sin sombras (anillo, retícula, flechas, textos y píldoras). Los puntos conservan su brillo de color. (5) el punto es ahora azul eléctrico con el centro casi blanco y halo azul, como la imagen de referencia (17/11); el naranja y las otras propuestas siguen en «Variantes». Lo anterior se puede ver con «Lente · esmerilada con lupa» y «Sombras · con sombra».</li>
-          <li><b>Revisión:</b> «← Atrás», «Adelante →» e «Ir a» llevan a cada momento del recorrido. «❚❚ Pausa» para el avance solo; arrastrar la imagen o usar el disparador también lo paran. Flechas del teclado: atrás y adelante.</li>
+          <li><b>1 · Attract loop:</b> “Move the camera to explore” over the camera image, blurred and darkened (night blue at 45%). The camera sweeps on its own to the four rotation stops; at each stop, the arrow on that side flattens into the straight stop line and the image bounces slightly. In the real piece the image is the live camera feed, so this sweep would have to be a looping video or animation. As soon as someone moves the camera, it goes to the instructions.</li>
+          <li><b>2 · Instructions:</b> the viewfinder with the four arrows moving in a wave, and “Centre an dot and press”, the text from the Figma (16/11), styled like “Move the camera to explore” but in bold. If you reach a rotation stop, the arrow on that side turns into the straight line.</li>
+          <li><b>3 · Detected:</b> a dot counts as soon as it is less than 50 px from the centre. The reticle turns orange, the dot pops and sends out a ripple, the arrows disappear and the ring fills in 0.8 s (dwell). If you move off, the arrows come back. When the ring is full, it moves to “Ready” on its own.</li>
+          <li><b>4 · Ready:</b> the “Press the shutter” prompt in the dark brown pill (gallery-accent/950) with light text (gallery-accent/50).</li>
+          <li><b>Shutter:</b> in the piece it is a physical button, the mechanical part of the camera. Here it is the round button next to the screen, or the space bar. It takes the photo when the camera is ready and closes the species card. A shutter sound would play.</li>
+          <li><b>5 · Photo:</b> white flash and the “Got it” message from the Figma in the same pill; on later photos it rotates with “Great shot” and “Nice find”, from the video. Then the image blurs, the viewfinder disappears and the dots fade.</li>
+          <li><b>6 · Species card (Figma v3, 16/11):</b> hexagon with the photo and a peach border, and a night-blue panel with a pointed end. Name and scientific name in peach, description in white. Below, “Press the button to close”. The background is blurred and darkened at 40%. It closes with the shutter.</li>
+          <li><b>7 · Fish:</b> after the first card closes, a school of fish swims in from the left and keeps swimming, anchored to the room. They cannot be photographed. The arrows and the instruction no longer appear, and the photographed animal stays small and dimmed.</li>
+          <li><b>Dots:</b> four 24 px dots, electric blue with an almost white centre and a blue halo (reference image, 17/11), one per species from the video (Squat lobster, Black hagfish, Ghostly grenadier and Snow crab), each with its own text.</li>
+          <li><b>Review comments (16/11), now fixed:</b> the viewfinder lens neither blurs nor magnifies; the UI has no shadows (ring, reticle, arrows, texts and pills; the dots keep their colour glow); the dot is electric blue. “Circle only, no crosshair” is an option under Reticle. Since 23/11 the dwell is fixed at 0.8 s and the detection zone at 50 px.</li>
+          <li><b>Review:</b> “← Back”, “Next →” and “Go to” take you to each moment of the flow. At the start the prototype plays on its own; dragging the image, Back/Next or the shutter stop it, and “Go to” or “Reset” start it again. Keyboard arrows: back and next.</li>
         </ol>
-        <p>Todo es propuesta. Textos del vídeo y del Figma de Montse (v3, 16/11). Provisional: la foto de la ficha es la de la morena de la referencia para todas las especies, y el dwell de 1,2 s. Colores de la galería WR1 de ILMI World DS Lite (propuesta de KTF). Tipografía: Roboto en esta copia web (la Ilmi, propuesta de KTF, no se publica). El Figma usa la versión Beta 03 de la Ilmi; aquí va la v4 a ~0,88 × su tamaño para que ocupe lo mismo. Fondo: por defecto, la maqueta de la ballena, que es lo que escanea esta pieza (render de la sala del Media Brief al 30 % de WR1-303, ampliado, por eso se ve blando; los puntos van sobre la ballena). En «Variantes», los bajorrelieves de mar y de tierra de WR2 (renders del Figma de Tiny Heroes, con los puntos sobre animales del relieve) y la pared del vídeo. Las fichas siguen con los textos del vídeo (provisionales). No está la elección de idioma que sale en el vídeo después del inicio.</p>
+        <p>Everything is a proposal. Texts from the video and from Montse's Figma (v3, 16/11). Provisional: the card photo is the moray eel from the reference for every species. WR1 gallery colours from ILMI World DS Lite (KTF proposal). Typeface: Roboto in this web copy (the Ilmi, a KTF proposal, is not published). The Figma uses the Beta 03 version of the Ilmi; here the v4 is at about 0.88 × its size so it takes up the same space. Background: by default, the whale model, which is what this piece scans (render of the room from the WR1-303 30% Media Brief, enlarged, hence soft; the dots sit on the whale). Under Variants: the WR2 sea and land bas-reliefs (renders from the Tiny Heroes Figma, with the dots on animals of the relief) and the wall from the video. The cards still use the video texts (provisional). The language selection that appears in the video after the start is not included. The round shutter button is a simulation of the physical button; its look is a proposal.</p>
       </div></details>
     </div>
   </header>
   <main class="viewport" id="viewport">
-    <div class="screen" id="screen" tabindex="0" role="region" aria-label="Pantalla del interactivo, 1280 × 800. Arrastra para mover la cámara.">
+    <!-- Botón físico del disparador (simulado), fuera de la pantalla, como en la carcasa de la cámara (23/11) -->
+    <button class="phys" id="physShot" type="button" aria-label="Shutter: physical button on the camera housing (space bar)">
+      <span class="physBezel"><span class="physCap"></span></span>
+      <span class="physLbl">Shutter<small>physical button · space</small></span>
+    </button>
+    <div class="screen" id="screen" tabindex="0" role="region" aria-label="Interactive screen, 1280 × 800. Drag to move the camera.">
       <div class="stage" id="stage">
         <div class="scene" id="scene">
           <img id="bg" alt="">
@@ -369,7 +361,7 @@ let BW=1280*S,BH=632*S;   // tamaño de la imagen que recorre la cámara (cambia
 const KEY='proto-wr1303';   // prefijo de localStorage (variantes recordadas en este navegador)
 const store={get(k,d){try{const v=localStorage.getItem(KEY+'-'+k);return v==null?d:v}catch(e){return d}},
   set(k,v){try{localStorage.setItem(KEY+'-'+k,v)}catch(e){}}};
-let TOL=parseFloat(store.get('tol','65'))||65;
+let TOL=50;   // zona de detección fija (Montse, 23/11)
 const HOT={x:428*S,y:280*S};
 const MSGS=['Got it','Great shot','Nice find'];   // «Got it» sin exclamación, como en el Figma (16/11)
 /* Puntos: uno por especie (textos de las fichas del vídeo, provisionales). Coordenadas en la imagen completa;
@@ -384,7 +376,7 @@ const $=id=>document.getElementById(id);
 const screenEl=$('screen'),stage=$('stage'),scene=$('scene'),bg=$('bg'),lensImg=$('lensImg'),frost=$('frost'),ring=$('ring'),track=$('track'),prog=$('prog'),
   ripple=$('ripple'),arrows=$('arrows'),hintEl=$('hintEl'),readyEl=$('ready'),flash=$('flash'),card=$('card'),
   attractTxt=$('attractTxt'),scopeA=$('scopeA'),reticleEl=$('reticle'),cardHint=$('cardHint'),
-  viewport=$('viewport'),barHint=$('hint'),backBtn=$('back'),fwdBtn=$('fwd'),autoBtn=$('bAuto'),jumpSel=$('jump');
+  viewport=$('viewport'),barHint=$('hint'),backBtn=$('back'),fwdBtn=$('fwd'),jumpSel=$('jump'),physEl=$('physShot');
 /* Ficha (v3 de Figma, «06 Ficha»): hexágono y panel con las esquinas redondeadas del Figma (26 y 16 px) */
 function roundPoly(P,r){let d='';const n=P.length;for(let i=0;i<n;i++){const q=P[i],a=P[(i+n-1)%n],b=P[(i+1)%n];
   const ux=a[0]-q[0],uy=a[1]-q[1],ul=Math.hypot(ux,uy),wx=b[0]-q[0],wy=b[1]-q[1],wl=Math.hypot(wx,wy);
@@ -410,7 +402,7 @@ function setFondo(k){const f=FONDOS[k]||FONDOS.mar;BW=f.w;BH=f.h;bg.src=f.src;le
   HOT.x=SPECIES[0].x;HOT.y=SPECIES[0].y;T.x=640-HOT.x;T.y=400-HOT.y;FIG.x=610-HOT.x;FIG.y=420-HOT.y;
   [[A,.6771,.7102],[A2,.7617,.6534],[B,.4297,.0947]].forEach(([o,fx,fy])=>{o.x=fx*(W-BW);o.y=fy*(H-BH)});
   FX0=HOT.x-1000;FX1=HOT.x+1000;buildATT()}
-let tx=A.x,ty=A.y,p=0,done=false,pulseT=-1,trackOp=1,dwell=parseFloat(store.get('dwell','1.2'))||1.2,scale=1,ringAcc=store.get('ring','acc')!=='white';
+let tx=A.x,ty=A.y,p=0,done=false,pulseT=-1,trackOp=1,dwell=.8,scale=1,ringAcc=store.get('ring','acc')!=='white';
 let phase='attract',onboarding=true,captured=false,wasEng=false,msgI=0,timers=[],seq=null,paused=false,screenId=null;
 let attractT=0,startedAt=0,vx=0,vy=0;
 
@@ -471,13 +463,18 @@ const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const easePan=t=>-(Math.cos(Math.PI*t)-1)/2;
 function setCam(x,y){tx=clamp(x,W-BW,0);ty=clamp(y,H-BH,0)}
-/* escalar la pantalla al hueco disponible (plantilla) */
+/* escalar la pantalla al hueco disponible, con sitio para el botón físico del disparador (a la derecha o debajo) */
+const PB=128,GAP=28;
 function fit(){
   const cs=getComputedStyle(viewport),pl=parseFloat(cs.paddingLeft),pr=parseFloat(cs.paddingRight),pt=parseFloat(cs.paddingTop),pb=parseFloat(cs.paddingBottom);
   const pw=viewport.clientWidth-pl-pr,ph=viewport.clientHeight-pt-pb;
-  scale=Math.max(.01,Math.min(pw/W,ph/H));
-  screenEl.style.width=(W*scale)+'px';screenEl.style.height=(H*scale)+'px';
-  screenEl.style.left=(pl+(pw-W*scale)/2)+'px';screenEl.style.top=(pt+(ph-H*scale)/2)+'px';
+  const sR=Math.min((pw-PB-GAP)/W,ph/H),sB=Math.min(pw/W,(ph-PB-GAP)/H),right=sR>=sB;
+  scale=Math.max(.01,right?sR:sB);
+  const sw=W*scale,sh=H*scale;let x,y,bx,by;
+  if(right){x=pl+(pw-sw-GAP-PB)/2;y=pt+(ph-sh)/2;bx=x+sw+GAP;by=y+(sh-PB)/2}
+  else{x=pl+(pw-sw)/2;y=pt+(ph-sh-GAP-PB)/2;bx=x+(sw-PB)/2;by=y+sh+GAP}
+  screenEl.style.width=sw+'px';screenEl.style.height=sh+'px';screenEl.style.left=x+'px';screenEl.style.top=y+'px';
+  physEl.style.left=bx+'px';physEl.style.top=by+'px';
   stage.style.transform='scale('+scale+')';
 }
 new ResizeObserver(fit).observe(viewport);fit();
@@ -514,17 +511,17 @@ function resetAll(){
 }
 
 /* ===== Pantallas del Figma (Toolbar Mockup, página v3). La pieza es una simulación continua: cada pantalla es un
-   momento del recorrido. «Ir a», «← Atrás» y «Adelante →» llevan la simulación a ese momento ===== */
-const ORDER=[['01','1 · Inicio (atracción)'],['02','2 · Instrucciones'],['03','3 · Detectado'],['04','4 · Listo para disparar'],
-  ['05','5 · Foto: flash y mensaje'],['06','6 · Ficha'],['07','7 · Peces, después de la foto']];
+   momento del recorrido. «Go to», «← Back» y «Next →» llevan la simulación a ese momento ===== */
+const ORDER=[['01','1 · Attract loop'],['02','2 · Instructions'],['03','3 · Detected'],['04','4 · Ready to shoot'],
+  ['05','5 · Photo: flash and message'],['06','6 · Species card'],['07','7 · Fish, after the photo']];
 const HINTS={
-  '01':'La cámara recorre sola los cuatro topes de giro. <b>Arrastra la imagen</b> para empezar.',
-  '02':'<b>Arrastra la imagen</b> para mover la cámara y deja un punto naranja dentro del visor.',
-  '03':'Animal detectado: <b>no muevas la cámara</b> mientras se carga el anillo. Al llenarse pasa sola a «Listo».',
-  '04':'<b>Pulsa el disparador</b>: el botón de la barra o la barra espaciadora. En la pieza es un botón físico.',
-  '05':'Flash y mensaje. La ficha sale sola.',
-  '06':'<b>Pulsa el disparador</b> para cerrar la ficha.',
-  '07':'Ya sin flechas ni instrucción; los peces nadan por la sala. <b>Busca otro punto</b> o reinicia.'};
+  '01':'The camera sweeps on its own to the four rotation stops. <b>Drag the image</b> to start.',
+  '02':'<b>Drag the image</b> to move the camera and bring a blue dot inside the viewfinder.',
+  '03':'Animal detected: <b>hold the camera still</b> while the ring fills. It then moves to “Ready” on its own.',
+  '04':'<b>Press the shutter</b>: the round physical button next to the screen, or the space bar.',
+  '05':'Flash and message. The species card opens on its own.',
+  '06':'<b>Press the shutter</b> to close the card.',
+  '07':'No more arrows or instruction; the fish swim around the room. <b>Find another dot</b> or reset.'};
 function screenOf(){
   if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';
   if(done)return '04';if(wasEng)return '03';return captured?'07':'02';
@@ -544,7 +541,7 @@ function place(id){
   if(id==='06'){readyEl.textContent=MSGS[msgI++%MSGS.length];readyEl.classList.add('msg');scene.classList.add('blur');openCard();return}
   closeCard();
 }
-/* Avance solo: guion de cada pantalla. Se para con Atrás/Adelante, el disparador o al arrastrar; «▶ Avance solo» sigue */
+/* Avance solo al empezar: guion de cada pantalla. Se para con Back/Next, el disparador o al arrastrar; «Go to» y «Reset» lo reanudan */
 const DEMO={
   '01':()=>[{w:ALOOP+.3},{start:1}],
   '02':()=>[{w:.4},{pan:A2,d:.9},{w:2.2},{pan:T,d:1.6}],
@@ -566,13 +563,13 @@ function stepSeq(dt){
     if(k>=1){seq.i++;seq.t=0;seq.from=null}
   }else if(seq.t>=s.w){seq.i++;seq.t=0}
 }
-function showHint(){barHint.innerHTML=(paused?'<b>En pausa.</b> ':'')+(HINTS[screenId]||'')}
+function showHint(){barHint.innerHTML=(paused?'<b>Paused.</b> ':'')+(HINTS[screenId]||'')}
 function onScreen(id){
   if(!paused&&DEMO[id])seq={i:0,t:0,from:null,steps:DEMO[id]()};
   backBtn.disabled=id==='01';
   showHint();
 }
-function setPaused(v){paused=v;if(v)seq=null;autoBtn.textContent=v?'▶ Avance solo':'❚❚ Pausa';autoBtn.setAttribute('aria-pressed',String(!v));showHint()}
+function setPaused(v){paused=v;if(v)seq=null;showHint()}
 function go(id){place(id);screenId=null}   // en el siguiente fotograma se pinta la pista y, si va solo, arranca su guion
 
 let last=performance.now();
@@ -643,8 +640,8 @@ function frame(now){
   prog.style.opacity=p>0?1:0;
   let rs=1-.05*f;
   if(pulseT>=0){pulseT+=dt;const k=Math.min(pulseT/.35,1);rs+=Math.sin(Math.PI*k)*.08;if(k>=1)pulseT=-1}
-  ring.style.transform='scale('+rs.toFixed(4)+')';
-  reticleEl.style.transform='scale('+rs.toFixed(4)+')';reticleEl.classList.toggle('on',engaged);
+  ring.style.transform='scale('+(rs*RING).toFixed(4)+')';
+  reticleEl.style.transform='scale('+(rs*(reticleEl.dataset.v==='a'?RING:1)).toFixed(4)+')';reticleEl.classList.toggle('on',engaged);
   SPECIES.forEach((sp,i)=>{sp.el.style.left=(sp.x+tx)+'px';sp.el.style.top=(sp.y+ty)+'px';sp.el.classList.toggle('in',engaged&&i===best)});
   requestAnimationFrame(frame);
 }
@@ -658,43 +655,40 @@ screenEl.addEventListener('pointerup',end);screenEl.addEventListener('pointercan
 const stepTo=d=>{const i=ORDER.findIndex(o=>o[0]===screenOf());const j=i+d;if(j<0)return;setPaused(true);go(ORDER[j%ORDER.length][0])};
 backBtn.addEventListener('click',()=>stepTo(-1));
 fwdBtn.addEventListener('click',()=>stepTo(1));
-$('bShot').addEventListener('click',()=>{setPaused(true);shutter()});
-autoBtn.addEventListener('click',()=>{setPaused(!paused);if(!paused)screenId=null});
+/* botón físico del disparador (simulado) */
+const pressPhys=()=>{physEl.classList.add('down');setTimeout(()=>physEl.classList.remove('down'),140)};
+physEl.addEventListener('click',()=>{setPaused(true);shutter()});
 $('bReset').addEventListener('click',()=>{setPaused(false);go('01')});
 addEventListener('keydown',e=>{
   if(e.target.closest&&e.target.closest('select,summary,input'))return;
-  if(e.code==='Space'){e.preventDefault();setPaused(true);shutter()}
+  if(e.code==='Space'&&e.target===physEl)return;   // el propio botón ya lo pulsa
+  if(e.code==='Space'){e.preventDefault();pressPhys();setPaused(true);shutter()}
   else if(e.key==='ArrowLeft'){e.preventDefault();stepTo(-1)}
   else if(e.key==='ArrowRight'){e.preventDefault();stepTo(1)}
 });
 ORDER.forEach(([id,l])=>{const o=document.createElement('option');o.value=id;o.textContent=l;jumpSel.appendChild(o)});
 jumpSel.addEventListener('change',()=>{const v=jumpSel.value;jumpSel.value='';if(v){setPaused(false);go(v)}});
-/* Variantes: cada desplegable se recuerda en este navegador. La clave de la retícula es nueva porque cambió la de por defecto (16/11) */
-const retSel=$('ret'),ringSel=$('ringV'),durSel=$('dur'),tolSel=$('tol');
+/* Variants: cada desplegable se recuerda en este navegador. La clave de la retícula es nueva porque cambió la de por defecto (16/11) */
+const retSel=$('ret'),ringSel=$('ringV'),sizeSel=$('sizeV');
 const initSel=(sel,val,def)=>{sel.value=val;if(!sel.value)sel.value=def};
 initSel(retSel,store.get('ret-v3','b'),'b');reticleEl.dataset.v=retSel.value;
 retSel.addEventListener('change',()=>{reticleEl.dataset.v=retSel.value;store.set('ret-v3',retSel.value)});
 initSel(ringSel,ringAcc?'acc':'white','acc');
 ringSel.addEventListener('change',()=>{ringAcc=ringSel.value==='acc';store.set('ring',ringSel.value)});
-initSel(durSel,String(dwell),'1.2');dwell=parseFloat(durSel.value);
-durSel.addEventListener('change',()=>{dwell=parseFloat(durSel.value);store.set('dwell',durSel.value)});
-initSel(tolSel,String(TOL),'65');TOL=parseFloat(tolSel.value);
-tolSel.addEventListener('change',()=>{TOL=parseFloat(tolSel.value);store.set('tol',tolSel.value)});
-/* Revisión del 16/11: lente, sombras y color del punto */
-const lensSel=$('lensV'),shadowSel=$('shadowV'),dotSel=$('dotV');
-/* [relleno, aro y onda, halo]. «ref» = imagen de referencia del 17/11: centro casi blanco y halo azul eléctrico */
-const DOTS={ref:['radial-gradient(circle,#FFFFFF 0,#EAFBFF 30%,#93DEFF 62%,#2FA6FF 100%)','#5CC8FF','0 0 8px 2px rgba(160,228,255,.95),0 0 24px 9px rgba(40,150,255,.6)'],
-  acc:['#EDA481','#EDA481','0 0 15px 3px rgba(237,164,129,.75)'],cyan:['#33F1E8','#33F1E8','0 0 15px 3px rgba(51,241,232,.7)'],
-  orange:['#FF7A1F','#FF7A1F','0 0 15px 3px rgba(255,122,31,.7)']};
-function applyLook(){stage.classList.toggle('lensclear',lensSel.value==='clear');stage.classList.toggle('noshadow',shadowSel.value==='none');
-  const d=DOTS[dotSel.value]||DOTS.ref;stage.style.setProperty('--dotFill',d[0]);stage.style.setProperty('--dot',d[1]);stage.style.setProperty('--dotHalo',d[2])}
-initSel(lensSel,store.get('lente','clear'),'clear');initSel(shadowSel,store.get('sombra','none'),'none');initSel(dotSel,store.get('punto-v2','ref'),'ref');
-[[lensSel,'lente'],[shadowSel,'sombra'],[dotSel,'punto-v2']].forEach(([sel,k])=>sel.addEventListener('change',()=>{store.set(k,sel.value);applyLook()}));
-applyLook();
+/* Fijo desde el 23/11 (Montse): punto azul de la referencia, lente sin lupa ni desenfoque y UI sin sombra */
+stage.classList.add('lensclear','noshadow');
+stage.style.setProperty('--dotFill','radial-gradient(circle,#FFFFFF 0,#EAFBFF 30%,#93DEFF 62%,#2FA6FF 100%)');
+stage.style.setProperty('--dot','#5CC8FF');
+stage.style.setProperty('--dotHalo','0 0 8px 2px rgba(160,228,255,.95),0 0 24px 9px rgba(40,150,255,.6)');
+/* Visor: círculo un 30 % más pequeño (23/11) o tamaño original. El trazo se compensa para que siga midiendo 9 px */
+let RING=1;
+function applySize(){RING=sizeSel.value==='small'?.7:1;const sw=(9/RING).toFixed(2);track.setAttribute('stroke-width',sw);prog.setAttribute('stroke-width',sw)}
+initSel(sizeSel,store.get('visor','small'),'small');applySize();
+sizeSel.addEventListener('change',()=>{store.set('visor',sizeSel.value);applySize()});
 const fondoSel=$('fondoV');initSel(fondoSel,store.get('fondo-v2','ballena'),'ballena');setFondo(fondoSel.value);
 fondoSel.addEventListener('change',()=>{store.set('fondo-v2',fondoSel.value);setFondo(fondoSel.value);go(screenId||'01')});
 
-/* Notas: se cierran con «✕ Cerrar», con Esc, volviendo a tocar «Notas» o tocando fuera */
+/* Notes: se cierran con «✕ Close», con Esc, volviendo a tocar «Notes» o tocando fuera */
 const notes=$('notes');
 $('closeNotes').addEventListener('click',()=>{notes.open=false;notes.querySelector('summary').focus()});
 addEventListener('keydown',e=>{if(e.key==='Escape'&&notes.open){notes.open=false;notes.querySelector('summary').focus()}});
