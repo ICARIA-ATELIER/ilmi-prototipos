@@ -197,6 +197,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 @keyframes hotPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 .hot.in::after,.hot.got::after{animation:none;opacity:0}
 .hot.got{opacity:.45;transform:scale(.7)}
+/* Revisión del 24/11 (variante): el punto ya fotografiado se queda más pequeño y quieto, pero sin transparencia, para que se siga viendo */
+.stage.gotSolid .hot.got{opacity:1;transform:scale(.6)}
 .ripple{position:absolute;left:640px;top:400px;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:4px solid var(--dot);opacity:0;pointer-events:none}
 .ripple.go{animation:rip .6s ease-out}
 @keyframes rip{from{opacity:.95;transform:scale(1)}to{opacity:0;transform:scale(4)}}
@@ -248,6 +250,16 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .galAttract svg{position:absolute;left:0;top:0;width:1280px;height:800px}
 .galTri{stroke:#EDA481;stroke-width:8;stroke-linejoin:round}
 .galTitle{position:absolute;left:700px;top:250px;color:#EDA481;font-size:76px;font-weight:700;line-height:1.02}
+/* Attract screen con la escena entera (propuesta, 24/11): la imagen de la cámara sin desenfocar, alejada para que quepa casi toda la maqueta,
+   con un barrido lento de lado a lado, los puntos azules latiendo y los peces nadando. Sombras azul noche arriba y abajo para leer los textos */
+.sceneShade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;
+  background:linear-gradient(180deg,rgba(8,23,45,.82) 0,rgba(8,23,45,0) 28%,rgba(8,23,45,0) 52%,rgba(8,23,45,.88) 84%,rgba(8,23,45,.92) 100%)}
+.sceneTitle{position:absolute;left:64px;top:44px;color:#EDA481;font-size:60px;font-weight:700;line-height:1.05}
+.stage.idleOn.attractScene .sceneShade{opacity:1}
+.stage.idleOn.attractScene .scene.idle #bg{filter:none}
+.stage.idleOn.attractScene .scene.idle .dim{opacity:0}
+.stage.idleOn.attractScene #hots{opacity:1}
+.stage.idleOn.attractScene .scene.idle .hot{opacity:1}
 /* Llamada de la attract screen: el elemento de Guano Pile tal cual (Figma XufkWrVs…, 2317:505), a 2/3 (1920 → 1280): texto melocotón
    SemiBold alineado a la derecha y tres círculos concéntricos en el borde derecho que marcan el lector RFID (23/11) */
 .rfidCta{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s}
@@ -319,7 +331,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
     <div class="ctrls">
       <span class="ctl"><button id="back" type="button" aria-label="Previous screen">← Back</button><button id="fwd" type="button" aria-label="Next screen">Next →</button></span>
       <!-- "Variants" menu (Montse, 12/11): one dropdown per aspect; each option starts with the aspect -->
-      <span class="ctl"><label for="whaleV">Variants</label>
+      <span class="ctl"><label for="reviewV">Variants</label>
+        <select id="attractBgV" aria-label="Variants: attract screen">
+          <option value="scene">Attract screen · the whole scene, slow pan with the dots and the fish (proposal, 24/11)</option>
+          <option value="gallery">Attract screen · WR1 gallery style with triangles, like Guano Pile (23/11)</option>
+        </select>
+        <select id="reviewV" aria-label="Variants: review of 24/11">
+          <option value="on">Review 24/11 · circle only, no lines in the centre; photographed dots smaller and solid (proposal)</option>
+          <option value="off">Review 24/11 · as before (lines in the centre; photographed dots smaller and faded)</option>
+        </select>
         <select id="whaleV" aria-label="Variants: attract screen animation">
           <option value="swim">Attract animation · whale swimming out of the big triangle (proposal, 23/11)</option>
           <option value="none">Attract animation · none, still</option>
@@ -371,7 +391,8 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         <ol>
           <li class="navOnly"><b>Navigation review version (23/11):</b> the same flow and variants as the main prototype, to check the navigation. The attract screen is still: no whale animation, and the circles that mark the RFID reader on the right do not pulse.</li>
           <li><b>0 · Attract screen (23/11):</b> the piece waits here until someone starts it. In the Media Brief it starts with the wristband (RFID) or by tapping the screen; in this prototype, tap the screen or press the shutter. The call to action is the element of the Guano Pile attract screen as it is: peach text aligned right and three concentric circles on the right edge that mark the RFID reader<span class="navHide"> (here the circles light up from the inside out, proposal)</span>. Text: “Scan your wristband or tap the screen to start” (in Guano Pile, “Scan your wristband to start”, with the Arabic below, not included here). It uses the WR1 gallery style of the Guano Pile attract screen (KTF proposal): night-blue background, rounded triangles with a thick peach border (the big one shows the whale model) and the piece name as title (provisional).</li>
-          <li class="navHide"><b>Attract animation (proposal, 23/11):</b> a whale drawn like the triangles (night-blue fill and peach border) swims out of the big triangle: it starts small and far inside it, comes closer, crosses its bottom-left side in front of the border and leaves the screen. It loops every 9 s. Under Variants, without the animation. A version with the whale of the render coming out of the frame would need a clean cut-out of the model or a video.</li>
+          <li class="navHide"><b>Attract screen with the whole scene (proposal, 24/11):</b> by default, the attract screen shows the camera image of the whole whale model, not blurred and zoomed out so most of it fits, with a slow pan from side to side (18 s). The blue dots pulse on the animals and the fish swim across, so visitors see what happens in the piece before they start. Night-blue shades at the top and bottom keep the title and the call to action readable. Under Variants, the WR1 gallery style with triangles. In the real piece this would be a looping video or animation, as the camera is not moving on its own.</li>
+          <li class="navHide"><b>Attract animation (proposal, 23/11):</b> a whale drawn like the triangles (night-blue fill and peach border) swims out of the big triangle (gallery style only): it starts small and far inside it, comes closer, crosses its bottom-left side in front of the border and leaves the screen. It loops every 9 s. Under Variants, without the animation. A version with the whale of the render coming out of the frame would need a clean cut-out of the model or a video.</li>
           <li><b>1 · Move the camera:</b> after the attract screen, “Move the camera to explore”, now just under the icon (23/11), over the camera image, blurred and darkened (night blue at 45%). As in the video, the camera stays still and an icon of the device rocks from side to side to invite visitors to move it. Four icon options under Variants: three based on the front elevation of the device drawing (outline, on its post with the head tilting, and solid with the shutter button; the button position is a guess) and the one from the video. As soon as someone moves the camera, it goes to the instructions.</li>
           <li><b>2 · Instructions:</b> the viewfinder with the four arrows moving in a wave, and “Centre an dot and press”, the text from the Figma (16/11), styled like “Move the camera to explore” but in bold. If you reach a rotation stop, the arrow on that side turns into the straight line.</li>
           <li><b>3 · Detected:</b> a dot counts as soon as it is less than 50 px from the centre. The reticle turns orange, the dot pops and sends out a ripple, the arrows disappear and the ring fills in 0.8 s (dwell). If you move off, the arrows come back. When the ring is full, it moves to “Ready” on its own.</li>
@@ -384,6 +405,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           <li><b>6 · Species card (Figma v3, 16/11):</b> hexagon with the photo and a peach border, and a night-blue panel with a pointed end. Name and scientific name in peach, description in white. Below the card, “Press the shutter to close” in the same pill as “Press the shutter”, with an arrow to the physical button (23/11; before, “Press the button to close”). The background is blurred and darkened at 40%. It closes with the shutter.</li>
           <li><b>7 · Fish:</b> after the first card closes, a school of fish swims in from the left and keeps swimming, anchored to the room. They cannot be photographed. The arrows and the instruction no longer appear, and the photographed animal stays small and dimmed.</li>
           <li><b>Dots:</b> four 24 px dots, electric blue with an almost white centre and a blue halo (reference image, 17/11), one per species from the video (Squat lobster, Black hagfish, Ghostly grenadier and Snow crab), each with its own text.</li>
+          <li><b>Review comments (24/11, proposal):</b> under Variants, by default, the viewfinder is only the circle, without the lines in the centre, so it does not look so much like shooting; and a dot that has already been photographed stays smaller and still (no pulse) but is no longer faded, so it can still be seen. While this option is on, it sets the Reticle. “As before” brings back the lines and the faded dots.</li>
           <li><b>Review comments (16/11), now fixed:</b> the viewfinder lens neither blurs nor magnifies; the UI has no shadows (ring, reticle, arrows, texts and pills; the dots keep their colour glow); the dot is electric blue. “Circle only, no crosshair” is an option under Reticle. Since 23/11 the dwell is fixed at 0.8 s, the detection zone at 50 px and the viewfinder circle is 30% smaller than in the Figma; the only background is the whale model, the attract screen uses the gallery style and screen 1 the device icon.</li>
           <li><b>Review:</b> “← Back”, “Next →” and “Go to” take you to each moment of the flow. It waits on the attract screen until you tap the screen or press the shutter. “Go to” plays the flow on its own from the chosen screen; dragging the image, Back/Next or the shutter stop it. “Reset” goes back to the attract screen. Keyboard arrows: back and next. The tab at the top (“Hide controls”) hides this bar, with the variants and these notes, to see the screen bigger; “Show controls” brings it back.</li>
         </ol>
@@ -448,6 +470,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
             <g clip-path="url(#whaleClip)"><g id="whaleG" class="whale" style="display:none"><path id="whFl" d="M-2 -7 C8 -11 16 -24 24 -38 C28 -45 36 -48 46 -46 C36 -36 30 -18 28 0 C30 18 36 36 46 46 C36 48 28 45 24 38 C16 24 8 11 -2 7 Z" transform="translate(178 0)"/><path d="M-210 -2 C-205 -22 -170 -38 -120 -42 C-40 -48 60 -40 130 -22 C150 -17 166 -12 178 -9 C188 -6 188 6 178 9 C160 14 120 26 60 34 C0 42 -80 44 -140 34 C-180 28 -206 14 -210 -2 Z"/><path d="M128 -25 C134 -31 140 -34 147 -34 C143 -29 143 -24 145 -20"/><path d="M-92 31 C-86 46 -76 58 -62 64 C-58 62 -58 56 -62 50 C-66 44 -68 38 -70 33"/><path class="ln" d="M-206 5 C-186 9 -162 11 -136 8"/><path class="ln th" d="M-192 15 C-162 26 -122 30 -82 30 M-182 24 C-152 33 -116 37 -76 37"/><circle cx="-152" cy="-8" r="4.5" class="eye"/></g></g></svg>
           <div class="galTitle">Explorer’s<br>Toolbar<br>Camera</div>
         </div>
+        <div class="sceneShade" aria-hidden="true"><div class="sceneTitle">Explorer’s Toolbar Camera</div></div>
         <div class="rfidCta" id="rfidCta" aria-hidden="true"><div class="rfidTxt">Scan your wristband<br>or tap the screen to start</div><svg viewBox="0 0 1280 800"><circle class="r1" cx="1295.67" cy="698.33" r="40.33" stroke-width="5.33"/><circle class="r2" cx="1295.67" cy="698.33" r="60.33" stroke-width="4"/><circle class="r3" cx="1295.67" cy="698.33" r="80.33" stroke-width="1.33"/></svg></div>
         <svg class="guide" id="guide" viewBox="0 0 1280 800" aria-hidden="true"><line id="guideLine"/><path id="guideArrow" d="M-8 -19 L11 0 L-8 19"/></svg>
         <div class="attractTxt" id="attractTxt">Move the camera to explore</div>
@@ -574,7 +597,7 @@ function stopFish(){fishOn=false;fishLayer.classList.remove('on');lensFish.class
 function atEdge(s){return s.n==='left'?tx>=-.5:s.n==='right'?tx<=W-BW+.5:s.n==='up'?ty>=-.5:ty<=H-BH+.5}
 function clearChevInline(){SIDES.forEach(s=>{s.el.style.transform='';s.el.style.opacity=''})}
 /* 0 → 1: la attract screen espera a que toquen la pantalla o pulsen el disparador (Montse, 23/11) */
-function wake(){if(phase!=='idle')return;phase='attract';attractT=0;resetMoveTrack()}
+function wake(){if(phase!=='idle')return;phase='attract';attractT=0;if(!captured)stopFish();resetMoveTrack()}
 function start(){
   if(phase!=='attract')return;
   phase='explore';startedAt=performance.now();
@@ -734,7 +757,9 @@ function frame(now){
     SIDES.forEach(s=>{const on=s===st;s.target=on?1:0;s.el.classList.toggle('stop',on);
       s.el.style.transform=on?'translate('+(s.dx*5*bump).toFixed(2)+'px,'+(s.dy*5*bump).toFixed(2)+'px)':''});
   }else if(phase==='attract'||phase==='idle'){   // attract screen e inicio con icono: la cámara no se mueve sola
-    tx=A.x;ty=A.y;SIDES.forEach(s=>{s.target=0;s.el.classList.remove('stop');s.el.style.transform=''});
+    if(phase==='idle'&&isScene()){sceneT+=dt;const u=.5-.5*Math.cos(2*Math.PI*sceneT/SCENE_T);tx=u*(W/SCENE_K-BW);ty=0;if(!fishOn)startFish()}   // barrido lento
+    else{tx=A.x;ty=A.y}
+    SIDES.forEach(s=>{s.target=0;s.el.classList.remove('stop');s.el.style.transform=''});
   }else{
     SIDES.forEach(s=>{s.target=live&&atEdge(s)?1:0;s.el.classList.toggle('stop',s.target===1)});
   }
@@ -749,7 +774,9 @@ function frame(now){
   arrows.classList.toggle('stopsOnly',live&&am==='stops');
   arrows.classList.toggle('off',!showArr);
   stage.classList.toggle('attractIcon',phase==='attract'&&attractMode==='icon');
-  stage.classList.toggle('galOn',phase==='idle');stage.classList.toggle('idleOn',phase==='idle');
+  {const sc=phase==='idle'&&isScene();stage.classList.toggle('attractScene',isScene());
+   scene.style.transformOrigin=sc?'0 0':'';scene.style.transform=sc?'scale('+SCENE_K+')':'';if(!sc)sceneT=0}
+  stage.classList.toggle('galOn',phase==='idle'&&!isScene());stage.classList.toggle('idleOn',phase==='idle');
   whaleFrame(dt);
   attractTxt.style.opacity=phase==='attract'?1:0;
   cardHint.style.opacity=phase==='card'?1:0;
@@ -828,6 +855,12 @@ const retSel=$('ret'),ringSel=$('ringV');
 const initSel=(sel,val,def)=>{sel.value=val;if(!sel.value)sel.value=def};
 initSel(retSel,store.get('ret-v3','b'),'b');reticleEl.dataset.v=retSel.value;
 retSel.addEventListener('change',()=>{reticleEl.dataset.v=retSel.value;store.set('ret-v3',retSel.value)});
+/* Revisión del 24/11 (variante, por defecto): visor solo con el círculo, sin las líneas del centro (que no parezca que se dispara),
+   y puntos ya fotografiados más pequeños, sin parpadeo y sin transparencia. Mientras está activa, manda sobre «Reticle» */
+const reviewSel=$('reviewV');initSel(reviewSel,store.get('rev-2411','on'),'on');
+function applyReview(){const on=reviewSel.value==='on';stage.classList.toggle('gotSolid',on);retSel.disabled=on;
+  retSel.value=on?'n':store.get('ret-v3','b');if(!retSel.value)retSel.value='b';reticleEl.dataset.v=retSel.value}
+applyReview();reviewSel.addEventListener('change',()=>{store.set('rev-2411',reviewSel.value);applyReview()});
 initSel(ringSel,ringAcc?'acc':'white','acc');
 ringSel.addEventListener('change',()=>{ringAcc=ringSel.value==='acc';store.set('ring',ringSel.value)});
 /* Fijo desde el 23/11 (Montse): punto azul de la referencia, lente sin lupa ni desenfoque y UI sin sombra */
@@ -853,12 +886,17 @@ iconSel.addEventListener('change',()=>{store.set('icono',iconSel.value);$('devIc
 const attractMode='icon';HINTS['01']='The device icon rocks to invite visitors to move the camera. <b>Drag the image</b> to start.';
 /* Ballena que sale del triángulo grande (propuesta, 23/11): nada por una curva desde dentro (pequeña, lejos) hasta salir de la pantalla
    abajo a la izquierda, creciendo; bucle de 9 s. Solo en la attract screen con el estilo de la galería */
+/* Attract screen: la escena entera con barrido (24/11, por defecto) o el estilo de la galería. En la versión de navegación, galería quieta */
+const attractBgSel=$('attractBgV'),SCENE_K=.8,SCENE_T=18;let sceneT=0;
+initSel(attractBgSel,store.get('attract-bg','scene'),'scene');
+const isScene=()=>!NAV&&attractBgSel.value==='scene';
+attractBgSel.addEventListener('change',()=>{store.set('attract-bg',attractBgSel.value);go('00')});
 const whaleSel=$('whaleV'),whaleG=$('whaleG'),whFl=$('whFl');initSel(whaleSel,store.get('ballena','swim'),'swim');
 whaleSel.addEventListener('change',()=>store.set('ballena',whaleSel.value));
 const WP=[[505,330],[390,470],[160,610],[-330,770]],WLOOP=9;let whaleT=0;
 const bez=(P,t)=>{const u=1-t,a=u*u*u,b=3*u*u*t,c=3*u*t*t,d=t*t*t;return[a*P[0][0]+b*P[1][0]+c*P[2][0]+d*P[3][0],a*P[0][1]+b*P[1][1]+c*P[2][1]+d*P[3][1]]};
 function whaleFrame(dt){
-  const on=!NAV&&phase==='idle'&&whaleSel.value==='swim';
+  const on=!NAV&&phase==='idle'&&!isScene()&&whaleSel.value==='swim';
   if(!on){whaleT=0;whaleG.style.display='none';return}
   whaleT=(whaleT+dt)%WLOOP;const k=(whaleT-.6)/6.2;   // 0,6 s sin ballena, 6,2 s nadando y el resto fuera de la pantalla
   if(k<=0||k>=1){whaleG.style.display='none';return}
@@ -869,7 +907,7 @@ function whaleFrame(dt){
   whFl.setAttribute('transform','translate(178 0) rotate('+(14*Math.sin(whaleT*5)).toFixed(2)+')');
 }
 if(!NAV)$('rfidCta').classList.add('anim');   // ondas del RFID animadas (en la versión de navegación, quietas)
-if(NAV){document.documentElement.classList.add('navMode');whaleSel.remove();document.querySelector('label[for="whaleV"]').htmlFor='iconV';$('barTtl').textContent="Explorer's Toolbar Camera · navigation review"}
+if(NAV){document.documentElement.classList.add('navMode');whaleSel.remove();attractBgSel.remove();$('barTtl').textContent="Explorer's Toolbar Camera · navigation review"}
 const arrowsSel=$('arrowsV');initSel(arrowsSel,store.get('flechas','idle'),'idle');arrowsSel.addEventListener('change',()=>store.set('flechas',arrowsSel.value));
 const guideSel=$('guideV'),guideEl=$('guide'),guideArrow=$('guideArrow'),guideLine=$('guideLine');
 initSel(guideSel,store.get('guia','arrow'),'arrow');guideSel.addEventListener('change',()=>store.set('guia',guideSel.value));
