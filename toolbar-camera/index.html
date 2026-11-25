@@ -240,7 +240,7 @@ body[data-view="screen"] .screen { border-radius: 10px; }
 .fish{position:absolute;left:-60px;top:-24px;width:120px;height:48px;overflow:visible;will-change:transform}
 .fish .tail{transform-origin:25px 24px;animation:tail .42s ease-in-out infinite alternate;animation-delay:var(--d)}
 @keyframes tail{from{transform:rotate(-16deg)}to{transform:rotate(16deg)}}
-.attractTxt{position:absolute;left:393px;width:494px;top:490px;text-align:center;color:#fff;font-size:36.2px;font-weight:600;line-height:39px;text-shadow:0 1px 4px rgba(16,21,43,.7),0 2px 18px rgba(16,21,43,.5);pointer-events:none;transition:opacity .25s}
+.attractTxt{position:absolute;left:393px;width:494px;top:514px;text-align:center;color:#fff;font-size:36.2px;font-weight:600;line-height:39px;text-shadow:0 1px 4px rgba(16,21,43,.7),0 2px 18px rgba(16,21,43,.5);pointer-events:none;transition:opacity .25s}
 .lens{position:absolute;left:553px;top:313px;width:174px;height:174px;border-radius:50%;overflow:hidden;pointer-events:none}
 .lens img{position:absolute;left:0;top:0;user-select:none}
 .frost{position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.12) 0%,rgba(255,255,255,.5) 55%,rgba(255,255,255,.93) 100%)}
@@ -301,7 +301,7 @@ body[data-view="screen"] .screen { border-radius: 10px; }
 .stage.promptRight .ready:not(.msg) .toBtn{display:none}   /* 24/11: la flecha va fuera, ↘ (.btnArrow) */
 @keyframes toBtn{0%,100%{transform:translateX(0)}50%{transform:translateX(9px)}}
 /* inicio con el icono del aparato, como en el vídeo (23/11): cámara con dos asas que se balancea; redibujado, provisional */
-.devIcon{position:absolute;left:490px;top:270px;width:300px;height:220px;overflow:visible;pointer-events:none;opacity:0;transition:opacity .3s}
+.devIcon{position:absolute;left:532px;top:306px;width:208px;height:152.53px;overflow:visible;pointer-events:none;opacity:0;transition:opacity .3s}
 .devIcon .sway{transform-box:view-box;transform-origin:0 0;animation:devSway 2.2s ease-in-out infinite alternate}
 .devIcon .dv{display:none}
 .devIcon[data-k="front"] .dv[data-k="front"],.devIcon[data-k="post"] .dv[data-k="post"],.devIcon[data-k="solid"] .dv[data-k="solid"],.devIcon[data-k="video"] .dv[data-k="video"]{display:inline}
@@ -505,7 +505,7 @@ body[data-view="screen"] .screen { border-radius: 10px; }
 .summary.on .sumItem.sel{transform:scale(1.08)}
 .sumItem.sel svg{filter:drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(0 0 28px rgba(237,164,129,.6))}
 .sumItem.sel .sumName{color:#FFF4F0}
-.sumPrompt{position:absolute;top:538px;left:0;width:303px;height:59px;padding:9px 0 0 21px;box-sizing:border-box;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;
+.sumPrompt{position:absolute;top:466px;left:0;width:303px;height:59px;padding:9px 0 0 21px;box-sizing:border-box;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;
   color:#FFF4F0;font-size:36.2px;font-weight:600;line-height:39px;letter-spacing:-.41px;white-space:nowrap;opacity:0;transition:opacity .3s,left .3s cubic-bezier(.3,1.2,.5,1)}
 .summary.on .sumPrompt.on{opacity:1}
 /* resumen: botón «Keep searching» (Montse, 25/11). Se elige inclinando la cámara hacia abajo y se pulsa con el disparador */
@@ -535,6 +535,16 @@ body[data-view="screen"] .screen { border-radius: 10px; }
 .sumBtn,.summary.on .sumBtn.sel{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='1' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%23EDA481'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;color:#0F1124}
 .summary.on .sumBtn{opacity:.5}
 .summary.on .sumBtn.sel{opacity:1}
+/* resumen: especie que falta = hueco con «?» (Montse, 25/11), en lugar de la foto en gris */
+.summary.on .sumItem.miss{opacity:.85}
+.sumQbg{fill:rgba(15,17,36,.72);stroke:rgba(237,164,129,.55);stroke-width:6}
+.sumQ{fill:#EDA481;font-size:104px;font-weight:700;opacity:.85}
+/* resumen: nombre dentro del hexágono sobre un velo azul noche (Montse, 25/11); solo en la elegida */
+.sumItem{position:relative}
+.sumItem .sumName{position:absolute;left:30px;right:30px;top:112px;height:62px;display:flex;align-items:center;justify-content:center;
+  font-size:23.84px;line-height:25px;font-weight:600;color:#FFF4F0;text-align:center;text-wrap:balance}
+.sumOv{opacity:0;transition:opacity .25s}
+.sumItem.sel .sumOv{opacity:1}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -569,6 +579,7 @@ body[data-view="screen"] .screen { border-radius: 10px; }
         </select></span>
       <span class="ctl"><label for="endV">Ending</label><select id="endV" aria-label="Ending">
           <option value="idle" title="After 12 s without moving the camera (with at least one photo), a photo summary ends the session, as in the WR1-103-IA01 Media Brief (25/11)">After inactivity</option>
+          <option value="notdone" title="Not completed: after 10 s without moving the camera (with at least one photo), the summary shows the species photographed so far. Choose one to see its card again, or «Keep searching»; the missing ones show a «?» (25/11)">Not completed</option>
           <option value="all" title="Completed: when the card of the last species is closed, the summary shows all the species and «Play again», which starts again from screen 1 (25/11)">Completed</option>
           <option value="none" title="No ending: the visitor keeps exploring (as before)">None</option>
         </select></span>
@@ -653,7 +664,7 @@ body[data-view="screen"] .screen { border-radius: 10px; }
         </div>
         <svg class="devIcon" id="devIcon" viewBox="-150 -110 300 220" aria-hidden="true">
           <!-- opciones del icono del inicio (23/11): 3 a partir del alzado frontal del plano y el del vídeo -->
-          <g class="dv sway" data-k="front"><rect x="-85" y="-64" width="170" height="112" rx="18" fill="none" stroke="#fff" stroke-width="7"/><rect x="-64" y="-46" width="128" height="76" rx="8" fill="none" stroke="#fff" stroke-width="5"/><path d="M-82 24 L-124 58 M82 24 L124 58" stroke="#fff" stroke-width="18" stroke-linecap="round"/></g>
+          <!-- icono nuevo de Montse (25/11), del componente «Icono · aparato (vista frontal)» 61:39 del Figma: marco 176×112 r20 y pantalla 136×76 r10 con trazo 6, asas con trazo 12 --><g class="dv sway" data-k="front"><rect x="-88" y="-64" width="176" height="112" rx="20" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><rect x="-68" y="-46" width="136" height="76" rx="10" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M-80 42 L-125 77 M80 42 L125 77" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/></g>
           <g class="dv" data-k="post"><path d="M0 50 L0 96 M-26 99 L26 99" stroke="#fff" stroke-width="8" stroke-linecap="round"/><g class="sway"><rect x="-85" y="-64" width="170" height="112" rx="18" fill="none" stroke="#fff" stroke-width="7"/><rect x="-64" y="-46" width="128" height="76" rx="8" fill="none" stroke="#fff" stroke-width="5"/><path d="M-82 24 L-124 58 M82 24 L124 58" stroke="#fff" stroke-width="18" stroke-linecap="round"/></g></g>
           <g class="dv sway" data-k="solid"><path d="M-82 24 L-124 58 M82 24 L124 58" stroke="#fff" stroke-width="18" stroke-linecap="round"/><rect x="-85" y="-64" width="170" height="112" rx="18" fill="#fff"/><rect x="-64" y="-46" width="128" height="76" rx="8" fill="#0F1124"/><circle cx="104" cy="41" r="10" fill="#E2412F" stroke="#fff" stroke-width="3"/></g>
           <g class="dv sway" data-k="video">
@@ -1001,7 +1012,7 @@ const HINTS={
   '05':'Flash. The species card opens on its own.',
   '06':'<b>Press the shutter</b> to close the card.',
   '07':'No more arrows or instruction; the fish swim around the room. <b>Find another dot</b> or reset.',
-  '08':'Photo summary (variant «Ending»): all the species of the piece, the ones photographed with their photo and name and the rest faded. <b>Turn the camera</b> (drag) to choose a photographed species («Press to select» appears under it, without sliding) and <b>press the shutter</b> to open its card again; closing it returns here. The name of a species shows only when it is chosen. <b>Keep searching</b> (orange, bottom right; with the arrow to the button when chosen): <b>tilt the camera down</b> (drag up) to choose it and press the shutter to go on exploring with the same photos. No Restart on this screen. With Ending <b>Completed</b> (or once all the species are found) the orange button is <b>Play again</b>: the photos are cleared and it starts again from screen 1, in the same language. Title provisional, from the client’s example (#413). Back to the attract screen after 10 s without moving.'};
+  '08':'Photo summary (variant «Ending»): all the species of the piece, the ones photographed with their photo and the missing ones as a «?» placeholder. <b>Turn the camera</b> (drag) to choose a photographed species («Press to select» appears under it, without sliding) and <b>press the shutter</b> to open its card again; closing it returns here. The name of a species shows only when it is chosen, inside its hexagon over a dark overlay. <b>Keep searching</b> (orange, bottom right; with the arrow to the button when chosen): <b>tilt the camera down</b> (drag up) to choose it and press the shutter to go on exploring with the same photos. No Restart on this screen. While species are missing the orange button is <b>Keep searching</b>; once all are found (Ending <b>Completed</b>) it is <b>Play again</b>: the photos are cleared and it starts again from screen 1, in the same language. Ending <b>Not completed</b> opens this summary after 10 s without moving. Title provisional, from the client’s example (#413). Back to the attract screen after 10 s without moving.'};
 function screenOf(){
   if(phase==='idle')return '00';if(phase==='lang')return langSel==='en'?'0b':langSel==='ar'?'0c':'0a';if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';if(phase==='summary')return '08';
   if(done)return '04';if(wasEng)return '03';return captured?'07':'02';
@@ -1072,7 +1083,7 @@ function frame(now){
   const dt=Math.min((now-last)/1000,.05);last=now;
   stepSeq(dt);
   const live=phase==='explore';
-  if(live&&endSel.value==='idle'&&captured&&!wasEng&&!done&&now-lastMoveT>SUM_IDLE){showSummary();return requestAnimationFrame(frame)}   // final por inactividad
+  if(live&&(endSel.value==='idle'||endSel.value==='notdone')&&captured&&!wasEng&&!done&&now-lastMoveT>(endSel.value==='notdone'?SUM_IDLE_ND:SUM_IDLE)){showSummary();return requestAnimationFrame(frame)}   // final por inactividad
   /* detecta si el punto está dentro de la zona de detección; al que ya está detectado se le deja salir 16 px más */
   let best=-1,bd=1e9;
   if(live)SPECIES.forEach((sp,i)=>{if(sp.got)return;const d=Math.hypot(sp.x+tx-640,sp.y+ty-400);
@@ -1242,7 +1253,7 @@ const pmSel=$('promptMoveV');initSel(pmSel,store.get('aviso-mov','still'),'still
 const applyPm=()=>stage.classList.toggle('promptStill',pmSel.value==='still');applyPm();
 pmSel.addEventListener('change',()=>{store.set('aviso-mov',pmSel.value);applyPm()});
 /* Final (variante «Ending», 25/11): resumen de las especies de la pieza. Tiempos provisionales */
-const SUM_IDLE=12000,SUM_BACK=10000;
+const SUM_IDLE=12000,SUM_BACK=10000,SUM_IDLE_ND=10000;
 const sumEl=$('summary'),endSel=$('endV');initSel(endSel,store.get('final','idle'),'idle');endSel.addEventListener('change',()=>store.set('final',endSel.value));
 const SUM_PHOTO=document.querySelector('#card .hexG image').getAttribute('href');
 const SUM_HEX=roundPoly([[55,0],[165,0],[220,95.5],[165,191],[55,191],[0,95.5]],18);
@@ -1253,7 +1264,7 @@ function setSumSel(i){sumSel=i;sumEl.querySelectorAll('.sumItem').forEach((el,k)
   $('sumBtn').classList.toggle('sel',i===SUM_BTN);$('sumArrow').classList.toggle('on',i===SUM_BTN);   // es un aviso del disparador: lleva su flecha
   const pr=$('sumPrompt');
   if(i>=0){const n=SPECIES.length,start=(W-(n*220+(n-1)*60))/2,x=(start+110+i*280-151.5)+'px';
-    if(pr.style.left!==x||!pr.classList.contains('on')){pr.style.transition='none';pr.classList.remove('on');pr.style.left=x;pr.style.top='538px';
+    if(pr.style.left!==x||!pr.classList.contains('on')){pr.style.transition='none';pr.classList.remove('on');pr.style.left=x;pr.style.top='466px';
       void pr.offsetWidth;pr.style.transition='';pr.classList.add('on')}}   // sin deslizarse: se funde en su sitio, bajo la especie elegida
   else pr.classList.remove('on')}
 /* «Keep searching»: vuelve a explorar con las fotos que ya tiene; la cuenta de inactividad empieza de cero */
@@ -1275,8 +1286,9 @@ function showSummary(keep){
   card.classList.remove('on');readyEl.classList.remove('on');scene.classList.add('blur','dark');
   const n=SPECIES.filter(sp=>sp.got).length;
   $('sumTitle').textContent='You found '+n+' species';
-  $('sumBtn').textContent=SPECIES.every(sp=>sp.got)?'Play again':'Keep searching';   // final completado: volver a jugar (Montse, 25/11)   // provisional: del ejemplo del cliente (#413)
-  $('sumList').innerHTML=SPECIES.map((sp,i)=>'<div class="sumItem'+(sp.got?'':' miss')+'" style="--d:'+(i*.12)+'s"><svg viewBox="0 0 220 191" aria-hidden="true"><defs><clipPath id="sumClip'+i+'"><path d="'+SUM_HEX+'"/></clipPath></defs><image width="220" height="191" preserveAspectRatio="xMidYMid slice" clip-path="url(#sumClip'+i+')"/><path d="'+SUM_HEX+'" fill="none" stroke="#EDA481" stroke-width="6"/></svg><div class="sumName">'+sp.name+'</div></div>').join('');
+  $('sumBtn').textContent=SPECIES.every(sp=>sp.got)?'Play again':'Keep searching';   // «Play again» solo con todas (Montse, 25/11)   // final completado: volver a jugar (Montse, 25/11)   // provisional: del ejemplo del cliente (#413)
+  $('sumList').innerHTML=SPECIES.map((sp,i)=>'<div class="sumItem'+(sp.got?'':' miss')+'" style="--d:'+(i*.12)+'s"><svg viewBox="0 0 220 191" aria-hidden="true"><defs><clipPath id="sumClip'+i+'"><path d="'+SUM_HEX+'"/></clipPath><linearGradient id="sumOvG'+i+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0F1124" stop-opacity="0"/><stop offset=".45" stop-color="#0F1124" stop-opacity=".78"/><stop offset="1" stop-color="#0F1124" stop-opacity=".94"/></linearGradient></defs>'+(sp.got?'<image width="220" height="191" preserveAspectRatio="xMidYMid slice" clip-path="url(#sumClip'+i+')"/><rect class="sumOv" y="64" width="220" height="127" fill="url(#sumOvG'+i+')" clip-path="url(#sumClip'+i+')"/><path d="'+SUM_HEX+'" fill="none" stroke="#EDA481" stroke-width="6"/>'
+      :'<path class="sumQbg" d="'+SUM_HEX+'"/><text class="sumQ" x="110" y="98" text-anchor="middle" dominant-baseline="central">?</text>')+'</svg><div class="sumName">'+sp.name+'</div></div>').join('');
   sumEl.querySelectorAll('image').forEach(im=>im.setAttribute('href',SUM_PHOTO));
   sumEl.classList.remove('on','settled');void sumEl.offsetWidth;sumEl.classList.add('on');
   setTimeout(()=>sumEl.classList.add('settled'),900);
