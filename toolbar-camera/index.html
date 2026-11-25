@@ -3,7 +3,7 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Toolbar camera prototype + device</title>
+<title>Device + Toolbar camera prototype</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -135,12 +135,15 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .phys.down .physCap, .phys:active .physCap { transform: translateY(2px); box-shadow: 0 0 0 #7a1a11, 0 2px 4px rgba(0,0,0,.4), inset 0 2px 2px rgba(255,255,255,.25); }
 .physLbl { display: flex; flex-direction: column; align-items: center; line-height: 1.25; }
 .physLbl small { font-weight: 400; font-size: 11px; color: var(--muted); }
-/* disparador en la unión del asa derecha, como en el alzado frontal del plano (detalle C; Montse, 24/11): lo coloca fit() */
-.phys { display: block; width: var(--pb, 60px); height: var(--pb, 60px); gap: 0; }
-.physBezel { width: 100%; height: 100%; }
-.physCap { width: 72%; height: 72%; }
-.physLbl { position: absolute; left: calc(100% + var(--lg, 30px)); top: 50%; transform: translateY(-50%); align-items: flex-start; text-align: left; white-space: nowrap; }
+/* View · Simulation (Montse, 25/11): disparador en la unión del asa derecha, como en el alzado frontal del plano (detalle C; 24/11): lo coloca fit() */
+body[data-view="sim"] .phys { display: block; width: var(--pb, 60px); height: var(--pb, 60px); gap: 0; }
+body[data-view="sim"] .physBezel { width: 100%; height: 100%; }
+body[data-view="sim"] .physCap { width: 72%; height: 72%; }
+body[data-view="sim"] .physLbl { position: absolute; left: calc(100% + var(--lg, 30px)); top: 50%; transform: translateY(-50%); align-items: flex-start; text-align: left; white-space: nowrap; }
 .device { position: absolute; left: 0; top: 0; pointer-events: none; overflow: visible; }
+/* View · Screen: solo la pantalla (esquinas de 10 px) y el botón redondo del disparador a su derecha */
+body[data-view="screen"] .device { display: none; }
+body[data-view="screen"] .screen { border-radius: 10px; }
 /* Restart en pantalla, como en otras piezas (Figma de Montse, «Restart button» en 04 Listo, 24/11): pestaña azul noche pegada al borde
    izquierdo, en (0, 638), 131,7 × 97, opacidad 90 %, con su sombra; se ve desde la pantalla 1 (no en la attract ni al elegir idioma) */
 .rstBtn{position:absolute;left:0;top:636.17px;width:137px;height:107px;z-index:30;opacity:0;pointer-events:none;transition:opacity .35s;cursor:pointer;outline:none}
@@ -155,6 +158,60 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .barTab:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
 .barTab svg { width: 10px; height: 10px; flex: none; transition: transform .2s; }
 .app.barHidden .bar { display: none; }
+/* --- comentarios del cliente al 60 % (25/11): panel lateral, como en Underwater Microscopy --- */
+:root { --card: #f7f6f3; --b-bg: #fff2cc; --b-fg: #6b4e00; --c-bg: #fbe0de; --c-fg: #8a1c12; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --card: #1d1d1b; --b-bg: #3a3016; --b-fg: #f3d98a; --c-bg: #3d1c19; --c-fg: #f2a59c; } }
+:root[data-theme="dark"] { --card: #1d1d1b; --b-bg: #3a3016; --b-fg: #f3d98a; --c-bg: #3d1c19; --c-fg: #f2a59c; }
+.work { flex: 1; min-height: 0; display: flex; position: relative; }
+.work > .viewport { min-width: 0; }
+.ctrls button.cp-tog[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.cp-badge { display: inline-block; min-width: 18px; padding: 0 5px; margin-left: 6px; border-radius: 9px; background: var(--acc); color: #220900; font-size: 11px; font-weight: 700; line-height: 18px; text-align: center; font-variant-numeric: tabular-nums; }
+.cpanel[hidden], .app.barHidden .cpanel { display: none; }
+.cpanel { width: min(440px, 42vw); flex: none; min-width: 0; border-left: 1px solid var(--line); background: var(--bg); overflow-y: auto; display: flex; flex-direction: column; }
+.cpanel button:focus-visible { outline: 2px solid var(--fg); outline-offset: 2px; }
+.cp-ph { position: sticky; top: 0; z-index: 1; background: var(--bg); padding: 12px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.cp-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.cp-top strong { font-size: 15px; }
+.cp-src { margin: 0; font-size: 12px; line-height: 1.45; color: var(--muted); }
+.cp-x { font: 500 12px var(--ui); color: var(--fg); background: var(--ctl); border: 1px solid var(--line); border-radius: 8px; padding: 4px 8px; cursor: pointer; flex: none; }
+.cp-segs { display: flex; flex-wrap: wrap; gap: 8px 14px; }
+.cp-seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.cp-seg button { font: 500 12px var(--ui); color: var(--fg); background: var(--ctl); border: 0; padding: 5px 10px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.cp-seg button + button { border-left: 1px solid var(--line); }
+.cp-seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.cp-list { padding: 12px 16px 24px; display: grid; gap: 12px; align-content: start; }
+.cp-empty { margin: 0; font-size: 13px; line-height: 1.5; color: var(--muted); }
+/* comentarios de otra pieza (WR1-103-IA01): recuadro con borde a trazos y marca azul grisácea */
+:root { --oth: #5b7fa6; --oth-bg: #e3ecf6; --oth-fg: #24476e; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --oth: #7fa3cc; --oth-bg: #1d2a3a; --oth-fg: #bcd3ec; } }
+:root[data-theme="dark"] { --oth: #7fa3cc; --oth-bg: #1d2a3a; --oth-fg: #bcd3ec; }
+.cp-pill.other { background: var(--oth-bg); color: var(--oth-fg); }
+.cp-why { margin: 0; font-size: 12px; line-height: 1.45; color: var(--oth-fg); }
+.cp-refs { display: grid; gap: 8px; border-top: 1px dashed var(--line); padding-top: 10px; min-width: 0; }
+.cp-refs > h4 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--oth-fg); }
+.cp-ref, .cp-cm.other { border: 1px dashed var(--oth); border-left: 4px solid var(--oth); border-radius: 8px; padding: 10px 12px; display: grid; gap: 8px; background: var(--bg); min-width: 0; }
+.cp-cm.other { padding: 12px 14px; }
+.cp-ref.hit, .cp-cm.other.hit { box-shadow: 0 0 0 1px var(--acc); }
+.cp-cm { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 10px; min-width: 0; }
+.cp-cm.hit { border-color: var(--acc); box-shadow: 0 0 0 1px var(--acc); }
+.cp-h { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.cp-num { font-weight: 700; font-size: 15px; font-variant-numeric: tabular-nums; }
+.cp-pill { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 6px; letter-spacing: .02em; }
+.cp-pill.B { background: var(--b-bg); color: var(--b-fg); }
+.cp-pill.C { background: var(--c-bg); color: var(--c-fg); }
+.cp-pill.sc { border: 1px solid var(--line); color: var(--muted); font-weight: 500; }
+.cp-pg { font-size: 11px; color: var(--muted); margin-left: auto; }
+.cp-blk { display: grid; gap: 6px; min-width: 0; }
+.cp-blk h4 { margin: 0; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cp-blk p { margin: 0; font-size: 13.5px; line-height: 1.5; overflow-wrap: anywhere; }
+.cp-blk p .lg { display: inline-block; margin-right: 6px; font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--muted); vertical-align: 1px; }
+.cp-blk p.es { color: var(--muted); }
+.cp-resp { border-top: 1px dashed var(--line); padding-top: 10px; }
+.cp-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 11px; color: var(--muted); }
+.cp-chips button { font: 500 11px var(--ui); color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; cursor: pointer; }
+.cp-chips button:hover { border-color: var(--acc); }
+.cp-chips span { border: 1px solid var(--line); border-radius: 999px; padding: 2px 8px; }
+@media (max-width: 760px) { .cpanel { position: absolute; inset: 0; width: auto; border-left: 0; z-index: 30; } }
 .app.barHidden .barTab svg { transform: rotate(180deg); }
 
 /* --- pantalla de la pieza --- */
@@ -208,9 +265,6 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .hot.in::before{animation:hotPop .35s cubic-bezier(.3,1.7,.5,1)}
 @keyframes hotPop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 .hot.in::after,.hot.got::after{animation:none;opacity:0}
-.hot.got{opacity:.45;transform:scale(.7)}
-/* Revisión del 24/11 (variante): el punto ya fotografiado se queda más pequeño y quieto, pero sin transparencia, para que se siga viendo */
-.stage.gotSolid .hot.got{opacity:1;transform:scale(.6)}
 .ripple{position:absolute;left:640px;top:400px;width:24px;height:24px;margin:-12px 0 0 -12px;border-radius:50%;border:4px solid var(--dot);opacity:0;pointer-events:none}
 .ripple.go{animation:rip .6s ease-out}
 @keyframes rip{from{opacity:.95;transform:scale(1)}to{opacity:0;transform:scale(4)}}
@@ -281,7 +335,7 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .rfidCta circle{fill:none;stroke:#EDA481}
 /* ondas animadas (propuesta): se encienden de dentro afuera. En la versión de navegación, quietas */
 .rfidCta.anim circle{animation:wv 1.8s ease-in-out infinite}.rfidCta.anim .r2{animation-delay:.25s}.rfidCta.anim .r3{animation-delay:.5s}
-@keyframes wv{0%,100%{opacity:.3}35%{opacity:1}}
+@keyframes wv{0%,100%{opacity:.65}35%{opacity:1}}   /* nunca se apagan del todo (Montse, 25/11) */
 .stage.idleOn .scope,.stage.idleOn #hots{opacity:0}
 /* ballena que sale nadando del triángulo grande (propuesta, 23/11): dibujada como los triángulos, relleno azul noche y borde melocotón */
 .whale path{fill:#10152B;stroke:#EDA481;stroke-width:6;stroke-linejoin:round;stroke-linecap:round;vector-effect:non-scaling-stroke}
@@ -292,7 +346,6 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .guide{filter:drop-shadow(0 0 5px rgba(170,232,255,.95)) drop-shadow(0 0 14px rgba(40,150,255,.75))}
 #guideArrow{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round;stroke-linejoin:round;animation:guideBlink 1.1s ease-in-out infinite}
 @keyframes guideBlink{0%,100%{opacity:1}50%{opacity:.35}}
-#guideLine{stroke:#fff;stroke-width:5;stroke-linecap:round;stroke-dasharray:.1 14;fill:none}
 /* aviso al pulsar el disparador sin nada que fotografiar (propuesta, 23/11) */
 .nopeLayer{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(15,17,36,.6);opacity:0;pointer-events:none;transition:opacity .2s}
 .nopeLayer.on{opacity:1}
@@ -325,8 +378,9 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
    sale con «Press the shutter» (04) y con «Press the shutter to close» (06) y se mueve un poco hacia el botón */
 .btnArrow{position:absolute;left:1090.5px;top:649.5px;width:52px;height:52px;opacity:0;pointer-events:none;transition:opacity .3s;z-index:40}
 .btnArrow.on{opacity:1}
-.btnArrow svg{display:block;width:100%;height:100%;overflow:visible;animation:toBtnD .9s ease-in-out infinite}
-@keyframes toBtnD{0%,100%{transform:translate(0,0)}50%{transform:translate(6px,6px)}}
+.btnArrow{overflow:visible}
+.btnArrow path{animation:toBtnD .9s ease-in-out infinite}   /* la flecha va y viene hacia el botón (↘) */
+@keyframes toBtnD{0%,100%{transform:translate(0,0);opacity:.75}50%{transform:translate(9px,9px);opacity:1}}
 /* 04 Listo: dos manchas oscuras muy difuminadas abajo a la derecha, como en el Figma de Montse («Group 192», 24/11):
    #0C0C0D al 90 % con desenfoque de capa 614,8 (≈ blur 307 px en CSS); oscurecen el sitio de la flecha ↘ */
 .shade04{position:absolute;inset:0;overflow:hidden;pointer-events:none;opacity:0;transition:opacity .4s}   /* debajo de la píldora y de la flecha */
@@ -338,6 +392,28 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .stage.noshadow .attractTxt,.stage.noshadow .ins,.stage.noshadow .cardHint{text-shadow:none}
 .stage.noshadow .ready{box-shadow:none}
 .stage.noshadow .hot::before{box-shadow:var(--dotHalo)}
+/* punto ya visto (Montse, 25/11: «quítame el check… que no parpadee el punto, que sea más pequeño y menos luminoso»): sin latido, más pequeño y apagado */
+.hot.got{opacity:.45;transform:scale(.7)}
+/* contador de especies fotografiadas (Montse, 25/11): píldora azul noche arriba a la derecha, sin texto */
+.counter{position:absolute;right:28px;top:28px;height:64px;display:flex;align-items:center;padding:0 24px;background:rgba(15,17,36,.9);border-radius:999px;
+  color:#EDA481;pointer-events:none;opacity:0;transition:opacity .35s;z-index:25;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+.stage.cntOn .counter{opacity:1}
+.counter[data-k="none"]{display:none}
+.counter>span{display:none;align-items:center}
+.counter[data-k="dots"] .cnt-dots,.counter[data-k="hex"] .cnt-hex,.counter[data-k="num"] .cnt-num{display:flex}
+.cnt-dots{gap:14px}
+.cnt-dots i{display:block;width:26px;height:26px;border-radius:50%;box-sizing:border-box;border:3px solid rgba(237,164,129,.45)}   /* falta: naranja apagado (Montse, 25/11: «no ese azul inventado») */
+.cnt-dots i.on{border:0;background:#EDA481 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6.2 12.6l3.9 3.9 7.7-8.6' fill='none' stroke='%230F1124' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/18px no-repeat}   /* conseguida: naranja de la galería WR1 (gallery-accent) con check azul noche (Montse, 25/11) */
+.cnt-hex{gap:10px}
+.cnt-hex svg{display:block;width:36px;height:32px;overflow:visible}
+.cnt-hex .hx{fill:none;stroke:#EDA481;stroke-width:2.5;stroke-linejoin:round}
+.cnt-hex .on .hx{fill:#EDA481}
+.cnt-hex .ck{fill:none;stroke:#0F1124;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.cnt-hex .on .ck{opacity:1}
+.cnt-num{font-size:36.2px;font-weight:700;line-height:40px;letter-spacing:.5px;color:#FFF4F0}
+.cnt-num b{color:#EDA481;font-weight:700;display:inline-block}
+.counter .pop{animation:cntPop .5s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cntPop{0%{transform:scale(1)}40%{transform:scale(1.45)}100%{transform:scale(1)}}
 /* Inicio de Montse en Figma (Toolbar Mockup, página v4, marco «UI screen» 74:3954, 24/11): attract «Water, Camera, Action!» sobre el
    arrecife y elección de idioma (EN a la izquierda, árabe a la derecha). Medidas, colores y vectores sacados del Figma tal cual */
 .startUI{position:absolute;inset:0;overflow:hidden;opacity:0;pointer-events:none;transition:opacity .5s}
@@ -352,9 +428,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .stage.wcaOn .wca,.stage.langOn .lang{opacity:1}
 .wcaTitle{position:absolute;left:728.67px;top:307.33px;width:334px;font:500 60px/60px Roboto,system-ui,sans-serif;color:#EDA481}
 .wcaCta{position:absolute;color:#D68862;font-size:26.49px;font-weight:600;line-height:40px;text-align:right;white-space:nowrap}
+/* «Scan your wristband to start»: el texto quieto; solo se animan los círculos del lector (Montse, 25/11: «solo el círculo, no el texto») */
 .wcaRings circle{fill:none;stroke:#EDA481}
 /* ondas del lector RFID (Montse, 24/11: «anima también los círculos»): de dentro afuera, cada círculo se enciende, crece un poco y brilla */
-@keyframes wcaWave{0%,62%,100%{opacity:.22;transform:scale(1);filter:none}30%{opacity:1;transform:scale(1.08);filter:drop-shadow(0 0 7px rgba(237,164,129,.9))}}
+@keyframes wcaWave{0%,62%,100%{opacity:.65;transform:scale(1);filter:none}30%{opacity:1;transform:scale(1.08);filter:drop-shadow(0 0 7px rgba(237,164,129,.9))}}
 .wcaRings.anim circle{transform-box:view-box;transform-origin:1295.67px 698.33px;animation:wcaWave 2.4s cubic-bezier(.3,.6,.3,1) infinite}
 .wcaRings.anim .r2{animation-delay:.24s}.wcaRings.anim .r3{animation-delay:.48s}
 .stage.wcaOn .rfidCta{display:none}
@@ -368,8 +445,96 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 .lang.armed .move{opacity:0}
 .lang .armOnly{opacity:0;transition:opacity .4s}
 .lang.armed .armOnly{opacity:1}
+/* botones de idioma en hexágono (24/11, referencia de Montse): relleno oscuro translúcido, borde melocotón fino y nombre en
+   melocotón; al marcarlo, relleno melocotón con brillo y nombre oscuro (como los triángulos de su Figma); el otro baja al 30 % */
+.hexSet{display:none}
+.lang[data-shape^="hex"] .hexSet{display:block}
+.lang[data-shape^="hex"] .lEn,.lang[data-shape^="hex"] .lAr,.lang[data-shape^="hex"] .move{display:none}
+.hxTop{position:absolute;left:0;top:62px;width:1280px;display:flex;flex-direction:column;align-items:center;transition:opacity .35s}
+.lang.armed .hxTop{opacity:0}
+.hxArMove{display:block}
+.hxDiv{display:block;width:46px;height:2px;margin:16px 0 12px;background:#EDA481;opacity:.8}
+.hxEnMove{color:#F3F3F3;font-size:26.5px;font-weight:600;line-height:34px;white-space:nowrap}
+.hx{position:absolute;width:280px;height:244px;transition:opacity .4s}
+.hx .hxShape{position:absolute;left:0;top:0;width:100%;height:100%;overflow:visible;transition:filter .35s}
+.hx .hxFill{fill:#1C1716;fill-opacity:.5;transition:fill .35s,fill-opacity .35s}
+.hx .hxStroke{fill:none;stroke:#EDA481;stroke-opacity:.8;stroke-width:2.5}
+.hx .hxLbl{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#EDA481;transition:color .3s}
+.lang[data-sel="en"] .hxEn .hxFill,.lang[data-sel="ar"] .hxAr .hxFill{fill:#EDA481;fill-opacity:1}
+.lang[data-sel="en"] .hxEn .hxShape,.lang[data-sel="ar"] .hxAr .hxShape{filter:drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(0 0 28px rgba(237,164,129,.6))}
+.lang[data-sel="en"] .hxEn .hxLbl,.lang[data-sel="ar"] .hxAr .hxLbl{color:#220900}
+.lang.armed[data-sel="en"] .hxAr,.lang.armed[data-sel="ar"] .hxEn{opacity:.3}
+/* hexágonos en fila y simétricos (350 px entre bordes): English a la izquierda y árabe a la derecha, a la misma altura.
+   Única posición desde el 25/11 (Montse: «solo el hexágono side by side… quítame las otras») */
+.lang[data-shape="hexr"] .hxEn{left:190px;top:286px}
+.lang[data-shape="hexr"] .hxAr{left:810px;top:286px}
+/* aviso en árabe (25/11): 639 × 63 a 84 px en el Figma (1920); × 61/80 como el inglés → 487 × 48, centrado donde va el inglés */
+.lSubAr{position:absolute;left:535px;top:600px;width:487px;height:48px;display:none;overflow:visible}
+.lang[data-sel="ar"] .lSub{display:none}
+.lang[data-sel="ar"] .lSubAr{display:block}
 .lSub{position:absolute;left:508px;top:594px;color:#EDA481;font-size:53.86px;font-weight:600;line-height:59px;letter-spacing:-.61px;white-space:nowrap}
 @media (prefers-reduced-motion: reduce){.chev,.hot::after,.ready.on,.fish .tail{animation:none!important}}
+/* 25/11, Figma de Montse («04 Listo», Group 202): panel azul noche al 78 % con punta a la derecha, a la derecha del visor;
+   ilmi SemiBold 41 (−1 %), sin flecha. Panel 303 × 59 en (739, 378); texto en (760, 387) */
+.stage.promptRight .ready:not(.msg){left:739px;top:378px;width:303px;height:59px;padding:9px 0 0 21px;display:block;box-sizing:border-box;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;border-radius:0;box-shadow:none;color:#FFF4F0;
+  font-size:36.2px;font-weight:600;line-height:39px;letter-spacing:-.41px;transform:scale(.92);transform-origin:0 50%}
+.stage.promptRight .ready.on:not(.msg){transform:scale(1);animation:breatheP 1.4s ease-in-out .35s infinite}
+@keyframes breatheP{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+/* 25/11 (Montse: «quítame la flecha del press the shutter to close, y ponme el mismo elemento que cuando detecta algo»): el mismo
+   panel con punta que «Press the shutter» (04: azul noche 78 %, ilmi SemiBold 41, −1 %), alargado para el texto: 416 × 59, en el sitio
+   del Figma 06 (x 775, centrado en y 632); sin flecha */
+.stage .cardHint{left:775px;top:603px;width:416px;height:59px;display:block;box-sizing:border-box;padding:9px 0 0 21px;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='416' height='59' viewBox='0 0 416 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.84012 2.243 2.33554 1.36744C3.83097 0.49188 5.85921 0 7.97407 0H398.9C400.346 -0.00014 401.764 0.22975 403.003 0.66508C404.243 1.10041 405.257 1.72481 405.937 2.47151L415.062 27.3028C415.678 27.979 416 28.7336 416 29.5C416 30.2664 415.678 31.021 415.062 31.6972L405.937 56.5285C405.257 57.2752 404.243 57.8996 403.003 58.3349C401.764 58.7703 400.346 59.0001 398.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.84012 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/416px 59px no-repeat;border-radius:0;color:#FFF4F0;font-size:36.2px;font-weight:600;line-height:39px;letter-spacing:-.41px;
+  transform-origin:0 50%;animation:breatheP 1.4s ease-in-out .35s infinite}
+.stage.promptStill.promptRight .ready.on:not(.msg){animation:none;transform:scale(1)}   /* «Press the shutter» quieto */
+.stage.promptStill .cardHint{animation:none}
+/* resumen final (variante «Ending», 25/11): todas las especies de la pieza; las que faltan, apagadas */
+.summary{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .45s;z-index:20}
+.summary.on{opacity:1}
+.sumTitle{position:absolute;left:0;right:0;top:118px;text-align:center;color:#FFF4F0;font-size:42.38px;font-weight:700;line-height:45px;letter-spacing:-.96px}
+.sumList{position:absolute;left:0;right:0;top:250px;display:flex;justify-content:center;gap:60px}
+.sumItem{width:220px;display:flex;flex-direction:column;align-items:center;gap:22px;transform:scale(.9);opacity:0;transition:transform .5s cubic-bezier(.3,1.4,.5,1) var(--d),opacity .4s var(--d)}
+.summary.on .sumItem{transform:scale(1);opacity:1}
+.summary.on .sumItem.miss{opacity:.35}
+.sumItem.miss image{filter:grayscale(1)}
+.sumItem svg{display:block;width:220px;height:191px;overflow:visible}
+.sumName{color:#EDA481;font-size:28.26px;font-weight:600;line-height:33px;text-align:center}
+/* resumen: especie elegida girando la cámara (25/11) */
+.summary.settled .sumItem{transition-delay:0s}
+.summary.on .sumItem.sel{transform:scale(1.08)}
+.sumItem.sel svg{filter:drop-shadow(0 0 14px rgba(255,255,255,.35)) drop-shadow(0 0 28px rgba(237,164,129,.6))}
+.sumItem.sel .sumName{color:#FFF4F0}
+.sumPrompt{position:absolute;top:538px;left:0;width:303px;height:59px;padding:9px 0 0 21px;box-sizing:border-box;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;
+  color:#FFF4F0;font-size:36.2px;font-weight:600;line-height:39px;letter-spacing:-.41px;white-space:nowrap;opacity:0;transition:opacity .3s,left .3s cubic-bezier(.3,1.2,.5,1)}
+.summary.on .sumPrompt.on{opacity:1}
+/* resumen: botón «Keep searching» (Montse, 25/11). Se elige inclinando la cámara hacia abajo y se pulsa con el disparador */
+.sumBtn{position:absolute;left:50%;top:612px;transform:translateX(-50%) scale(.96);padding:16px 44px 18px;border-radius:44px;box-sizing:border-box;
+  background:rgba(15,17,36,.9);border:3px solid #EDA481;color:#FFF4F0;font-size:36.2px;font-weight:700;line-height:39px;letter-spacing:-.41px;white-space:nowrap;
+  opacity:0;pointer-events:none;cursor:pointer;outline:none;transition:opacity .4s,transform .3s cubic-bezier(.3,1.4,.5,1),background .25s,color .25s,box-shadow .25s}
+.summary.on .sumBtn{opacity:1;pointer-events:auto}
+.sumBtn.sel{background:#EDA481;color:#0F1124;transform:translateX(-50%) scale(1.06);box-shadow:0 0 28px rgba(237,164,129,.6)}
+.sumBtn:focus-visible{outline:3px solid #E0F1F3;outline-offset:4px}
+.sumPrompt{transition:opacity .3s,left .3s cubic-bezier(.3,1.2,.5,1),top .3s cubic-bezier(.3,1.2,.5,1)}
+/* «Keep searching» como los avisos del disparador (Montse, 25/11): panel con punta corto abajo a la derecha y flecha ↘ al botón
+   rojo en la misma relación que «Press the shutter to close» en la ficha. Sin elegir, apagado; elegido, entero y con la flecha */
+.sumBtn{left:888px;top:660px;width:303px;height:59px;padding:9px 0 0 21px;border:0;border-radius:0;box-sizing:border-box;transform:none;transform-origin:0 50%;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;color:#FFF4F0;font-size:36.2px;font-weight:600;line-height:39px;letter-spacing:-.41px;box-shadow:none;transition:opacity .3s}
+.summary.on .sumBtn{opacity:.45}
+.summary.on .sumBtn.sel{opacity:1;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='0.78' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%230F1124'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;color:#FFF4F0;transform:none;box-shadow:none;animation:breatheP 1.4s ease-in-out .35s infinite}
+.stage.promptStill .summary .sumBtn.sel{animation:none}
+.sumArrow{position:absolute;left:1184px;top:727px;width:52px;height:52px;overflow:visible;opacity:0;transition:opacity .3s;pointer-events:none}
+.sumArrow path{animation:toBtnD .9s ease-in-out infinite}
+.summary.on .sumArrow.on{opacity:1}
+/* resumen: «Press to select» no se desliza entre especies; aparece en su sitio, debajo de la elegida (Montse, 25/11) */
+.sumPrompt{transition:opacity .3s}
+/* resumen (Montse, 25/11): el nombre de la especie solo en la elegida */
+.sumItem .sumName{opacity:0;transition:opacity .25s,color .25s}
+.sumItem.sel .sumName{opacity:1}
+/* «Keep searching» distinto de los avisos: panel con punta en naranja de la galería y texto azul noche (Montse, 25/11) */
+.sumBtn,.summary.on .sumBtn.sel{background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='303' height='59' viewBox='0 0 303 59'%3E%3Cpath opacity='1' d='M0 4.66874C0 3.43051 0.840117 2.243 2.33554 1.36744C3.83097 0.491884 5.85921 6.48601e-08 7.97407 6.48601e-08H285.9C287.346 -0.000140976 288.764 0.229745 290.003 0.665077C291.243 1.10041 292.257 1.72481 292.937 2.47151L302.062 27.3028C302.678 27.979 303 28.7336 303 29.5C303 30.2664 302.678 31.021 302.062 31.6972L292.937 56.5285C292.257 57.2752 291.243 57.8996 290.003 58.3349C288.764 58.7703 287.346 59.0001 285.9 59H7.97407C5.85921 59 3.83097 58.5081 2.33554 57.6325C0.840117 56.757 0 55.5695 0 54.3313L0 4.66874Z' fill='%23EDA481'/%3E%3C/svg%3E") 0 0/303px 59px no-repeat;color:#0F1124}
+.summary.on .sumBtn{opacity:.5}
+.summary.on .sumBtn.sel{opacity:1}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -380,78 +545,45 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
 
 <div class="app">
   <header class="bar" id="bar">
-    <div class="ttl"><strong id="barTtl">Toolbar camera prototype + device</strong><span>WR1-303-IA01 · prototype (Figma “Toolbar Mockup”: start and language from page v4 · 24/11, the rest from page v3 · 16/11), WR1 colours</span></div>
+    <div class="ttl"><strong id="barTtl">Device + Toolbar camera prototype</strong><span>WR1-303-IA01 · prototype (Figma “Toolbar Mockup”: start and language from page v4 · 24/11, the rest from page v3 · 16/11), WR1 colours</span></div>
     <p class="hint" id="hint" aria-live="polite"></p>
     <div class="ctrls">
       <span class="ctl"><button id="back" type="button" aria-label="Previous screen">← Back</button><button id="fwd" type="button" aria-label="Next screen">Next →</button></span>
-      <!-- "Variants" menu (Montse, 12/11): one dropdown per aspect; each option starts with the aspect -->
-      <span class="ctl"><label for="reviewV">Variants</label>
-        <select id="attractBgV" aria-label="Variants: attract screen">
-          <option value="wca">Attract screen · “Water, Camera, Action!”, from Montse’s Figma (24/11)</option>
-          <option value="scene">Attract screen · the whole scene, slow pan with the dots and the fish (proposal, 24/11)</option>
-          <option value="gallery">Attract screen · WR1 gallery style with triangles, like Guano Pile (23/11)</option>
-        </select>
-        <select id="langModeV" aria-label="Variants: language selection">
-          <option value="keep">Language · the selected one stays on until the camera reaches the other one (24/11)</option>
-          <option value="neutral">Language · both switch off between one and the other; “Press the shutter to select” only with one selected (Montse, 24/11)</option>
-        </select>
-        <select id="reviewV" aria-label="Variants: photographed dots">
-          <option value="on">Photographed dots · smaller and still, not faded (review 24/11, proposal)</option>
-          <option value="off">Photographed dots · smaller and faded (as before)</option>
-        </select>
-        <select id="whaleV" aria-label="Variants: attract screen animation">
-          <option value="swim">Attract animation · whale swimming out of the big triangle (proposal, 23/11)</option>
-          <option value="none">Attract animation · none, still</option>
-        </select>
-        <select id="promptV" aria-label="Variants: shutter prompt position">
-          <option value="right">Shutter prompt · big, next to the circle, pointing to the button (23/11)</option>
-          <option value="bottom">Shutter prompt · bottom centre (16/11)</option>
-        </select>
-        <select id="guideV" aria-label="Variants: guide to the nearest dot">
-          <option value="arrow">Guide · glowing white arrow on the circle to the nearest dot (proposal, 23/11)</option>
-          <option value="line">Guide · arrow and dotted line to the dot (proposal, 23/11)</option>
-          <option value="off">Guide · none (as before)</option>
-        </select>
-        <select id="arrowsV" aria-label="Variants: direction arrows">
-          <option value="idle">Direction arrows · only after 3 s without moving the camera (proposal, 23/11)</option>
-          <option value="start">Direction arrows · only until the camera is first moved (proposal, 23/11)</option>
-          <option value="stops">Direction arrows · only the straight line at a rotation stop (proposal, 23/11)</option>
-          <option value="always">Direction arrows · always, until something is detected (16/11)</option>
-        </select>
-        </span>
+        <!-- Variants (Montse, 25/11): a short label per aspect and short options in English; the long description goes in the tooltip -->
+      <span class="ctl"><label for="viewV">View</label><select id="viewV" aria-label="View">
+          <option value="sim" title="The device, which turns with the camera, with the shutter on the right handle">Simulation</option>
+          <option value="screen" title="The screen only, with the simulated shutter button next to it">Screen</option>
+        </select></span>
+      <span class="ctl"><label for="attractBgV">Attract screen</label><select id="attractBgV" aria-label="Attract screen">
+          <option value="wca" title="“Water, Camera, Action!”, from Montse’s Figma (24/11)">Water, Camera, Action!</option>
+          <option value="scene" title="The whole scene, slow pan with the dots and the fish (proposal, 24/11)">Whole scene</option>
+          <option value="gallery" title="WR1 gallery style with triangles, like Guano Pile (23/11)">Gallery</option>
+        </select></span>
+      <span class="ctl"><label for="whaleV">Attract animation</label><select id="whaleV" aria-label="Attract animation">
+          <option value="swim" title="Whale swimming out of the big triangle, gallery style only (proposal, 23/11)">Whale</option>
+          <option value="none" title="No animation, still">None</option>
+        </select></span>
+      <span class="ctl"><label for="promptMoveV">Shutter prompt</label><select id="promptMoveV" aria-label="Shutter prompt">
+          <option value="still" title="«Press the shutter» and «Press the shutter to close» stay still; only the arrow moves towards the button (25/11)">Still</option>
+          <option value="pulse" title="The panel pulses gently and the arrow moves (as before)">Pulsing</option>
+        </select></span>
+      <span class="ctl"><label for="endV">Ending</label><select id="endV" aria-label="Ending">
+          <option value="idle" title="After 12 s without moving the camera (with at least one photo), a photo summary ends the session, as in the WR1-103-IA01 Media Brief (25/11)">After inactivity</option>
+          <option value="all" title="Completed: when the card of the last species is closed, the summary shows all the species and «Play again», which starts again from screen 1 (25/11)">Completed</option>
+          <option value="none" title="No ending: the visitor keeps exploring (as before)">None</option>
+        </select></span>
+      <span class="ctl"><label for="counterV">Counter</label><select id="counterV" aria-label="Counter">
+          <option value="dots" title="One hollow blue dot per species; it turns into the seen-dot check when the photo is taken (25/11)">Dots</option>
+          <option value="num" title="Number of species photographed out of the total, e.g. 1/4 (25/11)">Number</option>
+          <option value="hex" title="One hexagon per species, like the card; it fills in peach with a check (25/11)">Hexagons</option>
+          <option value="none" title="No counter">None</option>
+        </select></span>
       <span class="ctl"><label for="jump">Go to</label><select id="jump"><option value="">Screen…</option></select></span>
       <button id="bReset" type="button">Reset</button>
-      <details class="notes" id="notes"><summary>Notes</summary><div class="panel">
-        <button class="close" id="closeNotes" type="button" aria-label="Close notes">✕ Close</button>
-        <ol>
-          <li class="navOnly"><b>Navigation review version (23/11):</b> the same flow and variants as the main prototype, to check the navigation. The attract screen is Montse’s (24/11), with the circles that mark the RFID reader and the fish still.</li>
-          <li><b>0 · Attract screen (Montse’s Figma, page v4, 24/11):</b> “Water, Camera, Action!” over a coral reef image, with fish inside a rounded triangle with a peach border, and the wristband call to action at the bottom right with the three circles that mark the RFID reader (English and Arabic, as in the Figma)<span class="navHide">; the circles pulse like waves from the reader, from the inside out (each one lights up, grows a little and glows), and the fish and jellyfish move (proposal, 24/11): each fish swims on the spot, beating its tail and moving gently forwards and back, the two schools drift a little, and the jellyfish pulse and rise with each beat</span>. It waits until someone taps the screen or presses the shutter (in the Media Brief, wristband or tap).<span class="navHide"> The two earlier attract screens (the whole scene, and the gallery style with the whale) are under Variants.</span></li>
-          <li><b>0a–0c · Language (Montse’s Figma, 24/11):</b> after the attract screen, “Move to select language” in English and Arabic over the same reef, which slides a little and then moves with the camera. English is in a triangle on the left edge and Arabic on the right. Turning the camera towards one side selects that language: its triangle fills in peach with a glow and its name turns dark. Then “Move to select language” goes, the other language fades to 30% and “Press the shutter to select” appears with an arrow to the button. The shutter confirms and goes to screen 1. In this prototype, drag the image to turn the camera, as with the dots: the reef follows your finger, so moving it to the right means the camera faces left (English), and to the left, Arabic. Under Variants, two ways to switch: the selected language stays on until the camera reaches the other one (default), or both switch off in the middle and “Press the shutter to select” only appears with one selected (Montse, 24/11). The rest of the prototype is in English, whichever language is chosen.</li>
-          <li class="navHide"><b>Attract screen · gallery style (23/11, under Variants):</b> the piece waits here until someone starts it. In the Media Brief it starts with the wristband (RFID) or by tapping the screen; in this prototype, tap the screen or press the shutter. The call to action is the element of the Guano Pile attract screen as it is: peach text aligned right and three concentric circles on the right edge that mark the RFID reader<span class="navHide"> (here the circles light up from the inside out, proposal)</span>. Text: “Scan your wristband or tap the screen to start” (in Guano Pile, “Scan your wristband to start”, with the Arabic below, not included here). It uses the WR1 gallery style of the Guano Pile attract screen (KTF proposal): night-blue background, rounded triangles with a thick peach border (the big one shows the whale model) and the piece name as title (provisional).</li>
-          <li class="navHide"><b>Attract screen with the whole scene (proposal, 24/11):</b> by default, the attract screen shows the camera image of the whole whale model, not blurred and zoomed out so most of it fits, with a slow pan from side to side (18 s). The blue dots pulse on the animals and the fish swim across, so visitors see what happens in the piece before they start. Night-blue shades at the top and bottom keep the title and the call to action readable. Under Variants, the WR1 gallery style with triangles. In the real piece this would be a looping video or animation, as the camera is not moving on its own.</li>
-          <li class="navHide"><b>Attract animation (proposal, 23/11):</b> a whale drawn like the triangles (night-blue fill and peach border) swims out of the big triangle (gallery style only): it starts small and far inside it, comes closer, crosses its bottom-left side in front of the border and leaves the screen. It loops every 9 s. Under Variants, without the animation. A version with the whale of the render coming out of the frame would need a clean cut-out of the model or a video.</li>
-          <li><b>1 · Move the camera:</b> after choosing the language, “Move the camera to explore”, now just under the icon (23/11), over the camera image, blurred and darkened (night blue at 45%). As in the video, the camera stays still and an icon of the device rocks from side to side to invite visitors to move it. The icon is the front view of the device, in outline, based on the front elevation of the device drawing (chosen by Montse, 24/11). As soon as someone moves the camera, it goes to the instructions.</li>
-          <li><b>2 · Instructions:</b> the viewfinder with the four arrows moving in a wave, and “Centre an dot and press”, the text from the Figma (16/11), styled like “Move the camera to explore” but in bold. If you reach a rotation stop, the arrow on that side turns into the straight line.</li>
-          <li><b>3 · Detected:</b> a dot counts as soon as it is less than 50 px from the centre. The reticle turns orange, the dot pops and sends out a ripple, the arrows disappear and the ring fills in orange in 0.8 s (dwell). If you move off, the arrows come back. When the ring is full, it moves to “Ready” on its own.</li>
-          <li><b>4 · Ready:</b> the “Press the shutter” prompt in the night-blue pill (#0F1124, from Montse’s Figma, 24/11; before, dark brown) with light text (gallery-accent/50). By default (23/11) it is bigger, right next to the circle (upper right); a peach ↘ arrow at the bottom right points to the shutter button on the right handle (24/11, as in the language screen and the species card); under Variants it can go back to the bottom centre.</li>
-          <li><b>Typography and colours (Montse’s Figma, 24/11):</b> screen texts in Ilmi. Instruction “Centre an dot and press” in Ilmi Bold 48 (letter spacing −2%), as in screen 3, also used on screens 2 and 4b; “Move the camera to explore” in SemiBold 41 on one line; “Nothing to capture yet” in Ilmi Bold 48 in the night-blue pill; species card 48 / 41 / 32. Pills in night blue (#0F1124) instead of dark brown.</li>
-          <li><b>Restart (Montse’s Figma, 24/11):</b> as in other pieces, a night-blue tab on the left edge of the screen with the ↺ icon and “Restart”. It goes back to the attract screen. It shows on every screen from screen 1 on (not on the attract screen or while choosing the language).</li>
-          <li><b>Shutter:</b> in the piece it is a physical button, the mechanical part of the camera. Here it is the red button where the right handle joins the housing, as in the front elevation of the drawing (detail C; Montse, 24/11; approximate position), or the space bar. The device around the screen (housing with the tube frame, the two handles and the post) is drawn from that front elevation, simplified. Its head turns with the camera, as in the real piece: when you drag the image, the housing, screen, handles and button turn on the post, left and right and a little up and down (Montse, 24/11; angles approximate). It takes the photo when the camera is ready and closes the species card. A shutter sound would play.</li>
-          <li><b>Shutter with nothing in focus (proposal, 23/11):</b> pressing the shutter before a dot is in the viewfinder and the ring is full shows an important message in the centre of the screen, over a dark overlay. It disappears after 2 s. Text: “Nothing to capture yet” (chosen by Montse, 24/11).</li>
-          <li><b>Direction arrows (proposals, 23/11):</b> by default the four arrows only appear after 3 s without moving the camera. Other options under Variants: only until the camera is first moved, only the straight line when a rotation stop is reached, or always (as before).</li>
-          <li><b>Guide to the nearest dot (proposal, 23/11):</b> while exploring with no dot in the viewfinder, a glowing white arrow (like the direction arrows) just outside the circle points to the nearest dot that has not been photographed yet, with a gentle back-and-forth. Under Variants it can also show a dotted line to the dot, or be turned off. It hides as soon as a dot is detected.</li>
-          <li><b>5 · Photo:</b> white flash. There is no message, only the flash (Montse, 23/11). Then the image blurs, the viewfinder disappears and the dots fade.</li>
-          <li><b>6 · Species card (Figma v3, 16/11):</b> hexagon with the photo and a peach border, and a night-blue panel with a pointed end. Name and scientific name in peach, description in white. Below the card, “Press the shutter to close” in the night-blue pill, smaller (Ilmi Bold 32), with the peach ↘ arrow outside it at the bottom right pointing to the shutter button (Montse’s Figma, 24/11; before, “Press the button to close”). The background is blurred and darkened at 40%. It closes with the shutter.</li>
-          <li><b>7 · Fish:</b> after the first card closes, a school of fish swims in from the left and keeps swimming, anchored to the room. They cannot be photographed. The arrows and the instruction no longer appear, and the photographed animal stays small and dimmed.</li>
-          <li><b>Dots:</b> four 24 px dots, electric blue with an almost white centre and a blue halo (reference image, 17/11), one per species from the video (Squat lobster, Black hagfish, Ghostly grenadier and Snow crab), each with its own text.</li>
-          <li><b>Review comments (24/11):</b> the viewfinder is only the circle, without the lines in the centre, so it does not look so much like shooting (Montse removed the other options on 24/11). A dot that has already been photographed stays smaller and still (no pulse) but is no longer faded, so it can still be seen (proposal; under Variants, “smaller and faded” as before).</li>
-          <li><b>Review comments (16/11), now fixed:</b> the viewfinder lens neither blurs nor magnifies; the UI has no shadows (ring, reticle, arrows, texts and pills; the dots keep their colour glow); the dot is electric blue. Since 23/11 the dwell is fixed at 0.8 s, the detection zone at 50 px and the viewfinder circle is 30% smaller than in the Figma; the only background is the whale model, the attract screen uses the gallery style and screen 1 the device icon.</li>
-          <li><b>Review:</b> “← Back”, “Next →” and “Go to” take you to each moment of the flow. It waits on the attract screen until you tap the screen or press the shutter; on the language screen, drag the image to turn the camera and press the shutter. “Go to” plays the flow on its own from the chosen screen; dragging the image, Back/Next or the shutter stop it. “Reset” goes back to the attract screen. Keyboard arrows: back and next. The tab at the top (“Hide controls”) hides this bar, with the variants and these notes, to see the screen bigger; “Show controls” brings it back.</li>
-        </ol>
-        <p>Everything is a proposal. Texts from the video and from Montse's Figma (v3, 16/11). Provisional: the card photo is the moray eel from the reference for every species. WR1 gallery colours from ILMI World DS Lite (KTF proposal). Typeface: Roboto in this web copy (the Ilmi, a KTF proposal, is not published), at the Figma sizes. Background: the whale model, which is what this piece scans (render of the room from the WR1-303 30% Media Brief, enlarged, hence soft; the dots sit on the whale). The cards still use the video texts (provisional). The attract screen and the language selection come from Montse’s Figma (page v4, 24/11), with its coral reef image. The device is drawn from the front elevation view of the drawing, simplified; the red shutter button simulates the physical button and its look is a proposal.</p>
-      </div></details>
+      <button id="ctog" class="cp-tog" type="button" aria-pressed="false" aria-controls="cpanel">Client comments<span class="cp-badge" id="cbadge">0</span></button>
     </div>
   </header>
+  <div class="work">
   <main class="viewport" id="viewport">
     <button class="barTab" id="barTab" type="button" aria-controls="bar" aria-expanded="true"><svg viewBox="0 0 10 10" aria-hidden="true"><path d="M1 7 L5 3 L9 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Hide controls</span></button>
     <!-- El aparato, según el alzado frontal del plano (FRONT ELEVATION VIEW, Montse 24/11), simplificado: carcasa con marco de tubo,
@@ -541,10 +673,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         </div>
         <div class="sceneShade" aria-hidden="true"><div class="sceneTitle">Explorer’s Toolbar Camera</div></div>
         <div class="rfidCta" id="rfidCta" aria-hidden="true"><div class="rfidTxt">Scan your wristband<br>or tap the screen to start</div><svg viewBox="0 0 1280 800"><circle class="r1" cx="1295.67" cy="698.33" r="40.33" stroke-width="5.33"/><circle class="r2" cx="1295.67" cy="698.33" r="60.33" stroke-width="4"/><circle class="r3" cx="1295.67" cy="698.33" r="80.33" stroke-width="1.33"/></svg></div>
-        <svg class="guide" id="guide" viewBox="0 0 1280 800" aria-hidden="true"><line id="guideLine"/><path id="guideArrow" d="M-8 -19 L11 0 L-8 19"/></svg>
+        <svg class="guide" id="guide" viewBox="0 0 1280 800" aria-hidden="true"><path id="guideArrow" d="M-8 -19 L11 0 L-8 19"/></svg>
         <div class="attractTxt" id="attractTxt">Move the camera to explore</div>
         <div class="shade04" id="shade04" aria-hidden="true"><i style="left:729.2px;top:390px"></i><i style="left:652.9px;top:337px"></i></div>
-        <div class="ins" id="hintEl">Centre an dot and press</div>
+        <div class="ins" id="hintEl">Centre a dot and press</div>
         <div class="ready" id="ready"><span id="readyTxt">Press the shutter</span><svg class="toBtn" viewBox="0 0 30 40" aria-hidden="true"><path d="M7 5 L23 20 L7 35" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div class="nopeLayer" id="nopeLayer"><div class="nopeBox" id="nope" aria-live="polite">Nothing to capture yet</div></div>
         <div class="flash" id="flash"></div>
@@ -563,6 +695,10 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
         </div>
         <svg class="btnArrow" id="btnArrow" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M3.93048 3.93059L47.5771 47.5772M3.93049 47.5772L47.5771 47.5772L47.5771 3.93059" stroke-width="7.86098" stroke-linecap="round" stroke-linejoin="round" stroke="#EDA481"/></svg>
         <div class="cardHint" id="cardHint"><span>Press the shutter to close</span><svg class="toBtn" viewBox="0 0 30 40" aria-hidden="true"><path d="M7 5 L23 20 L7 35" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <!-- contador de especies fotografiadas (25/11): lo rellena counterFrame() -->
+        <div class="counter" id="counter" data-k="dots" aria-hidden="true"><span class="cnt-dots"></span><span class="cnt-num"><b id="cntN">0</b>/<span id="cntT">4</span></span><span class="cnt-hex"></span></div>
+        <!-- resumen final (variante «Ending», 25/11): lo rellena showSummary() -->
+        <div class="summary" id="summary" aria-live="polite"><div class="sumTitle" id="sumTitle"></div><div class="sumList" id="sumList"></div><div class="sumPrompt" id="sumPrompt">Press to select</div><div class="sumBtn" id="sumBtn" role="button" tabindex="0">Keep searching</div><svg class="sumArrow" id="sumArrow" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M3.93048 3.93059L47.5771 47.5772M3.93049 47.5772L47.5771 47.5772L47.5771 3.93059" stroke-width="7.86098" stroke-linecap="round" stroke-linejoin="round" stroke="#EDA481"/></svg></div>
         <!-- Restart (Figma de Montse, 24/11): el componente «Restart button» tal cual (texto en contornos) -->
         <div class="rstBtn" id="rstBtn" role="button" tabindex="0" aria-label="Restart"><svg aria-hidden="true" viewBox="0 0 137 107" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g opacity="0.9" filter="url(#rstShadow)">
@@ -591,23 +727,43 @@ body { background: var(--bg); color: var(--fg); font-family: var(--ui); }
           <div class="wca">
             <svg class="abs wcaTri" style="left:64.12px;top:157.61px" width="477" height="480" viewBox="0 0 477 480" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="stroke0_74_3935" fill="white"><path d="M20.0325 222.498C-12.9435 195.793 -3.64945 143.236 36.4853 129.459L404.905 2.99417C443.817 -10.3628 482.776 22.9603 475.612 63.4722L409.898 435.081C402.734 475.593 354.709 493.534 322.738 467.643L20.0325 222.498Z"/></mask><path d="M409.898 435.081L475.612 63.4722C482.776 22.9603 443.817 -10.3628 404.905 2.9942L36.4853 129.459C-3.64945 143.236 -12.9435 195.793 20.0325 222.498L322.738 467.643C354.709 493.534 402.734 475.593 409.898 435.081Z" stroke-width="16" stroke="#EDA481" mask="url(#stroke0_74_3935)"/></svg>
             <div class="wcaTitle">Water,<br>Camera,<br>Action!</div>
-            <div class="wcaCta" style="right:87.33px;top:663.33px">scan your wristband to start</div>
+            <div class="wcaCta" style="right:87.33px;top:663.33px">Scan your wristband to start</div>
             <div class="wcaCta" style="right:87.67px;top:694px" dir="rtl">امسح سوارك للبدء</div>
             <svg class="abs wcaRings" id="wcaRings" style="left:0;top:0" width="1280" height="800" viewBox="0 0 1280 800"><circle class="r1" cx="1295.67" cy="698.33" r="40.33" stroke-width="5.33"/><circle class="r2" cx="1295.67" cy="698.33" r="60.33" stroke-width="4"/><circle class="r3" cx="1295.67" cy="698.33" r="80.33" stroke-width="1.33"/></svg>
             <canvas class="abs" id="wcaFish" width="1316" height="1182" aria-hidden="true"></canvas>
           </div>
-          <div class="lang" id="lang" data-sel="">
+          <div class="lang" id="lang" data-shape="hexr" data-sel="">
             <div class="lAr"><svg class="abs on" style="left:968.51px;top:188.1px" width="312" height="421" viewBox="0 0 312 421" fill="none" xmlns="http://www.w3.org/2000/svg"><g opacity="0.56" filter="url(#filter0_f_74_3880)" style="mix-blend-mode:plus-lighter"><path d="M366.047 93.2419C407.224 103.489 421.038 155.043 390.501 184.505L185.779 382.021C156.172 410.586 106.774 396.875 96.1257 357.136L24.7952 90.9269C14.1472 51.1882 50.072 14.6142 89.9949 24.5487L366.047 93.2419Z" fill="white" fill-opacity="0.6"/></g><defs><filter id="filter0_f_74_3880" x="-9.72748e-05" y="0.000391006" width="429.943" height="420.093" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="11.45" result="effect1_foregroundBlur_74_3880"/></filter></defs></svg><svg class="abs " style="left:999.75px;top:233.4px" width="281" height="324" viewBox="0 0 281 324" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#stroke0_74_3677" fill="white" fill-opacity="0.1"/><mask id="stroke1_74_3677" fill="white"><use xlink:href="#stroke0_74_3677"/></mask><path d="M169.559 305.82L317.135 140.797C344.559 110.13 328.988 61.2853 288.875 52.1486L66.0716 1.40007C24.6978 -8.02376 -10.8804 31.761 3.08916 71.829L78.3172 287.601C91.8612 326.448 142.135 336.486 169.559 305.82Z" stroke-width="16" stroke="#EDA481" mask="url(#stroke1_74_3677)"/><defs><path id="stroke0_74_3677" d="M3.08916 71.829C-10.8804 31.761 24.6978 -8.02377 66.0716 1.40006L288.875 52.1486C328.988 61.2853 344.559 110.13 317.135 140.797L169.559 305.82C142.135 336.486 91.8612 326.448 78.3172 287.601L3.08916 71.829Z"/></defs></svg><svg class="abs on" style="left:999.75px;top:233.4px" width="281" height="324" viewBox="0 0 281 324" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#stroke0_74_3865" fill="#EDA481"/><mask id="stroke1_74_3865" fill="white"><use xlink:href="#stroke0_74_3865"/></mask><path d="M169.56 305.82L317.135 140.797C344.559 110.13 328.988 61.2853 288.875 52.1486L66.0721 1.40007C24.6983 -8.02376 -10.8799 31.761 3.08965 71.829L78.3177 287.601C91.8616 326.448 142.136 336.486 169.56 305.82Z" stroke-width="16" stroke="#EDA481" mask="url(#stroke1_74_3865)"/><defs><path id="stroke0_74_3865" d="M3.08965 71.829C-10.8799 31.761 24.6983 -8.02377 66.0721 1.40006L288.875 52.1486C328.988 61.2853 344.559 110.13 317.135 140.797L169.56 305.82C142.136 336.486 91.8616 326.448 78.3177 287.601L3.08965 71.829Z"/></defs></svg><span class="lbl"><svg class="abs " style="left:1041.56px;top:305.17px" width="154" height="56" viewBox="0 0 154 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10.7712 40.2048C4.2048 40.2048 0 35.4816 0 28.6272V25.8624C0 19.008 4.2048 14.3424 10.7712 14.3424C13.1904 14.3424 15.2064 15.1488 16.8192 16.5888V15.3216C16.8192 13.7664 17.7408 12.9024 19.2384 12.9024H21.4272C22.9248 12.9024 23.7888 13.7664 23.7888 15.3216V28.6272C23.7888 32.4288 25.4592 34.1568 29.8944 34.1568L30.4704 38.2464L29.8944 42.336C24.3648 42.336 20.448 39.9168 18.432 36C16.7616 38.6496 14.112 40.2048 10.7712 40.2048ZM20.5632 3.5712C20.5632 5.6448 18.8928 7.3152 16.9344 7.3152C14.9184 7.3152 13.1904 5.6448 13.1904 3.5712C13.1904 1.6704 14.9184 0 16.9344 0C18.8928 0 20.5632 1.6704 20.5632 3.5712ZM11.4048 3.5712C11.4048 5.6448 9.7344 7.3152 7.776 7.3152C5.76 7.3152 4.032 5.6448 4.032 3.5712C4.032 1.6704 5.76 0 7.776 0C9.7344 0 11.4048 1.6704 11.4048 3.5712ZM6.9696 28.7424C6.9696 31.392 8.6976 32.832 10.944 32.832H12.8448C15.0336 32.832 16.8192 31.4496 16.8192 28.8576V25.7472C16.8192 23.1552 15.0912 21.7152 12.9024 21.7152H10.944C8.6976 21.7152 6.9696 23.1552 6.9696 25.8048V28.7424Z" fill="currentColor"/><path d="M50.5692 42.336C45.0972 42.336 41.1804 39.9744 39.1644 36.1152C37.494 39.8592 34.2684 42.336 29.7756 42.336L29.1996 38.2464L29.7756 34.1568C35.7084 34.1568 37.494 32.4288 37.494 28.6272V19.4112C37.494 18.4896 38.07 17.856 39.0492 17.856H42.9084C43.8876 17.856 44.4636 18.432 44.4636 19.4112V28.6272C44.4636 32.4288 46.134 34.1568 50.5692 34.1568H51.0876L51.6636 38.2464L51.0876 42.336H50.5692ZM47.862 50.4576C47.862 52.5312 46.1916 54.2016 44.2332 54.2016C42.2172 54.2016 40.4892 52.5312 40.4892 50.4576C40.4892 48.5568 42.2172 46.8864 44.2332 46.8864C46.1916 46.8864 47.862 48.5568 47.862 50.4576ZM38.7036 50.4576C38.7036 52.5312 37.0332 54.2016 35.0748 54.2016C33.0588 54.2016 31.3308 52.5312 31.3308 50.4576C31.3308 48.5568 33.0588 46.8864 35.0748 46.8864C37.0332 46.8864 38.7036 48.5568 38.7036 50.4576Z" fill="currentColor"/><path d="M50.9397 42.336L50.3637 38.2464L50.9397 34.1568H52.3797C56.8149 34.1568 58.5429 32.4288 58.5429 28.6272V16.5888C58.5429 15.6096 59.1189 15.0336 60.0981 15.0336H63.9573C64.9365 15.0336 65.5125 15.6096 65.5125 16.5888V28.6272C65.5125 36.864 60.7893 42.336 52.3797 42.336H50.9397ZM59.1189 53.7408C57.0453 53.7408 55.3749 52.0704 55.3749 50.112C55.3749 48.096 57.0453 46.368 59.1189 46.368C61.0197 46.368 62.6901 48.096 62.6901 50.112C62.6901 52.0704 61.0197 53.7408 59.1189 53.7408Z" fill="currentColor"/><path d="M68.4192 55.1232C67.44 55.1232 66.864 54.5472 66.864 53.568V48.4416C66.864 47.4624 67.44 46.8864 68.4192 46.8864H69.3408C73.488 46.8864 75.216 45.1584 75.216 41.4144V17.7984C75.216 16.8768 75.792 16.2432 76.7712 16.2432H80.5728C81.552 16.2432 82.128 16.8192 82.128 17.7984V28.6272C82.128 32.6016 82.8192 34.1568 88.4064 34.1568L88.9824 38.2464L88.4064 42.336C85.8144 42.336 83.6832 41.472 82.128 39.9168V42.2208C82.128 50.2848 77.52 55.1232 69.3984 55.1232H68.4192Z" fill="currentColor"/><path d="M117.895 42.336C114.266 42.336 110.752 41.7024 107.757 39.5712C104.589 41.6448 101.479 42.336 97.7347 42.336H88.3459L87.7699 38.2464L88.3459 34.1568H97.7347C99.2899 34.1568 100.557 33.984 101.767 33.6384L94.2787 25.92C93.7027 25.2864 93.4723 24.7104 93.4723 23.8464V16.5888C93.4723 15.4944 94.1059 14.8608 95.2003 14.8608H111.616C118.125 14.8608 121.581 17.9712 121.581 23.9616C121.581 27.0144 118.471 30.9888 115.533 34.0992C116.109 34.1568 116.628 34.1568 117.146 34.1568H125.44L126.016 38.2464L125.44 42.336H117.895ZM101.018 23.6736C101.018 23.7888 101.076 23.904 101.133 23.9616L109.14 31.8528C111.962 29.376 115.015 26.3808 115.015 24.9408C115.015 23.3856 114.093 22.2912 111.616 22.2912H101.248C101.076 22.2912 101.018 22.3488 101.018 22.5216V23.6736Z" fill="currentColor"/><path d="M139.097 28.6272C139.097 36.864 134.431 42.336 126.021 42.336H125.33L124.754 38.2464L125.33 34.1568H126.021C130.457 34.1568 132.127 32.4288 132.127 28.6272V3.5712C132.127 2.592 132.703 2.016 133.682 2.016H137.541C138.521 2.016 139.097 2.592 139.097 3.5712V28.6272Z" fill="currentColor"/><path d="M148.508 42.336C147.529 42.336 146.953 41.76 146.953 40.7808V3.5712C146.953 2.592 147.529 2.016 148.508 2.016H152.368C153.347 2.016 153.923 2.592 153.923 3.5712V40.7808C153.923 41.76 153.347 42.336 152.368 42.336H148.508Z" fill="currentColor"/></svg></span></div>
             <div class="lEn"><svg class="abs on" style="left:0px;top:275.39px" width="273" height="409" viewBox="0 0 273 409" fill="none" xmlns="http://www.w3.org/2000/svg"><g opacity="0.56" filter="url(#filter0_f_74_3750)" style="mix-blend-mode:plus-lighter"><path d="M190.033 23.181C232.258 18.9758 262.612 62.8763 243.768 100.896L117.438 355.777C99.1679 392.638 48.0357 396.346 24.6382 362.507L-132.102 135.818C-155.499 101.978 -133.975 55.4495 -93.0367 51.3725L190.033 23.181Z" fill="white" fill-opacity="0.6"/></g><defs><filter id="filter0_f_74_3750" x="-164.651" y="0.000391006" width="437.028" height="408.698" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="11.45" result="effect1_foregroundBlur_74_3750"/></filter></defs></svg><svg class="abs " style="left:0px;top:315.54px" width="223" height="313" viewBox="0 0 223 313" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#stroke0_74_3675" fill="white" fill-opacity="0.1"/><mask id="stroke1_74_3675" fill="white"><use xlink:href="#stroke0_74_3675"/></mask><path d="M-102.91 107.371L22.9965 289.466C46.394 323.306 97.5262 319.597 115.796 282.736L217.275 77.9953C236.119 39.9757 205.765 -3.92482 163.54 0.28039L-63.8448 22.926C-104.783 27.0031 -126.307 73.5321 -102.91 107.371Z" stroke-width="16" stroke="#EDA481" mask="url(#stroke1_74_3675)"/><defs><path id="stroke0_74_3675" d="M163.54 0.28039C205.765 -3.92483 236.119 39.9757 217.275 77.9953L115.796 282.736C97.5262 319.597 46.394 323.306 22.9965 289.466L-102.91 107.371C-126.307 73.5321 -104.783 27.0031 -63.8448 22.926L163.54 0.28039Z"/></defs></svg><svg class="abs on" style="left:0px;top:315.54px" width="223" height="313" viewBox="0 0 223 313" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><use xlink:href="#stroke0_74_3722" fill="#EDA481"/><mask id="stroke1_74_3722" fill="white"><use xlink:href="#stroke0_74_3722"/></mask><path d="M-102.91 107.371L22.9965 289.466C46.394 323.306 97.5262 319.597 115.796 282.736L217.275 77.9953C236.119 39.9757 205.765 -3.92482 163.54 0.28039L-63.8448 22.926C-104.783 27.0031 -126.307 73.5321 -102.91 107.371Z" stroke-width="16" stroke="#EDA481" mask="url(#stroke1_74_3722)"/><defs><path id="stroke0_74_3722" d="M163.54 0.28039C205.765 -3.92483 236.119 39.9757 217.275 77.9953L115.796 282.736C97.5262 319.597 46.394 323.306 22.9965 289.466L-102.91 107.371C-126.307 73.5321 -104.783 27.0031 -63.8448 22.926L163.54 0.28039Z"/></defs></svg><span class="lbl"><svg class="abs " style="left:72.64px;top:393.7px" width="66" height="45" viewBox="0 0 66 45" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.73797 44.2139C0.625669 44.2139 0 43.5883 0 42.5455V1.66845C0 0.556151 0.625669 0 1.73797 0H25.0268C26.0695 0 26.6952 0.556151 26.6952 1.66845V5.42246C26.6952 6.46524 26.0695 7.16043 25.0268 7.16043H8.55081V18.2834H23.7754C24.7487 18.2834 25.3743 18.9091 25.3743 19.9519V23.7754C25.3743 24.8182 24.8182 25.4439 23.7754 25.4439H8.55081V37.0535H25.0268C26.0695 37.0535 26.6952 37.6792 26.6952 38.7219V42.5455C26.6952 43.5883 26.0695 44.2139 25.0268 44.2139H1.73797Z" fill="currentColor"/><path d="M58.5934 44.2139C57.6897 44.2139 57.064 43.8663 56.6469 42.9626L40.8662 13.4866V42.5455C40.8662 43.5883 40.2405 44.2139 39.1282 44.2139H34.0533C32.941 44.2139 32.3154 43.5883 32.3154 42.5455V1.66845C32.3154 0.556151 32.941 0 34.0533 0H40.5186C41.4918 0 42.048 0.278076 42.5346 1.18182L57.2031 28.7112V1.66845C57.2031 0.556151 57.8983 0 58.941 0H64.0854C65.1282 0 65.7539 0.556151 65.7539 1.66845V42.5455C65.7539 43.5883 65.1282 44.2139 64.0854 44.2139H58.5934Z" fill="currentColor"/></svg></span></div>
             <svg class="abs move" style="left:428.02px;top:416.61px" width="251.4" height="90.3627" viewBox="0 0 251.4 90.3627" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M13.4827 30.72C12.8427 30.72 12.416 30.3787 12.2027 29.7813L5.76 12.9707V29.568C5.76 30.2933 5.33333 30.72 4.65067 30.72H1.152C0.469333 30.72 0 30.2933 0 29.568V2.00533C0 1.28 0.426666 0.853332 1.152 0.853332H5.67467C6.31467 0.853332 6.74133 1.19466 6.95467 1.792L15.6587 24.4907L24.32 1.792C24.5333 1.19466 25.0027 0.853332 25.6427 0.853332H30.1227C30.848 0.853332 31.232 1.28 31.232 2.00533V29.568C31.232 30.2933 30.848 30.72 30.1227 30.72H26.624C25.9413 30.72 25.5147 30.2933 25.5147 29.568V13.0133L19.1147 29.7813C18.9013 30.3787 18.432 30.72 17.792 30.72H13.4827Z" fill="#F3F3F3"/><path d="M43.8968 26.6667C46.4994 26.6667 47.5234 25.6 47.5234 22.6133V17.8773C47.5234 14.9333 46.4567 13.824 43.8968 13.824C41.2941 13.824 40.2274 14.9333 40.2274 17.8773V22.6133C40.2274 25.6 41.2514 26.6667 43.8968 26.6667ZM43.8968 31.1893C38.3927 31.1893 34.7661 28.2027 34.7661 22.6133V17.8773C34.7661 12.3307 38.3501 9.30133 43.8968 9.30133C49.3581 9.30133 52.9848 12.3307 52.9848 17.8773V22.6133C52.9848 28.2453 49.3581 31.1893 43.8968 31.1893Z" fill="#F3F3F3"/><path d="M61.4253 30.72C60.7427 30.72 60.316 30.4213 60.1027 29.7813L53.916 11.0933C53.66 10.24 54.044 9.81333 54.8547 9.81333H58.1827C58.8653 9.81333 59.3347 10.1973 59.4627 10.8373L63.516 25.8133L67.8253 10.8373C67.996 10.1547 68.4227 9.81333 69.1053 9.81333H72.3907C73.2013 9.81333 73.628 10.3253 73.372 11.136L66.8867 29.7813C66.6733 30.4213 66.2467 30.72 65.6067 30.72H61.4253Z" fill="#F3F3F3"/><path d="M83.1741 31.3173C77.4994 31.3173 74.2994 27.8187 74.2994 22.144V18.3893C74.2994 12.7147 77.5848 9.216 83.3021 9.216C89.0194 9.216 92.1768 12.7147 92.1768 18.3893V20.9493C92.1768 21.6747 91.7501 22.1013 91.0247 22.1013H79.4621V22.528C79.4621 25.5147 81.2114 26.9227 83.4727 26.9227C85.0514 26.9227 86.4594 26.1547 87.0567 24.704C87.2701 24.2347 87.6114 23.9787 88.1234 24.1493L90.7688 25.1307C91.1954 25.3013 91.4514 25.6853 91.2808 26.1547C90.0861 29.4827 87.2701 31.3173 83.1741 31.3173ZM79.4621 18.304H87.0567V18.0053C87.0567 14.9333 85.4354 13.6107 83.2594 13.6107C81.0834 13.6107 79.4621 14.9333 79.4621 18.0053V18.304Z" fill="#F3F3F3"/><path d="M113.756 30.72C108.806 30.72 106.076 28.3307 106.076 23.6373V13.7387H103.943C103.217 13.7387 102.79 13.312 102.79 12.5867V10.9653C102.79 10.24 103.217 9.81333 103.943 9.81333H106.076V5.76C106.076 5.03467 106.503 4.608 107.228 4.608H110.087C110.812 4.608 111.238 5.03467 111.238 5.76V9.81333H114.566C115.249 9.81333 115.718 10.24 115.718 10.9653V12.5867C115.718 13.312 115.292 13.7387 114.566 13.7387H111.238V23.1253C111.238 25.3013 111.537 26.1973 113.756 26.1973H114.823C115.548 26.1973 115.975 26.624 115.975 27.3493V29.568C115.975 30.2933 115.548 30.72 114.823 30.72H113.756Z" fill="#F3F3F3"/><path d="M127.157 26.6667C129.76 26.6667 130.784 25.6 130.784 22.6133V17.8773C130.784 14.9333 129.717 13.824 127.157 13.824C124.555 13.824 123.488 14.9333 123.488 17.8773V22.6133C123.488 25.6 124.512 26.6667 127.157 26.6667ZM127.157 31.1893C121.653 31.1893 118.027 28.2027 118.027 22.6133V17.8773C118.027 12.3307 121.611 9.30133 127.157 9.30133C132.618 9.30133 136.245 12.3307 136.245 17.8773V22.6133C136.245 28.2453 132.618 31.1893 127.157 31.1893Z" fill="#F3F3F3"/><path d="M163.65 13.7813C163.906 14.2933 163.65 14.7627 163.138 14.848L160.152 15.4027C159.639 15.5307 159.383 15.4027 159.042 14.9333C158.402 13.824 157.25 13.2267 155.842 13.2267C154.178 13.2267 152.77 13.9947 152.77 15.36C152.77 16.8107 154.008 17.2373 156.653 18.0907C160.45 19.328 163.949 21.0347 163.949 25.0453C163.949 28.288 160.578 31.1893 155.586 31.1893C151.277 31.1893 148.077 29.2693 146.84 26.624C146.583 26.0693 146.882 25.6427 147.352 25.5573L150.296 25.0453C150.808 24.96 151.064 25.0453 151.362 25.5147C151.96 26.624 153.24 27.3493 154.904 27.3493C156.909 27.3493 158.488 26.4533 158.488 25.0027C158.488 23.424 157.293 22.8693 154.52 21.9733C150.722 20.736 147.437 19.072 147.437 15.36C147.437 11.3493 151.32 9.30133 155.373 9.30133C158.914 9.30133 162.157 10.7947 163.65 13.7813Z" fill="#F3F3F3"/><path d="M175.316 31.3173C169.641 31.3173 166.441 27.8187 166.441 22.144V18.3893C166.441 12.7147 169.726 9.216 175.444 9.216C181.161 9.216 184.318 12.7147 184.318 18.3893V20.9493C184.318 21.6747 183.892 22.1013 183.166 22.1013H171.604V22.528C171.604 25.5147 173.353 26.9227 175.614 26.9227C177.193 26.9227 178.601 26.1547 179.198 24.704C179.412 24.2347 179.753 23.9787 180.265 24.1493L182.91 25.1307C183.337 25.3013 183.593 25.6853 183.422 26.1547C182.228 29.4827 179.412 31.3173 175.316 31.3173ZM171.604 18.304H179.198V18.0053C179.198 14.9333 177.577 13.6107 175.401 13.6107C173.225 13.6107 171.604 14.9333 171.604 18.0053V18.304Z" fill="#F3F3F3"/><path d="M189.235 30.72C188.553 30.72 188.083 30.2933 188.083 29.568V1.152C188.083 0.426668 188.51 0 189.235 0H192.094C192.819 0 193.246 0.426668 193.246 1.152V29.568C193.246 30.2933 192.819 30.72 192.094 30.72H189.235Z" fill="#F3F3F3"/><path d="M205.787 31.3173C200.112 31.3173 196.912 27.8187 196.912 22.144V18.3893C196.912 12.7147 200.197 9.216 205.915 9.216C211.632 9.216 214.789 12.7147 214.789 18.3893V20.9493C214.789 21.6747 214.363 22.1013 213.637 22.1013H202.075V22.528C202.075 25.5147 203.824 26.9227 206.085 26.9227C207.664 26.9227 209.072 26.1547 209.669 24.704C209.883 24.2347 210.224 23.9787 210.736 24.1493L213.381 25.1307C213.808 25.3013 214.064 25.6853 213.893 26.1547C212.699 29.4827 209.883 31.3173 205.787 31.3173ZM202.075 18.304H209.669V18.0053C209.669 14.9333 208.048 13.6107 205.872 13.6107C203.696 13.6107 202.075 14.9333 202.075 18.0053V18.304Z" fill="#F3F3F3"/><path d="M227.353 31.3173C221.636 31.3173 218.137 28.1173 218.137 22.4427V18.0907C218.137 12.416 221.636 9.216 227.353 9.216C231.577 9.216 234.393 11.0933 235.502 14.464C235.673 15.0187 235.46 15.36 234.948 15.5307L231.961 16.512C231.492 16.6827 231.193 16.4267 230.937 16C230.34 14.5493 229.06 13.7387 227.438 13.7387C225.262 13.7387 223.598 15.1467 223.598 18.0053V22.528C223.598 25.6427 225.262 27.2213 227.438 27.2213C229.102 27.2213 230.382 26.368 230.98 24.6613C231.236 24.1067 231.492 23.936 232.004 24.1067L234.948 25.0453C235.46 25.216 235.716 25.5147 235.545 26.0267C234.436 29.4827 231.577 31.3173 227.353 31.3173Z" fill="#F3F3F3"/><path d="M249.181 30.72C244.232 30.72 241.501 28.3307 241.501 23.6373V13.7387H239.368C238.642 13.7387 238.216 13.312 238.216 12.5867V10.9653C238.216 10.24 238.642 9.81333 239.368 9.81333H241.501V5.76C241.501 5.03467 241.928 4.608 242.653 4.608H245.512C246.237 4.608 246.664 5.03467 246.664 5.76V9.81333H249.992C250.674 9.81333 251.144 10.24 251.144 10.9653V12.5867C251.144 13.312 250.717 13.7387 249.992 13.7387H246.664V23.1253C246.664 25.3013 246.962 26.1973 249.181 26.1973H250.248C250.973 26.1973 251.4 26.624 251.4 27.3493V29.568C251.4 30.2933 250.973 30.72 250.248 30.72H249.181Z" fill="#F3F3F3"/><path d="M1.152 80.72C0.469333 80.72 0 80.2933 0 79.568V51.152C0 50.4267 0.426666 50 1.152 50H4.01067C4.736 50 5.16267 50.4267 5.16267 51.152V79.568C5.16267 80.2933 4.736 80.72 4.01067 80.72H1.152Z" fill="#F3F3F3"/><path d="M17.6129 81.232C12.7063 81.232 9.76225 78.032 9.76225 72.3573V68.2187C9.76225 62.544 12.7063 59.344 17.6129 59.344C20.4289 59.344 22.3489 60.5387 23.4156 62.7573V60.9653C23.4156 60.24 23.8423 59.8133 24.5676 59.8133H27.7249C28.4503 59.8133 28.8342 60.24 28.8342 60.9653V79.568C28.8342 80.2933 28.4503 80.72 27.7249 80.72H24.8662C24.1409 80.72 23.7142 80.2933 23.7142 79.568V77.136C22.7329 79.7813 20.6849 81.232 17.6129 81.232ZM19.1489 77.2213C21.9649 77.2213 23.4156 75.5573 23.4156 72.4V68.176C23.4156 65.0187 21.9649 63.3547 19.1489 63.3547C16.6742 63.3547 15.2236 65.0187 15.2236 68.176V72.4C15.2236 75.5573 16.6742 77.2213 19.1489 77.2213Z" fill="#F3F3F3"/><path d="M48.1363 80.72C47.411 80.72 46.9843 80.2933 46.9843 79.568V68.176C46.9843 65.0187 45.5337 63.3547 43.059 63.3547C40.243 63.3547 38.7923 65.1467 38.7923 68.304V79.568C38.7923 80.2933 38.3657 80.72 37.6403 80.72H34.483C33.7577 80.72 33.331 80.2933 33.331 79.568V60.9653C33.331 60.24 33.7577 59.8133 34.483 59.8133H37.6403C38.3657 59.8133 38.7923 60.24 38.7923 60.9653V62.8427C39.859 60.5813 41.779 59.344 44.595 59.344C49.5017 59.344 52.403 62.544 52.403 68.2187V79.568C52.403 80.2933 52.019 80.72 51.2937 80.72H48.1363Z" fill="#F3F3F3"/><path d="M75.2464 81.36C75.2464 87.248 70.9371 90.3627 65.6464 90.3627C61.2517 90.3627 58.2651 88.6987 56.8997 85.5413C56.6864 84.9867 56.9424 84.6027 57.4118 84.432L60.3131 83.4933C60.7824 83.3227 61.1238 83.4933 61.3798 84.0053C62.1051 85.2853 63.3851 86.0107 65.7318 86.0107C68.3771 86.0107 70.1264 84.432 70.1264 81.4453V77.136C69.1451 79.7813 67.0971 81.232 64.0251 81.232C59.1184 81.232 56.1744 78.032 56.1744 72.3573V68.2187C56.1744 62.544 59.1184 59.344 64.0251 59.344C66.8411 59.344 68.7611 60.5387 69.8278 62.7573V60.9653C69.8278 60.24 70.2544 59.8133 70.9798 59.8133H74.1371C74.8624 59.8133 75.2464 60.24 75.2464 60.9653V81.36ZM65.5611 77.2213C68.3771 77.2213 69.8278 75.5573 69.8278 72.4V68.176C69.8278 65.0187 68.3771 63.3547 65.5611 63.3547C63.0864 63.3547 61.6357 65.0187 61.6357 68.176V72.4C61.6357 75.5573 63.0864 77.2213 65.5611 77.2213Z" fill="#F3F3F3"/><path d="M83.7073 59.984C84.4327 59.984 84.8593 60.4107 84.8593 61.136V72.528C84.8593 75.6853 86.31 77.3493 88.7847 77.3493C91.6007 77.3493 93.0513 75.5573 93.0513 72.4V61.136C93.0513 60.4107 93.478 59.984 94.2033 59.984H97.3607C98.086 59.984 98.5127 60.4107 98.5127 61.136V79.7387C98.5127 80.464 98.086 80.8907 97.3607 80.8907H94.2033C93.478 80.8907 93.0513 80.464 93.0513 79.7387V77.8613C91.9847 80.1227 90.0647 81.36 87.2487 81.36C82.342 81.36 79.4407 78.16 79.4407 72.4853V61.136C79.4407 60.4107 79.8247 59.984 80.55 59.984H83.7073Z" fill="#F3F3F3"/><path d="M111.211 81.232C106.304 81.232 103.36 78.032 103.36 72.3573V68.2187C103.36 62.544 106.304 59.344 111.211 59.344C114.027 59.344 115.947 60.5387 117.014 62.7573V60.9653C117.014 60.24 117.44 59.8133 118.165 59.8133H121.323C122.048 59.8133 122.432 60.24 122.432 60.9653V79.568C122.432 80.2933 122.048 80.72 121.323 80.72H118.464C117.739 80.72 117.312 80.2933 117.312 79.568V77.136C116.331 79.7813 114.283 81.232 111.211 81.232ZM112.747 77.2213C115.563 77.2213 117.014 75.5573 117.014 72.4V68.176C117.014 65.0187 115.563 63.3547 112.747 63.3547C110.272 63.3547 108.822 65.0187 108.822 68.176V72.4C108.822 75.5573 110.272 77.2213 112.747 77.2213Z" fill="#F3F3F3"/><path d="M145.276 81.36C145.276 87.248 140.966 90.3627 135.676 90.3627C131.281 90.3627 128.294 88.6987 126.929 85.5413C126.716 84.9867 126.972 84.6027 127.441 84.432L130.342 83.4933C130.812 83.3227 131.153 83.4933 131.409 84.0053C132.134 85.2853 133.414 86.0107 135.761 86.0107C138.406 86.0107 140.156 84.432 140.156 81.4453V77.136C139.174 79.7813 137.126 81.232 134.054 81.232C129.148 81.232 126.204 78.032 126.204 72.3573V68.2187C126.204 62.544 129.148 59.344 134.054 59.344C136.87 59.344 138.79 60.5387 139.857 62.7573V60.9653C139.857 60.24 140.284 59.8133 141.009 59.8133H144.166C144.892 59.8133 145.276 60.24 145.276 60.9653V81.36ZM135.59 77.2213C138.406 77.2213 139.857 75.5573 139.857 72.4V68.176C139.857 65.0187 138.406 63.3547 135.59 63.3547C133.116 63.3547 131.665 65.0187 131.665 68.176V72.4C131.665 75.5573 133.116 77.2213 135.59 77.2213Z" fill="#F3F3F3"/><path d="M157.762 81.3173C152.087 81.3173 148.887 77.8187 148.887 72.144V68.3893C148.887 62.7147 152.172 59.216 157.89 59.216C163.607 59.216 166.764 62.7147 166.764 68.3893V70.9493C166.764 71.6747 166.338 72.1013 165.612 72.1013H154.05V72.528C154.05 75.5147 155.799 76.9227 158.06 76.9227C159.639 76.9227 161.047 76.1547 161.644 74.704C161.858 74.2347 162.199 73.9787 162.711 74.1493L165.356 75.1307C165.783 75.3013 166.039 75.6853 165.868 76.1547C164.674 79.4827 161.858 81.3173 157.762 81.3173ZM154.05 68.304H161.644V68.0053C161.644 64.9333 160.023 63.6107 157.847 63.6107C155.671 63.6107 154.05 64.9333 154.05 68.0053V68.304Z" fill="#F3F3F3"/></g></svg>
             <svg class="abs move" style="left:592.38px;top:310.41px" width="305.58" height="42.8736" viewBox="0 0 305.58 42.8736" fill="none" xmlns="http://www.w3.org/2000/svg"><g><path d="M8.3776 31.2704C3.2704 31.2704 0 27.5968 0 22.2656V20.1152C0 14.784 3.2704 11.1552 8.3776 11.1552C10.2592 11.1552 11.8272 11.7824 13.0816 12.9024V11.9168C13.0816 10.7072 13.7984 10.0352 14.9632 10.0352H16.6656C17.8304 10.0352 18.5024 10.7072 18.5024 11.9168V22.2656C18.5024 25.2224 19.8016 26.5664 23.2512 26.5664L23.6992 29.7472L23.2512 32.928C18.9504 32.928 15.904 31.0464 14.336 28C13.0368 30.0608 10.976 31.2704 8.3776 31.2704ZM15.9936 2.7776C15.9936 4.3904 14.6944 5.6896 13.1712 5.6896C11.6032 5.6896 10.2592 4.3904 10.2592 2.7776C10.2592 1.2992 11.6032 0 13.1712 0C14.6944 0 15.9936 1.2992 15.9936 2.7776ZM8.8704 2.7776C8.8704 4.3904 7.5712 5.6896 6.048 5.6896C4.48 5.6896 3.136 4.3904 3.136 2.7776C3.136 1.2992 4.48 0 6.048 0C7.5712 0 8.8704 1.2992 8.8704 2.7776ZM5.4208 22.3552C5.4208 24.416 6.7648 25.536 8.512 25.536H9.9904C11.6928 25.536 13.0816 24.4608 13.0816 22.4448V20.0256C13.0816 18.0096 11.7376 16.8896 10.0352 16.8896H8.512C6.7648 16.8896 5.4208 18.0096 5.4208 20.0704V22.3552Z" fill="#F3F3F3"/><path d="M45.0212 32.928C42.1988 32.928 39.466 32.4352 37.1364 30.7776C34.6724 32.3904 32.2532 32.928 29.3412 32.928H22.0388L21.5908 29.7472L22.0388 26.5664H29.3412C30.5508 26.5664 31.5364 26.432 32.4772 26.1632L26.6532 20.16C26.2052 19.6672 26.026 19.2192 26.026 18.5472V12.9024C26.026 12.0512 26.5188 11.5584 27.37 11.5584H40.138C45.2004 11.5584 47.8884 13.9776 47.8884 18.6368C47.8884 21.0112 45.4692 24.1024 43.1844 26.5216C43.6324 26.5664 44.0356 26.5664 44.4388 26.5664H50.89L51.338 29.7472L50.89 32.928H45.0212ZM36.1956 7.6608C34.5828 7.6608 33.2836 6.3616 33.2836 4.8384C33.2836 3.2704 34.5828 1.9264 36.1956 1.9264C37.674 1.9264 38.9732 3.2704 38.9732 4.8384C38.9732 6.3616 37.674 7.6608 36.1956 7.6608ZM31.8948 18.4128C31.8948 18.5024 31.9396 18.592 31.9844 18.6368L38.2116 24.7744C40.4068 22.848 42.7812 20.5184 42.7812 19.3984C42.7812 18.1888 42.0644 17.3376 40.138 17.3376H32.074C31.9396 17.3376 31.8948 17.3824 31.8948 17.5168V18.4128Z" fill="#F3F3F3"/><path d="M49.6844 32.928L49.2364 29.7472L49.6844 26.5664C54.2988 26.5664 55.6876 25.2224 55.6876 22.2656V16.6208H55.7772V2.7776C55.7772 2.016 56.2252 1.568 56.9868 1.568H59.9884C60.75 1.568 61.198 2.016 61.198 2.7776V22.2656C61.198 25.2224 62.4972 26.5664 65.9468 26.5664H66.4844L66.9324 29.7472L66.4844 32.928H65.9468C61.9596 32.928 59.0476 31.3152 57.39 28.6272C55.8668 31.2704 53.2684 32.928 49.6844 32.928Z" fill="#F3F3F3"/><path d="M76.006 22.2656C76.006 28.672 72.3772 32.928 65.8364 32.928H65.2988L64.8508 29.7472L65.2988 26.5664H65.8364C69.286 26.5664 70.5852 25.2224 70.5852 22.2656V2.7776C70.5852 2.016 71.0332 1.568 71.7948 1.568H74.7964C75.558 1.568 76.006 2.016 76.006 2.7776V22.2656Z" fill="#F3F3F3"/><path d="M82.2062 32.928C81.4446 32.928 80.9966 32.48 80.9966 31.7184V2.7776C80.9966 2.016 81.4446 1.568 82.2062 1.568H85.2078C85.9694 1.568 86.4174 2.016 86.4174 2.7776V31.7184C86.4174 32.48 85.9694 32.928 85.2078 32.928H82.2062Z" fill="#F3F3F3"/><path d="M98.8309 42.8736C98.0693 42.8736 97.6213 42.4256 97.6213 41.664V37.6768C97.6213 36.9152 98.0693 36.4672 98.8309 36.4672H99.5477C102.773 36.4672 104.117 35.1232 104.117 32.2112V13.8432C104.117 13.1264 104.565 12.6336 105.327 12.6336H108.284C109.045 12.6336 109.493 13.0816 109.493 13.8432V32.8384C109.493 39.1104 105.909 42.8736 99.5925 42.8736H98.8309Z" fill="#F3F3F3"/><path d="M114.441 2.7776C114.441 2.016 114.889 1.568 115.651 1.568H118.652C119.414 1.568 119.862 2.016 119.862 2.7776V22.2656C119.862 25.2224 121.161 26.5664 124.611 26.5664H125.148L125.596 29.7472L125.148 32.928H124.611C118.07 32.928 114.441 28.672 114.441 22.2656V2.7776Z" fill="#F3F3F3"/><path d="M140.129 32.928C135.873 32.928 132.827 31.0912 131.259 28.0896C129.96 31.0016 127.451 32.928 123.957 32.928L123.509 29.7472L123.957 26.5664C128.571 26.5664 129.96 25.2224 129.96 22.2656V15.0976C129.96 14.3808 130.408 13.888 131.169 13.888H134.171C134.933 13.888 135.381 14.336 135.381 15.0976V22.2656C135.381 25.2224 136.68 26.5664 140.129 26.5664H140.533L140.981 29.7472L140.533 32.928H140.129ZM138.024 39.2448C138.024 40.8576 136.725 42.1568 135.201 42.1568C133.633 42.1568 132.289 40.8576 132.289 39.2448C132.289 37.7664 133.633 36.4672 135.201 36.4672C136.725 36.4672 138.024 37.7664 138.024 39.2448ZM130.901 39.2448C130.901 40.8576 129.601 42.1568 128.078 42.1568C126.51 42.1568 125.166 40.8576 125.166 39.2448C125.166 37.7664 126.51 36.4672 128.078 36.4672C129.601 36.4672 130.901 37.7664 130.901 39.2448Z" fill="#F3F3F3"/><path d="M155.47 32.928C151.214 32.928 148.168 31.0912 146.6 28.0896C145.301 31.0016 142.792 32.928 139.298 32.928L138.85 29.7472L139.298 26.5664C143.912 26.5664 145.301 25.2224 145.301 22.2656V15.0976C145.301 14.3808 145.749 13.888 146.51 13.888H149.512C150.274 13.888 150.722 14.336 150.722 15.0976V22.2656C150.722 25.2224 152.021 26.5664 155.47 26.5664H155.874L156.322 29.7472L155.874 32.928H155.47ZM154.082 6.72C154.082 8.3328 152.782 9.632 151.259 9.632C149.691 9.632 148.347 8.3328 148.347 6.72C148.347 5.2416 149.691 3.9424 151.259 3.9424C152.782 3.9424 154.082 5.2416 154.082 6.72ZM146.958 6.72C146.958 8.3328 145.659 9.632 144.136 9.632C142.568 9.632 141.224 8.3328 141.224 6.72C141.224 5.2416 142.568 3.9424 144.136 3.9424C145.659 3.9424 146.958 5.2416 146.958 6.72Z" fill="#F3F3F3"/><path d="M158.805 16.6208C158.043 16.3968 157.774 15.8592 157.954 15.1424L158.805 11.648C158.984 10.8864 159.611 10.6176 160.283 10.7968L183.803 17.3824C184.52 17.5616 184.878 18.0544 184.878 18.7712V21.9968C184.878 22.624 184.699 23.1168 184.072 23.52C171.842 31.808 161.179 32.928 154.952 32.928H154.638L154.19 29.7472L154.638 26.5664H154.952C159.566 26.5664 169.422 25.6256 177.8 21.9072L158.805 16.6208ZM172.827 8.3776C171.214 8.3776 169.915 7.0784 169.915 5.5552C169.915 3.9872 171.214 2.6432 172.827 2.6432C174.306 2.6432 175.605 3.9872 175.605 5.5552C175.605 7.0784 174.306 8.3776 172.827 8.3776Z" fill="#F3F3F3"/><path d="M191.293 32.928C190.532 32.928 190.084 32.48 190.084 31.7184V27.4624C190.084 26.8352 190.263 26.3872 190.8 25.984L200.164 18.8608L200.97 18.2336L190.084 10.2144C189.456 9.7664 189.367 9.2288 189.77 8.5568L191.159 6.272C191.607 5.5552 192.234 5.5104 192.906 5.9584L204.375 14.6496C204.912 13.7536 205.271 12.7232 205.271 11.648V2.7776C205.271 2.016 205.674 1.568 206.436 1.568H209.437C210.199 1.568 210.647 2.016 210.647 2.7776V11.648C210.647 14.112 209.572 16.0384 208.183 17.5616C210.736 19.8016 211.856 22.4 211.856 24.8192C211.856 29.1648 208.272 32.928 202.807 32.928H191.293ZM196.356 26.5664H204.106C205.988 26.5664 207.152 25.5808 207.152 24.3264C207.152 23.4304 206.615 22.4896 205.674 21.728L204.33 20.7424L203.972 21.0112L196.356 26.5664Z" fill="#F3F3F3"/><path d="M240.214 18.6368C239.945 18.6368 239.811 18.5024 239.811 18.2336V16.7552C239.811 16.4864 239.945 16.352 240.214 16.352H242.991C243.932 16.352 244.156 15.9488 243.081 15.3216L240.572 13.9328C240.438 13.8432 240.303 13.664 240.303 13.4848V12.4096C240.303 12.1856 240.393 12.0064 240.617 11.9168L245.903 10.1696C246.172 10.08 246.351 10.1696 246.351 10.4832V11.7824C246.351 11.9616 246.262 12.1408 246.038 12.2304L243.619 13.0368L244.111 13.3504C247.247 15.1424 245.814 18.6368 242.991 18.6368H240.214ZM255.401 2.7776C255.401 2.016 255.804 1.568 256.566 1.568H259.567C260.329 1.568 260.777 2.016 260.777 2.7776V22.2656C260.777 28.672 257.148 32.928 250.607 32.928H234.569C228.028 32.928 224.399 28.672 224.399 22.2656V16.7552C224.399 15.9936 224.847 15.5456 225.609 15.5456H228.611C229.372 15.5456 229.82 15.9936 229.82 16.7552V22.2656C229.82 25.2224 231.119 26.5664 234.569 26.5664H250.607C254.057 26.5664 255.401 25.2224 255.401 22.2656V2.7776Z" fill="#F3F3F3"/><path d="M269.02 3.38133C269.02 3.02293 269.244 2.79893 269.603 2.79893H270.32C270.678 2.79893 270.902 3.02293 270.902 3.38133V5.21813C270.902 5.80053 271.126 6.02453 271.798 6.02453C272.291 6.02453 272.515 5.80053 272.515 5.35253V3.38133C272.515 3.02293 272.739 2.79893 273.052 2.79893H274.128C274.441 2.79893 274.665 3.02293 274.665 3.38133V5.35253C274.665 6.87573 273.814 7.86133 272.067 7.86133C271.26 7.86133 270.588 7.54773 270.14 7.14453C269.648 7.59253 268.931 7.86133 268.124 7.86133C265.974 7.86133 265.257 6.69653 265.257 5.21813V3.38133C265.257 3.02293 265.481 2.79893 265.84 2.79893H266.87C267.228 2.79893 267.452 3.02293 267.452 3.38133V5.21813C267.452 5.80053 267.676 6.02453 268.303 6.02453C268.841 6.02453 269.02 5.80053 269.02 5.35253V3.38133Z" fill="#F3F3F3"/><path d="M260.962 42.8736C260.2 42.8736 259.752 42.4256 259.752 41.664V37.6768C259.752 36.9152 260.2 36.4672 260.962 36.4672H261.679C264.904 36.4672 266.248 35.1232 266.248 32.2112V13.8432C266.248 13.1264 266.696 12.6336 267.458 12.6336H270.415C271.176 12.6336 271.624 13.0816 271.624 13.8432V22.2656C271.624 25.3568 272.162 26.5664 276.507 26.5664L276.955 29.7472L276.507 32.928C274.491 32.928 272.834 32.256 271.624 31.0464V32.8384C271.624 39.1104 268.04 42.8736 261.723 42.8736H260.962Z" fill="#F3F3F3"/><path d="M279.507 16.6208C278.745 16.3968 278.476 15.8592 278.656 15.1424L279.507 11.648C279.686 10.8864 280.313 10.6176 280.985 10.7968L304.505 17.3824C305.222 17.5616 305.58 18.0544 305.58 18.7712V21.9968C305.58 22.624 305.401 23.1168 304.774 23.52C292.544 31.808 281.881 32.928 275.654 32.928H275.34L274.892 29.7472L275.34 26.5664H275.654C280.268 26.5664 290.124 25.6256 298.502 21.9072L279.507 16.6208Z" fill="#F3F3F3"/></g></svg>
+            <!-- variantes de los botones (24/11): hexágonos; los triángulos de arriba son los del Figma de Montse -->
+            <div class="hexSet" aria-hidden="true">
+              <div class="hxTop"><svg class="hxArMove" width="305.58" height="42.8736" viewBox="0 0 305.58 42.8736" fill="none"><g><path d="M8.3776 31.2704C3.2704 31.2704 0 27.5968 0 22.2656V20.1152C0 14.784 3.2704 11.1552 8.3776 11.1552C10.2592 11.1552 11.8272 11.7824 13.0816 12.9024V11.9168C13.0816 10.7072 13.7984 10.0352 14.9632 10.0352H16.6656C17.8304 10.0352 18.5024 10.7072 18.5024 11.9168V22.2656C18.5024 25.2224 19.8016 26.5664 23.2512 26.5664L23.6992 29.7472L23.2512 32.928C18.9504 32.928 15.904 31.0464 14.336 28C13.0368 30.0608 10.976 31.2704 8.3776 31.2704ZM15.9936 2.7776C15.9936 4.3904 14.6944 5.6896 13.1712 5.6896C11.6032 5.6896 10.2592 4.3904 10.2592 2.7776C10.2592 1.2992 11.6032 0 13.1712 0C14.6944 0 15.9936 1.2992 15.9936 2.7776ZM8.8704 2.7776C8.8704 4.3904 7.5712 5.6896 6.048 5.6896C4.48 5.6896 3.136 4.3904 3.136 2.7776C3.136 1.2992 4.48 0 6.048 0C7.5712 0 8.8704 1.2992 8.8704 2.7776ZM5.4208 22.3552C5.4208 24.416 6.7648 25.536 8.512 25.536H9.9904C11.6928 25.536 13.0816 24.4608 13.0816 22.4448V20.0256C13.0816 18.0096 11.7376 16.8896 10.0352 16.8896H8.512C6.7648 16.8896 5.4208 18.0096 5.4208 20.0704V22.3552Z" fill="#F3F3F3"/><path d="M45.0212 32.928C42.1988 32.928 39.466 32.4352 37.1364 30.7776C34.6724 32.3904 32.2532 32.928 29.3412 32.928H22.0388L21.5908 29.7472L22.0388 26.5664H29.3412C30.5508 26.5664 31.5364 26.432 32.4772 26.1632L26.6532 20.16C26.2052 19.6672 26.026 19.2192 26.026 18.5472V12.9024C26.026 12.0512 26.5188 11.5584 27.37 11.5584H40.138C45.2004 11.5584 47.8884 13.9776 47.8884 18.6368C47.8884 21.0112 45.4692 24.1024 43.1844 26.5216C43.6324 26.5664 44.0356 26.5664 44.4388 26.5664H50.89L51.338 29.7472L50.89 32.928H45.0212ZM36.1956 7.6608C34.5828 7.6608 33.2836 6.3616 33.2836 4.8384C33.2836 3.2704 34.5828 1.9264 36.1956 1.9264C37.674 1.9264 38.9732 3.2704 38.9732 4.8384C38.9732 6.3616 37.674 7.6608 36.1956 7.6608ZM31.8948 18.4128C31.8948 18.5024 31.9396 18.592 31.9844 18.6368L38.2116 24.7744C40.4068 22.848 42.7812 20.5184 42.7812 19.3984C42.7812 18.1888 42.0644 17.3376 40.138 17.3376H32.074C31.9396 17.3376 31.8948 17.3824 31.8948 17.5168V18.4128Z" fill="#F3F3F3"/><path d="M49.6844 32.928L49.2364 29.7472L49.6844 26.5664C54.2988 26.5664 55.6876 25.2224 55.6876 22.2656V16.6208H55.7772V2.7776C55.7772 2.016 56.2252 1.568 56.9868 1.568H59.9884C60.75 1.568 61.198 2.016 61.198 2.7776V22.2656C61.198 25.2224 62.4972 26.5664 65.9468 26.5664H66.4844L66.9324 29.7472L66.4844 32.928H65.9468C61.9596 32.928 59.0476 31.3152 57.39 28.6272C55.8668 31.2704 53.2684 32.928 49.6844 32.928Z" fill="#F3F3F3"/><path d="M76.006 22.2656C76.006 28.672 72.3772 32.928 65.8364 32.928H65.2988L64.8508 29.7472L65.2988 26.5664H65.8364C69.286 26.5664 70.5852 25.2224 70.5852 22.2656V2.7776C70.5852 2.016 71.0332 1.568 71.7948 1.568H74.7964C75.558 1.568 76.006 2.016 76.006 2.7776V22.2656Z" fill="#F3F3F3"/><path d="M82.2062 32.928C81.4446 32.928 80.9966 32.48 80.9966 31.7184V2.7776C80.9966 2.016 81.4446 1.568 82.2062 1.568H85.2078C85.9694 1.568 86.4174 2.016 86.4174 2.7776V31.7184C86.4174 32.48 85.9694 32.928 85.2078 32.928H82.2062Z" fill="#F3F3F3"/><path d="M98.8309 42.8736C98.0693 42.8736 97.6213 42.4256 97.6213 41.664V37.6768C97.6213 36.9152 98.0693 36.4672 98.8309 36.4672H99.5477C102.773 36.4672 104.117 35.1232 104.117 32.2112V13.8432C104.117 13.1264 104.565 12.6336 105.327 12.6336H108.284C109.045 12.6336 109.493 13.0816 109.493 13.8432V32.8384C109.493 39.1104 105.909 42.8736 99.5925 42.8736H98.8309Z" fill="#F3F3F3"/><path d="M114.441 2.7776C114.441 2.016 114.889 1.568 115.651 1.568H118.652C119.414 1.568 119.862 2.016 119.862 2.7776V22.2656C119.862 25.2224 121.161 26.5664 124.611 26.5664H125.148L125.596 29.7472L125.148 32.928H124.611C118.07 32.928 114.441 28.672 114.441 22.2656V2.7776Z" fill="#F3F3F3"/><path d="M140.129 32.928C135.873 32.928 132.827 31.0912 131.259 28.0896C129.96 31.0016 127.451 32.928 123.957 32.928L123.509 29.7472L123.957 26.5664C128.571 26.5664 129.96 25.2224 129.96 22.2656V15.0976C129.96 14.3808 130.408 13.888 131.169 13.888H134.171C134.933 13.888 135.381 14.336 135.381 15.0976V22.2656C135.381 25.2224 136.68 26.5664 140.129 26.5664H140.533L140.981 29.7472L140.533 32.928H140.129ZM138.024 39.2448C138.024 40.8576 136.725 42.1568 135.201 42.1568C133.633 42.1568 132.289 40.8576 132.289 39.2448C132.289 37.7664 133.633 36.4672 135.201 36.4672C136.725 36.4672 138.024 37.7664 138.024 39.2448ZM130.901 39.2448C130.901 40.8576 129.601 42.1568 128.078 42.1568C126.51 42.1568 125.166 40.8576 125.166 39.2448C125.166 37.7664 126.51 36.4672 128.078 36.4672C129.601 36.4672 130.901 37.7664 130.901 39.2448Z" fill="#F3F3F3"/><path d="M155.47 32.928C151.214 32.928 148.168 31.0912 146.6 28.0896C145.301 31.0016 142.792 32.928 139.298 32.928L138.85 29.7472L139.298 26.5664C143.912 26.5664 145.301 25.2224 145.301 22.2656V15.0976C145.301 14.3808 145.749 13.888 146.51 13.888H149.512C150.274 13.888 150.722 14.336 150.722 15.0976V22.2656C150.722 25.2224 152.021 26.5664 155.47 26.5664H155.874L156.322 29.7472L155.874 32.928H155.47ZM154.082 6.72C154.082 8.3328 152.782 9.632 151.259 9.632C149.691 9.632 148.347 8.3328 148.347 6.72C148.347 5.2416 149.691 3.9424 151.259 3.9424C152.782 3.9424 154.082 5.2416 154.082 6.72ZM146.958 6.72C146.958 8.3328 145.659 9.632 144.136 9.632C142.568 9.632 141.224 8.3328 141.224 6.72C141.224 5.2416 142.568 3.9424 144.136 3.9424C145.659 3.9424 146.958 5.2416 146.958 6.72Z" fill="#F3F3F3"/><path d="M158.805 16.6208C158.043 16.3968 157.774 15.8592 157.954 15.1424L158.805 11.648C158.984 10.8864 159.611 10.6176 160.283 10.7968L183.803 17.3824C184.52 17.5616 184.878 18.0544 184.878 18.7712V21.9968C184.878 22.624 184.699 23.1168 184.072 23.52C171.842 31.808 161.179 32.928 154.952 32.928H154.638L154.19 29.7472L154.638 26.5664H154.952C159.566 26.5664 169.422 25.6256 177.8 21.9072L158.805 16.6208ZM172.827 8.3776C171.214 8.3776 169.915 7.0784 169.915 5.5552C169.915 3.9872 171.214 2.6432 172.827 2.6432C174.306 2.6432 175.605 3.9872 175.605 5.5552C175.605 7.0784 174.306 8.3776 172.827 8.3776Z" fill="#F3F3F3"/><path d="M191.293 32.928C190.532 32.928 190.084 32.48 190.084 31.7184V27.4624C190.084 26.8352 190.263 26.3872 190.8 25.984L200.164 18.8608L200.97 18.2336L190.084 10.2144C189.456 9.7664 189.367 9.2288 189.77 8.5568L191.159 6.272C191.607 5.5552 192.234 5.5104 192.906 5.9584L204.375 14.6496C204.912 13.7536 205.271 12.7232 205.271 11.648V2.7776C205.271 2.016 205.674 1.568 206.436 1.568H209.437C210.199 1.568 210.647 2.016 210.647 2.7776V11.648C210.647 14.112 209.572 16.0384 208.183 17.5616C210.736 19.8016 211.856 22.4 211.856 24.8192C211.856 29.1648 208.272 32.928 202.807 32.928H191.293ZM196.356 26.5664H204.106C205.988 26.5664 207.152 25.5808 207.152 24.3264C207.152 23.4304 206.615 22.4896 205.674 21.728L204.33 20.7424L203.972 21.0112L196.356 26.5664Z" fill="#F3F3F3"/><path d="M240.214 18.6368C239.945 18.6368 239.811 18.5024 239.811 18.2336V16.7552C239.811 16.4864 239.945 16.352 240.214 16.352H242.991C243.932 16.352 244.156 15.9488 243.081 15.3216L240.572 13.9328C240.438 13.8432 240.303 13.664 240.303 13.4848V12.4096C240.303 12.1856 240.393 12.0064 240.617 11.9168L245.903 10.1696C246.172 10.08 246.351 10.1696 246.351 10.4832V11.7824C246.351 11.9616 246.262 12.1408 246.038 12.2304L243.619 13.0368L244.111 13.3504C247.247 15.1424 245.814 18.6368 242.991 18.6368H240.214ZM255.401 2.7776C255.401 2.016 255.804 1.568 256.566 1.568H259.567C260.329 1.568 260.777 2.016 260.777 2.7776V22.2656C260.777 28.672 257.148 32.928 250.607 32.928H234.569C228.028 32.928 224.399 28.672 224.399 22.2656V16.7552C224.399 15.9936 224.847 15.5456 225.609 15.5456H228.611C229.372 15.5456 229.82 15.9936 229.82 16.7552V22.2656C229.82 25.2224 231.119 26.5664 234.569 26.5664H250.607C254.057 26.5664 255.401 25.2224 255.401 22.2656V2.7776Z" fill="#F3F3F3"/><path d="M269.02 3.38133C269.02 3.02293 269.244 2.79893 269.603 2.79893H270.32C270.678 2.79893 270.902 3.02293 270.902 3.38133V5.21813C270.902 5.80053 271.126 6.02453 271.798 6.02453C272.291 6.02453 272.515 5.80053 272.515 5.35253V3.38133C272.515 3.02293 272.739 2.79893 273.052 2.79893H274.128C274.441 2.79893 274.665 3.02293 274.665 3.38133V5.35253C274.665 6.87573 273.814 7.86133 272.067 7.86133C271.26 7.86133 270.588 7.54773 270.14 7.14453C269.648 7.59253 268.931 7.86133 268.124 7.86133C265.974 7.86133 265.257 6.69653 265.257 5.21813V3.38133C265.257 3.02293 265.481 2.79893 265.84 2.79893H266.87C267.228 2.79893 267.452 3.02293 267.452 3.38133V5.21813C267.452 5.80053 267.676 6.02453 268.303 6.02453C268.841 6.02453 269.02 5.80053 269.02 5.35253V3.38133Z" fill="#F3F3F3"/><path d="M260.962 42.8736C260.2 42.8736 259.752 42.4256 259.752 41.664V37.6768C259.752 36.9152 260.2 36.4672 260.962 36.4672H261.679C264.904 36.4672 266.248 35.1232 266.248 32.2112V13.8432C266.248 13.1264 266.696 12.6336 267.458 12.6336H270.415C271.176 12.6336 271.624 13.0816 271.624 13.8432V22.2656C271.624 25.3568 272.162 26.5664 276.507 26.5664L276.955 29.7472L276.507 32.928C274.491 32.928 272.834 32.256 271.624 31.0464V32.8384C271.624 39.1104 268.04 42.8736 261.723 42.8736H260.962Z" fill="#F3F3F3"/><path d="M279.507 16.6208C278.745 16.3968 278.476 15.8592 278.656 15.1424L279.507 11.648C279.686 10.8864 280.313 10.6176 280.985 10.7968L304.505 17.3824C305.222 17.5616 305.58 18.0544 305.58 18.7712V21.9968C305.58 22.624 305.401 23.1168 304.774 23.52C292.544 31.808 281.881 32.928 275.654 32.928H275.34L274.892 29.7472L275.34 26.5664H275.654C280.268 26.5664 290.124 25.6256 298.502 21.9072L279.507 16.6208Z" fill="#F3F3F3"/></g></svg><i class="hxDiv"></i><div class="hxEnMove">Move to select language</div></div>
+              <div class="hx hxAr"><svg class="hxShape" viewBox="-140 -122 280 244"><path class="hxFill" d="M122.00 -22.52Q135.00 0.00 122.00 22.52L80.50 94.40Q67.50 116.91 41.50 116.91L-41.50 116.91Q-67.50 116.91 -80.50 94.40L-122.00 22.52Q-135.00 0.00 -122.00 -22.52L-80.50 -94.40Q-67.50 -116.91 -41.50 -116.91L41.50 -116.91Q67.50 -116.91 80.50 -94.40Z"/><path class="hxStroke" d="M122.00 -22.52Q135.00 0.00 122.00 22.52L80.50 94.40Q67.50 116.91 41.50 116.91L-41.50 116.91Q-67.50 116.91 -80.50 94.40L-122.00 22.52Q-135.00 0.00 -122.00 -22.52L-80.50 -94.40Q-67.50 -116.91 -41.50 -116.91L41.50 -116.91Q67.50 -116.91 80.50 -94.40Z"/></svg><svg class="hxLbl" width="154" height="56" viewBox="0 0 154 56" fill="none"><path d="M10.7712 40.2048C4.2048 40.2048 0 35.4816 0 28.6272V25.8624C0 19.008 4.2048 14.3424 10.7712 14.3424C13.1904 14.3424 15.2064 15.1488 16.8192 16.5888V15.3216C16.8192 13.7664 17.7408 12.9024 19.2384 12.9024H21.4272C22.9248 12.9024 23.7888 13.7664 23.7888 15.3216V28.6272C23.7888 32.4288 25.4592 34.1568 29.8944 34.1568L30.4704 38.2464L29.8944 42.336C24.3648 42.336 20.448 39.9168 18.432 36C16.7616 38.6496 14.112 40.2048 10.7712 40.2048ZM20.5632 3.5712C20.5632 5.6448 18.8928 7.3152 16.9344 7.3152C14.9184 7.3152 13.1904 5.6448 13.1904 3.5712C13.1904 1.6704 14.9184 0 16.9344 0C18.8928 0 20.5632 1.6704 20.5632 3.5712ZM11.4048 3.5712C11.4048 5.6448 9.7344 7.3152 7.776 7.3152C5.76 7.3152 4.032 5.6448 4.032 3.5712C4.032 1.6704 5.76 0 7.776 0C9.7344 0 11.4048 1.6704 11.4048 3.5712ZM6.9696 28.7424C6.9696 31.392 8.6976 32.832 10.944 32.832H12.8448C15.0336 32.832 16.8192 31.4496 16.8192 28.8576V25.7472C16.8192 23.1552 15.0912 21.7152 12.9024 21.7152H10.944C8.6976 21.7152 6.9696 23.1552 6.9696 25.8048V28.7424Z" fill="currentColor"/><path d="M50.5692 42.336C45.0972 42.336 41.1804 39.9744 39.1644 36.1152C37.494 39.8592 34.2684 42.336 29.7756 42.336L29.1996 38.2464L29.7756 34.1568C35.7084 34.1568 37.494 32.4288 37.494 28.6272V19.4112C37.494 18.4896 38.07 17.856 39.0492 17.856H42.9084C43.8876 17.856 44.4636 18.432 44.4636 19.4112V28.6272C44.4636 32.4288 46.134 34.1568 50.5692 34.1568H51.0876L51.6636 38.2464L51.0876 42.336H50.5692ZM47.862 50.4576C47.862 52.5312 46.1916 54.2016 44.2332 54.2016C42.2172 54.2016 40.4892 52.5312 40.4892 50.4576C40.4892 48.5568 42.2172 46.8864 44.2332 46.8864C46.1916 46.8864 47.862 48.5568 47.862 50.4576ZM38.7036 50.4576C38.7036 52.5312 37.0332 54.2016 35.0748 54.2016C33.0588 54.2016 31.3308 52.5312 31.3308 50.4576C31.3308 48.5568 33.0588 46.8864 35.0748 46.8864C37.0332 46.8864 38.7036 48.5568 38.7036 50.4576Z" fill="currentColor"/><path d="M50.9397 42.336L50.3637 38.2464L50.9397 34.1568H52.3797C56.8149 34.1568 58.5429 32.4288 58.5429 28.6272V16.5888C58.5429 15.6096 59.1189 15.0336 60.0981 15.0336H63.9573C64.9365 15.0336 65.5125 15.6096 65.5125 16.5888V28.6272C65.5125 36.864 60.7893 42.336 52.3797 42.336H50.9397ZM59.1189 53.7408C57.0453 53.7408 55.3749 52.0704 55.3749 50.112C55.3749 48.096 57.0453 46.368 59.1189 46.368C61.0197 46.368 62.6901 48.096 62.6901 50.112C62.6901 52.0704 61.0197 53.7408 59.1189 53.7408Z" fill="currentColor"/><path d="M68.4192 55.1232C67.44 55.1232 66.864 54.5472 66.864 53.568V48.4416C66.864 47.4624 67.44 46.8864 68.4192 46.8864H69.3408C73.488 46.8864 75.216 45.1584 75.216 41.4144V17.7984C75.216 16.8768 75.792 16.2432 76.7712 16.2432H80.5728C81.552 16.2432 82.128 16.8192 82.128 17.7984V28.6272C82.128 32.6016 82.8192 34.1568 88.4064 34.1568L88.9824 38.2464L88.4064 42.336C85.8144 42.336 83.6832 41.472 82.128 39.9168V42.2208C82.128 50.2848 77.52 55.1232 69.3984 55.1232H68.4192Z" fill="currentColor"/><path d="M117.895 42.336C114.266 42.336 110.752 41.7024 107.757 39.5712C104.589 41.6448 101.479 42.336 97.7347 42.336H88.3459L87.7699 38.2464L88.3459 34.1568H97.7347C99.2899 34.1568 100.557 33.984 101.767 33.6384L94.2787 25.92C93.7027 25.2864 93.4723 24.7104 93.4723 23.8464V16.5888C93.4723 15.4944 94.1059 14.8608 95.2003 14.8608H111.616C118.125 14.8608 121.581 17.9712 121.581 23.9616C121.581 27.0144 118.471 30.9888 115.533 34.0992C116.109 34.1568 116.628 34.1568 117.146 34.1568H125.44L126.016 38.2464L125.44 42.336H117.895ZM101.018 23.6736C101.018 23.7888 101.076 23.904 101.133 23.9616L109.14 31.8528C111.962 29.376 115.015 26.3808 115.015 24.9408C115.015 23.3856 114.093 22.2912 111.616 22.2912H101.248C101.076 22.2912 101.018 22.3488 101.018 22.5216V23.6736Z" fill="currentColor"/><path d="M139.097 28.6272C139.097 36.864 134.431 42.336 126.021 42.336H125.33L124.754 38.2464L125.33 34.1568H126.021C130.457 34.1568 132.127 32.4288 132.127 28.6272V3.5712C132.127 2.592 132.703 2.016 133.682 2.016H137.541C138.521 2.016 139.097 2.592 139.097 3.5712V28.6272Z" fill="currentColor"/><path d="M148.508 42.336C147.529 42.336 146.953 41.76 146.953 40.7808V3.5712C146.953 2.592 147.529 2.016 148.508 2.016H152.368C153.347 2.016 153.923 2.592 153.923 3.5712V40.7808C153.923 41.76 153.347 42.336 152.368 42.336H148.508Z" fill="currentColor"/></svg></div>
+              <div class="hx hxEn"><svg class="hxShape" viewBox="-140 -122 280 244"><path class="hxFill" d="M122.00 -22.52Q135.00 0.00 122.00 22.52L80.50 94.40Q67.50 116.91 41.50 116.91L-41.50 116.91Q-67.50 116.91 -80.50 94.40L-122.00 22.52Q-135.00 0.00 -122.00 -22.52L-80.50 -94.40Q-67.50 -116.91 -41.50 -116.91L41.50 -116.91Q67.50 -116.91 80.50 -94.40Z"/><path class="hxStroke" d="M122.00 -22.52Q135.00 0.00 122.00 22.52L80.50 94.40Q67.50 116.91 41.50 116.91L-41.50 116.91Q-67.50 116.91 -80.50 94.40L-122.00 22.52Q-135.00 0.00 -122.00 -22.52L-80.50 -94.40Q-67.50 -116.91 -41.50 -116.91L41.50 -116.91Q67.50 -116.91 80.50 -94.40Z"/></svg><svg class="hxLbl" width="66" height="45" viewBox="0 0 66 45" fill="none"><path d="M1.73797 44.2139C0.625669 44.2139 0 43.5883 0 42.5455V1.66845C0 0.556151 0.625669 0 1.73797 0H25.0268C26.0695 0 26.6952 0.556151 26.6952 1.66845V5.42246C26.6952 6.46524 26.0695 7.16043 25.0268 7.16043H8.55081V18.2834H23.7754C24.7487 18.2834 25.3743 18.9091 25.3743 19.9519V23.7754C25.3743 24.8182 24.8182 25.4439 23.7754 25.4439H8.55081V37.0535H25.0268C26.0695 37.0535 26.6952 37.6792 26.6952 38.7219V42.5455C26.6952 43.5883 26.0695 44.2139 25.0268 44.2139H1.73797Z" fill="currentColor"/><path d="M58.5934 44.2139C57.6897 44.2139 57.064 43.8663 56.6469 42.9626L40.8662 13.4866V42.5455C40.8662 43.5883 40.2405 44.2139 39.1282 44.2139H34.0533C32.941 44.2139 32.3154 43.5883 32.3154 42.5455V1.66845C32.3154 0.556151 32.941 0 34.0533 0H40.5186C41.4918 0 42.048 0.278076 42.5346 1.18182L57.2031 28.7112V1.66845C57.2031 0.556151 57.8983 0 58.941 0H64.0854C65.1282 0 65.7539 0.556151 65.7539 1.66845V42.5455C65.7539 43.5883 65.1282 44.2139 64.0854 44.2139H58.5934Z" fill="currentColor"/></svg></div>
+            </div>
             <div class="lSub armOnly">Press the shutter to select</div>
+            <!-- con el árabe marcado, el aviso en árabe (Montse, 25/11), texto de su Figma («Subtitle», 65:2458): ilmi Bold, en contornos -->
+            <svg class="lSubAr armOnly" viewBox="0 0 639 63" fill="none" role="img" aria-label="اضغط زر التصوير للاختيار"><path d="M1.81392 62.3616C0.671519 62.3616 -0.000481367 61.6896 -0.000481367 60.5472V54.5664C-0.000481367 53.424 0.671519 52.752 1.81392 52.752H2.88912C7.72752 52.752 9.74352 50.736 9.74352 46.368V18.816C9.74352 17.7408 10.4155 17.0016 11.5579 17.0016H15.9931C17.1355 17.0016 17.8075 17.6736 17.8075 18.816V47.3088C17.8075 56.7168 12.4315 62.3616 2.95632 62.3616H1.81392ZM25.2294 2.21758C25.2294 1.07518 25.9014 0.403176 27.0438 0.403176H31.5462C32.6886 0.403176 33.3606 1.07518 33.3606 2.21758V31.4496C33.3606 35.8848 35.3094 37.9008 40.4838 37.9008H41.2902L41.9622 42.672L41.2902 47.4432H40.4838C30.6726 47.4432 25.2294 41.0592 25.2294 31.4496V2.21758ZM63.7617 47.4432C57.3777 47.4432 52.8081 44.688 50.4561 40.1856C48.5073 44.5536 44.7441 47.4432 39.5025 47.4432L38.8305 42.672L39.5025 37.9008C46.4241 37.9008 48.5073 35.8848 48.5073 31.4496V20.6976C48.5073 19.6224 49.1793 18.8832 50.3217 18.8832H54.8241C55.9665 18.8832 56.6385 19.5552 56.6385 20.6976V31.4496C56.6385 35.8848 58.5873 37.9008 63.7617 37.9008H64.3665L65.0385 42.672L64.3665 47.4432H63.7617ZM60.6033 56.9184C60.6033 59.3376 58.6545 61.2864 56.3697 61.2864C54.0177 61.2864 52.0017 59.3376 52.0017 56.9184C52.0017 54.7008 54.0177 52.752 56.3697 52.752C58.6545 52.752 60.6033 54.7008 60.6033 56.9184ZM49.9185 56.9184C49.9185 59.3376 47.9697 61.2864 45.6849 61.2864C43.3329 61.2864 41.3169 59.3376 41.3169 56.9184C41.3169 54.7008 43.3329 52.752 45.6849 52.752C47.9697 52.752 49.9185 54.7008 49.9185 56.9184ZM86.7731 47.4432C80.3891 47.4432 75.8195 44.688 73.4675 40.1856C71.5187 44.5536 67.7555 47.4432 62.5139 47.4432L61.8419 42.672L62.5139 37.9008C69.4355 37.9008 71.5187 35.8848 71.5187 31.4496V20.6976C71.5187 19.6224 72.1907 18.8832 73.3331 18.8832H77.8355C78.9779 18.8832 79.6499 19.5552 79.6499 20.6976V31.4496C79.6499 35.8848 81.5987 37.9008 86.7731 37.9008H87.3779L88.0499 42.672L87.3779 47.4432H86.7731ZM84.6899 8.13118C84.6899 10.5504 82.7411 12.4992 80.4563 12.4992C78.1043 12.4992 76.0883 10.5504 76.0883 8.13118C76.0883 5.91358 78.1043 3.96478 80.4563 3.96478C82.7411 3.96478 84.6899 5.91358 84.6899 8.13118ZM74.0051 8.13118C74.0051 10.5504 72.0563 12.4992 69.7715 12.4992C67.4195 12.4992 65.4035 10.5504 65.4035 8.13118C65.4035 5.91358 67.4195 3.96478 69.7715 3.96478C72.0563 3.96478 74.0051 5.91358 74.0051 8.13118ZM91.7749 22.9824C90.6325 22.6464 90.2293 21.84 90.4981 20.7648L91.7749 15.5232C92.0437 14.3808 92.9845 13.9776 93.9925 14.2464L129.272 24.1248C130.348 24.3936 130.885 25.1328 130.885 26.208V31.0464C130.885 31.9872 130.617 32.7264 129.676 33.3312C111.33 45.7632 95.3365 47.4432 85.9957 47.4432H85.5253L84.8533 42.672L85.5253 37.9008H85.9957C92.9173 37.9008 107.701 36.4896 120.268 30.912L91.7749 22.9824ZM112.809 10.6176C110.389 10.6176 108.44 8.66878 108.44 6.38398C108.44 4.03198 110.389 2.01598 112.809 2.01598C115.026 2.01598 116.975 4.03198 116.975 6.38398C116.975 8.66878 115.026 10.6176 112.809 10.6176ZM145.951 9.94558C145.682 8.73598 146.22 8.06398 147.362 7.79518L151.26 6.92158C152.402 6.65278 153.208 7.19038 153.477 8.33278L161.071 37.9008C166.783 37.7664 168.799 35.6832 168.799 31.4496L168.732 2.21758C168.732 1.07518 169.404 0.403176 170.546 0.403176H175.048C176.124 0.403176 176.796 1.07518 176.796 2.21758L176.863 31.4496C176.863 35.8848 178.879 37.9008 184.053 37.9008L184.725 42.672L184.053 47.4432C178.61 47.4432 174.444 45.4944 171.89 42.0672C169.605 45.36 165.909 47.4432 160.6 47.4432H140.172C139.029 47.4432 138.357 46.7712 138.357 45.6288V39.7152C138.357 38.5728 139.029 37.9008 140.172 37.9008H153.141L145.951 9.94558ZM198.304 31.4496C198.304 41.0592 192.861 47.4432 183.05 47.4432H182.243L181.571 42.672L182.243 37.9008H183.05C188.224 37.9008 190.173 35.8848 190.173 31.4496V2.21758C190.173 1.07518 190.845 0.403176 191.987 0.403176H196.49C197.632 0.403176 198.304 1.07518 198.304 2.21758V31.4496ZM216.913 62.3616C215.771 62.3616 215.099 61.6896 215.099 60.5472V54.5664C215.099 53.424 215.771 52.752 216.913 52.752H217.988C222.827 52.752 224.843 50.736 224.843 46.368V18.816C224.843 17.7408 225.515 17.0016 226.657 17.0016H231.092C232.235 17.0016 232.907 17.6736 232.907 18.816V31.4496C232.907 36.0864 233.713 37.9008 240.231 37.9008L240.903 42.672L240.231 47.4432C237.207 47.4432 234.721 46.4352 232.907 44.6208V47.3088C232.907 56.7168 227.531 62.3616 218.055 62.3616H216.913ZM238.481 47.4432L237.809 42.672L238.481 37.9008H240.161C245.335 37.9008 247.351 35.8848 247.351 31.4496V17.4048C247.351 16.2624 248.023 15.5904 249.166 15.5904H253.668C254.81 15.5904 255.482 16.2624 255.482 17.4048V31.4496C255.482 41.0592 249.972 47.4432 240.161 47.4432H238.481ZM258.372 56.8512C258.372 59.2704 256.423 61.2192 254.138 61.2192C251.786 61.2192 249.77 59.2704 249.77 56.8512C249.77 54.6336 251.786 52.6848 254.138 52.6848C256.423 52.6848 258.372 54.6336 258.372 56.8512ZM247.687 56.8512C247.687 59.2704 245.738 61.2192 243.454 61.2192C241.102 61.2192 239.086 59.2704 239.086 56.8512C239.086 54.6336 241.102 52.6848 243.454 52.6848C245.738 52.6848 247.687 54.6336 247.687 56.8512ZM265.215 62.496C264.072 62.496 263.4 61.824 263.4 60.6816V54.768C263.4 53.6256 264.072 52.9536 265.215 52.9536H275.227C279.394 52.9536 280.738 51.6768 280.738 48.1824V47.4432H275.16C266.76 47.4432 261.519 41.5296 261.519 33.1968V30.1056C261.519 22.176 265.887 15.7248 275.16 15.7248C284.434 15.7248 288.869 22.176 288.869 30.1056V37.9008H295.32L295.992 42.672L295.32 47.4432H288.869V48.1824C288.869 56.112 284.434 62.496 275.227 62.496H265.215ZM269.65 33.1968C269.65 36.7584 271.867 37.9008 274.354 37.9008H280.738V29.9712C280.738 26.9472 279.058 25.2672 276.034 25.2672H274.287C271.263 25.2672 269.65 26.9472 269.65 29.9712V33.1968ZM300.18 17.4048C300.18 16.2624 300.852 15.5904 301.927 15.5904H306.429C307.572 15.5904 308.244 16.2624 308.244 17.4048V19.2192L322.826 15.1872C334.855 11.76 342.852 19.824 342.852 32.3232V37.9008H348.497L349.169 42.672L348.497 47.4432H293.527L292.855 42.672L293.527 37.9008H300.18V17.4048ZM308.244 37.9008L334.721 37.8336V32.3232C334.721 25.8048 331.293 22.512 324.641 24.0576L308.244 27.888V37.9008ZM370.903 47.4432C364.519 47.4432 359.949 44.688 357.598 40.1856C355.649 44.5536 351.885 47.4432 346.644 47.4432L345.972 42.672L346.644 37.9008C353.565 37.9008 355.649 35.8848 355.649 31.4496V20.6976C355.649 19.6224 356.321 18.8832 357.463 18.8832H361.965C363.108 18.8832 363.78 19.5552 363.78 20.6976V31.4496C363.78 35.8848 365.729 37.9008 370.903 37.9008H371.508L372.18 42.672L371.508 47.4432H370.903ZM368.82 8.13118C368.82 10.5504 366.871 12.4992 364.586 12.4992C362.234 12.4992 360.218 10.5504 360.218 8.13118C360.218 5.91358 362.234 3.96478 364.586 3.96478C366.871 3.96478 368.82 5.91358 368.82 8.13118ZM358.135 8.13118C358.135 10.5504 356.186 12.4992 353.901 12.4992C351.549 12.4992 349.533 10.5504 349.533 8.13118C349.533 5.91358 351.549 3.96478 353.901 3.96478C356.186 3.96478 358.135 5.91358 358.135 8.13118ZM385.716 31.4496C385.716 41.0592 380.273 47.4432 370.462 47.4432H369.655L368.983 42.672L369.655 37.9008H370.462C375.636 37.9008 377.585 35.8848 377.585 31.4496V2.21758C377.585 1.07518 378.257 0.403176 379.399 0.403176H383.902C385.044 0.403176 385.716 1.07518 385.716 2.21758V31.4496ZM395.016 47.4432C393.874 47.4432 393.202 46.7712 393.202 45.6288V2.21758C393.202 1.07518 393.874 0.403176 395.016 0.403176H399.519C400.661 0.403176 401.333 1.07518 401.333 2.21758V45.6288C401.333 46.7712 400.661 47.4432 399.519 47.4432H395.016ZM419.953 62.3616C418.811 62.3616 418.139 61.6896 418.139 60.5472V54.5664C418.139 53.424 418.811 52.752 419.953 52.752H421.029C425.867 52.752 427.883 50.736 427.883 46.368V18.816C427.883 17.7408 428.555 17.0016 429.697 17.0016H434.133C435.275 17.0016 435.947 17.6736 435.947 18.816V47.3088C435.947 56.7168 430.571 62.3616 421.096 62.3616H419.953ZM442.227 62.3616C441.084 62.3616 440.412 61.6896 440.412 60.5472V54.5664C440.412 53.424 441.084 52.752 442.227 52.752H443.302C448.14 52.752 450.156 50.736 450.156 46.368V18.816C450.156 17.7408 450.828 17.0016 451.971 17.0016H456.406C457.548 17.0016 458.22 17.6736 458.22 18.816V47.3088C458.22 56.7168 452.844 62.3616 443.369 62.3616H442.227ZM454.121 11.1552C451.702 11.1552 449.753 9.20638 449.753 6.92158C449.753 4.56958 451.702 2.55358 454.121 2.55358C456.339 2.55358 458.287 4.56958 458.287 6.92158C458.287 9.20638 456.339 11.1552 454.121 11.1552ZM480.259 47.4432C479.117 47.4432 478.445 46.7712 478.445 45.6288V39.648C478.445 38.5728 479.117 37.9008 480.259 37.9008H485.232V2.21758C485.232 1.07518 485.904 0.403176 487.047 0.403176H491.549C492.691 0.403176 493.363 1.07518 493.363 2.21758V19.152L507.744 15.1872C519.773 11.76 527.77 19.824 527.77 32.3232V37.9008H533.751L534.423 42.672L533.751 47.4432H480.259ZM493.363 37.9008L519.639 37.8336V32.3232C519.639 25.8048 516.279 22.512 509.559 24.0576L493.363 27.8208V37.9008ZM566.439 47.4432C562.206 47.4432 558.106 46.704 554.612 44.2176C550.916 46.6368 547.287 47.4432 542.919 47.4432H531.966L531.294 42.672L531.966 37.9008H542.919C544.734 37.9008 546.212 37.6992 547.623 37.296L538.887 28.2912C538.215 27.552 537.946 26.88 537.946 25.872V17.4048C537.946 16.128 538.686 15.3888 539.962 15.3888H559.114C566.708 15.3888 570.74 19.0176 570.74 26.0064C570.74 29.568 567.111 34.2048 563.684 37.8336C564.356 37.9008 564.961 37.9008 565.566 37.9008H575.242L575.914 42.672L575.242 47.4432H566.439ZM553.201 9.54238C550.782 9.54238 548.833 7.59358 548.833 5.30878C548.833 2.95678 550.782 0.940775 553.201 0.940775C555.418 0.940775 557.367 2.95678 557.367 5.30878C557.367 7.59358 555.418 9.54238 553.201 9.54238ZM546.75 25.6704C546.75 25.8048 546.817 25.9392 546.884 26.0064L556.225 35.2128C559.518 32.3232 563.079 28.8288 563.079 27.1488C563.079 25.3344 562.004 24.0576 559.114 24.0576H547.018C546.817 24.0576 546.75 24.1248 546.75 24.3264V25.6704ZM580.087 17.4048C580.087 16.2624 580.759 15.5904 581.834 15.5904H586.336C587.479 15.5904 588.151 16.2624 588.151 17.4048V19.2192L602.733 15.1872C614.762 11.76 622.759 19.824 622.759 32.3232V45.6288C622.759 46.7712 622.087 47.4432 620.944 47.4432H573.434L572.762 42.672L573.434 37.9008H580.087V17.4048ZM601.456 8.60158C599.037 8.60158 597.088 6.65278 597.088 4.36798C597.088 2.01598 599.037 -2.09808e-05 601.456 -2.09808e-05C603.674 -2.09808e-05 605.623 2.01598 605.623 4.36798C605.623 6.65278 603.674 8.60158 601.456 8.60158ZM588.151 37.9008L614.628 37.8336V32.3232C614.628 25.8048 611.2 22.512 604.548 24.0576L588.151 27.888V37.9008ZM632.018 47.4432C630.875 47.4432 630.203 46.7712 630.203 45.6288V2.21758C630.203 1.07518 630.875 0.403176 632.018 0.403176H636.52C637.663 0.403176 638.335 1.07518 638.335 2.21758V45.6288C638.335 46.7712 637.663 47.4432 636.52 47.4432H632.018Z" fill="#EDA481"/></svg>
             <svg class="abs armOnly" style="left:1005px;top:578px" width="211" height="211" viewBox="0 0 211 211" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M83.377 83.4159L127.024 127.063M83.377 127.063L127.024 127.063L127.024 83.4159" stroke-width="7.86098" stroke-linecap="round" stroke-linejoin="round" stroke="#EDA481"/><g opacity="0.49" filter="url(#filter0_f_74_3873)"><path d="M79.2633 79.2635L131.137 131.137M79.2633 131.137L131.137 131.137L131.137 79.2635" stroke-width="7.86098" stroke-linecap="round" stroke-linejoin="round" stroke="white"/></g><defs><filter id="filter0_f_74_3873" x="3.27436" y="3.27441" width="203.852" height="203.852" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="6.5" result="effect1_foregroundBlur_74_3873"/></filter></defs></svg>
           </div>
         </div>
       </div>
     </div>
   </main>
+  <aside class="cpanel" id="cpanel" aria-label="Client comments, MB 60%" hidden>
+    <div class="cp-ph">
+      <div class="cp-top"><strong>Client comments · MB 60%</strong><button class="cp-x" id="cclose" type="button">✕ Close</button></div>
+      <p class="cp-src">ilmi · Report for Media Briefs WR1 (60% Design), Batch 3.2, REV.00 (05/11/2026): 7 comments on WR1-303-IA01 (#109 and #116 are for the three phases, IA01–IA03). Comments that refer to others include them, marked as another piece: #107 shows #62–#68 on the Red Sea Underwater Camera (WR1-103-IA01), which it says apply here too, and #109 shows #63, to which its response refers. ICARIA response as in the report. Spanish translation and links to screens: ICARIA UX (our reading).</p>
+      <div class="cp-segs">
+        <div class="cp-seg" role="group" aria-label="Which comments"><button id="fScreen" type="button" aria-pressed="true">This screen (0)</button><button id="fAll" type="button" aria-pressed="false">All (14)</button></div>
+        <div class="cp-seg" role="group" aria-label="Language"><button id="lBoth" type="button" aria-pressed="true">EN + ES</button><button id="lEn" type="button" aria-pressed="false">EN</button><button id="lEs" type="button" aria-pressed="false">ES</button></div>
+      </div>
+    </div>
+    <div class="cp-list" id="clist"></div>
+  </aside>
+  </div>
 </div>
 
 <script>
@@ -714,7 +870,7 @@ function clearChevInline(){SIDES.forEach(s=>{s.el.style.transform='';s.el.style.
    (Figma de Montse, 24/11); al confirmarlo con el disparador, la pantalla 1 */
 /* el idioma se elige girando la cámara (Montse, 24/11): se arrastra la imagen como en las pantallas de los puntos y el arrecife sigue
    al dedo. Arrecife hacia la derecha = la cámara mira a la izquierda = English; hacia la izquierda = العربية.
-   LTH: giro (px del arrecife) para marcar un idioma; en la variante «neutral», por debajo de LTH-20 se apagan los dos */
+   LTH: giro (px del arrecife) para marcar un idioma; el elegido sigue encendido hasta llegar al otro */
 let langSel='',langArmT=null,camL={x:0,y:0},corX=-863,corY=-203.19,corSnap=true;
 const LTH=110,LSEL=210,COR_ATT={x:-863,y:-203.19},COR_LANG={x:-732,y:-167.19},LX=[-440,720],LY=[-140,160],coralEl=$('coral');
 function setLang(v,armNow){const L=$('lang');langSel=v;L.dataset.sel=v;clearTimeout(langArmT);
@@ -722,10 +878,13 @@ function setLang(v,armNow){const L=$('lang');langSel=v;L.dataset.sel=v;clearTime
   if(armNow||L.classList.contains('armed'))L.classList.add('armed');
   else langArmT=setTimeout(()=>{if(langSel)L.classList.add('armed')},550)}   // como en el Figma: primero se rellena y luego cambia el texto
 function wake(){if(phase!=='idle')return;phase='lang';camL={x:0,y:0};setLang('')}
+/* idioma que queda a la izquierda: con los hexágonos de la referencia, el árabe; con los demás, English */
+/* botones de idioma fijos (Montse, 25/11: «solo el hexágono side by side»): English a la izquierda, árabe a la derecha */
+function leftLang(){return 'en'}
+const langX=l=>l===leftLang()?LSEL:-LSEL;   // giro para marcar ese idioma (+ = cámara a la izquierda)
 function panLang(x,y){camL.x=clamp(x,LX[0],LX[1]);camL.y=clamp(y,LY[0],LY[1]);
-  const z=camL.x>=LTH?'en':camL.x<=-LTH?'ar':'';
-  if(z){if(z!==langSel)setLang(z)}
-  else if(langSel&&langModeSel.value==='neutral'&&Math.abs(camL.x)<LTH-20)setLang('')}
+  const lft=leftLang(),z=camL.x>=LTH?lft:camL.x<=-LTH?(lft==='en'?'ar':'en'):'';
+  if(z&&z!==langSel)setLang(z)}   // el elegido sigue encendido hasta que la cámara llega al otro (fijo desde el 25/11)
 /* posición del arrecife: en la attract, la del Figma; al elegir idioma, la del Figma más el giro de la cámara (suavizado) */
 function coralFrame(dt){
   const tg=phase==='idle'?COR_ATT:{x:COR_LANG.x+camL.x,y:COR_LANG.y+camL.y};
@@ -751,13 +910,27 @@ const DV={x0:-440,x1:1900,y0:-225,y1:1010},HUB={x:1602,y:834,r:57,rh:114};
 /* giro de la cabeza: el mismo transform 3D, con el mismo punto de giro, en la carcasa, la pantalla y el botón (así quedan en el mismo plano).
    Pivote: el eje del poste (x 640) a media altura de la carcasa (y 440); perspectiva ≈ 2,3 anchos de pantalla */
 let devYaw=0,devPitch=0,devPersp=2000;
-function applyDev(){const tr='perspective('+devPersp.toFixed(0)+'px) rotateX('+(-devPitch).toFixed(3)+'deg) rotateY('+devYaw.toFixed(3)+'deg)';
+/* View (Montse, 25/11): «sim» = el aparato que gira con la cámara; «screen» = solo la pantalla y el botón del disparador simulado.
+   VIEW_DEF es la vista por defecto (la copia sin aparato la cambia a «screen») */
+const VIEW_DEF='sim',PB=96,GAP=24;
+let viewMode=(v=>v==='sim'||v==='screen'?v:VIEW_DEF)(store.get('vista',VIEW_DEF));
+document.body.dataset.view=viewMode;
+function applyDev(){if(viewMode!=='sim')return;const tr='perspective('+devPersp.toFixed(0)+'px) rotateX('+(-devPitch).toFixed(3)+'deg) rotateY('+devYaw.toFixed(3)+'deg)';
   $('device').style.transform=tr;screenEl.style.transform=tr;physEl.style.transform=tr}
 function fit(){
   const cs=getComputedStyle(viewport),pl=parseFloat(cs.paddingLeft),pr=parseFloat(cs.paddingRight),pt=parseFloat(cs.paddingTop),pb=parseFloat(cs.paddingBottom);
   const pw=viewport.clientWidth-pl-pr,ph=viewport.clientHeight-pt-pb,dw=DV.x1-DV.x0,dh=DV.y1-DV.y0;
-  scale=Math.max(.01,Math.min(pw/dw,ph/dh));
-  const x=pl+(pw-dw*scale)/2-DV.x0*scale,y=pt+(ph-dh*scale)/2-DV.y0*scale,sw=W*scale,sh=H*scale,dev=$('device');
+  if(viewMode==='screen'){   // solo la pantalla, con sitio para el botón del disparador a la derecha (como antes de la v28)
+    scale=Math.max(.01,Math.min((pw-PB-GAP)/W,ph/H));
+    const sw=W*scale,sh=H*scale,x=pl+(pw-sw-GAP-PB)/2,y=pt+(ph-sh)/2;
+    screenEl.style.width=sw+'px';screenEl.style.height=sh+'px';screenEl.style.left=x+'px';screenEl.style.top=y+'px';
+    physEl.style.removeProperty('--pb');physEl.style.removeProperty('--lg');
+    physEl.style.left=(x+sw+GAP)+'px';physEl.style.top=(y+(sh-PB)/2)+'px';
+    screenEl.style.transform=physEl.style.transform='';
+    stage.style.transform='scale('+scale+')';return}
+  const pwl=pw-80;   // sitio a la derecha para el rótulo «Shutter · space bar», que va en px fijos (25/11)
+  scale=Math.max(.01,Math.min(pwl/dw,ph/dh));
+  const x=pl+(pwl-dw*scale)/2-DV.x0*scale,y=pt+(ph-dh*scale)/2-DV.y0*scale,sw=W*scale,sh=H*scale,dev=$('device');
   screenEl.style.width=sw+'px';screenEl.style.height=sh+'px';screenEl.style.left=x+'px';screenEl.style.top=y+'px';
   dev.style.left=(x-1100*scale)+'px';dev.style.top=(y-400*scale)+'px';dev.style.width=(3500*scale)+'px';dev.style.height=(4400*scale)+'px';
   const bs=Math.max(34,2*HUB.r*scale);physEl.style.setProperty('--pb',bs+'px');physEl.style.setProperty('--lg',(Math.max(0,HUB.rh*scale-bs/2)+12)+'px');
@@ -775,11 +948,13 @@ function clearTimers(){timers.forEach(clearTimeout);timers=[]}
 function fillCard(){const sp=SPECIES[cur];$('cTtl').textContent=sp.name;$('cSci').textContent=sp.sci;$('cDesc').textContent=sp.desc}
 function openCard(){readyEl.classList.remove('on');phase='card';card.classList.add('on');scene.classList.add('dark')}
 function closeCard(){
+  if(cardFromSum){cardFromSum=false;card.classList.remove('on');showSummary(true);return}   // ficha abierta desde el resumen: vuelve al resumen
   card.classList.remove('on');scene.classList.remove('blur','dark');
   captured=true;onboarding=false;SPECIES[cur].got=true;SPECIES[cur].el.classList.add('got');
   if(!fishOn)startFish();
   phase='closing';
-  later(()=>{phase='explore';p=0;done=false;$('readyTxt').textContent='Press the shutter';readyEl.classList.remove('msg','msgC')},450);
+  later(()=>{phase='explore';p=0;done=false;lastMoveT=performance.now();$('readyTxt').textContent='Press the shutter';readyEl.classList.remove('msg','msgC')},450);
+  if(endSel.value==='all'&&SPECIES.every(sp=>sp.got))later(showSummary,800);   // final: todas encontradas
 }
 /* Disparador. En la pieza es un botón físico (elemento mecánico): hace la foto cuando está listo y cierra la ficha */
 /* Disparar sin nada enfocado: aviso corto en el sitio de «Press the shutter» (propuesta, 23/11) */
@@ -788,6 +963,10 @@ function nope(){const L=$('nopeLayer'),t='Nothing to capture yet';$('nope').text
   L.classList.remove('on');void L.offsetWidth;L.classList.add('on');clearTimeout(nopeT);nopeT=setTimeout(()=>L.classList.remove('on'),2000)}
 function shutter(){
   if(phase==='idle'){wake();return}
+  if(phase==='summary'){   // «Keep searching» vuelve a explorar; una especie vuelve a abrir su ficha; sin nada elegido, acaba la sesión
+    if(sumSel===SUM_BTN){sumAction();return}
+    if(sumSel<0){go('00');return}
+    clearTimeout(sumBackT);cur=sumSel;cardFromSum=true;sumEl.classList.remove('on');fillCard();scene.classList.add('blur');openCard();return}
   if(phase==='lang'){if(langSel)enterMove();return}   // elige el idioma marcado
   if(phase==='explore'){
     if(!done){nope();return}
@@ -801,7 +980,7 @@ function shutter(){
 }
 function resetAll(){
   clearTimers();seq=null;phase='idle';setLang('');camL={x:0,y:0};corSnap=true;attractT=0;onboarding=true;captured=false;p=0;done=false;pulseT=-1;wasEng=false;cur=0;
-  card.classList.remove('on');scene.classList.remove('blur','dark');scene.classList.add('idle');
+  card.classList.remove('on');scene.classList.remove('blur','dark');scene.classList.add('idle');$('summary').classList.remove('on');clearTimeout(sumBackT);cardFromSum=false;sumSel=-1;sumCamY=0;$('sumBtn').classList.remove('sel');$('sumArrow').classList.remove('on');
   SPECIES.forEach(sp=>{sp.got=false;sp.el.classList.remove('got','in')});stopFish();
   $('readyTxt').textContent='Press the shutter';readyEl.classList.remove('on','msg','msgC');setCam(A.x,A.y);
 }
@@ -809,21 +988,22 @@ function resetAll(){
 /* ===== Pantallas del Figma (Toolbar Mockup, página v3). La pieza es una simulación continua: cada pantalla es un
    momento del recorrido. «Go to», «← Back» y «Next →» llevan la simulación a ese momento ===== */
 const ORDER=[['00','0 · Attract screen'],['0a','0a · Language: move to select'],['0b','0b · Language: English selected'],['0c','0c · Language: Arabic selected'],['01','1 · Move the camera'],['02','2 · Instructions'],['03','3 · Detected'],['04','4 · Ready to shoot'],
-  ['05','5 · Photo: flash'],['06','6 · Species card'],['07','7 · Fish, after the photo']];
+  ['05','5 · Photo: flash'],['06','6 · Species card'],['07','7 · Fish, after the photo'],['08','8 · Photo summary (Ending)']];
 const HINTS={
   '00':'Attract screen. It waits until you <b>tap the screen</b> or <b>press the shutter</b>.',
-  '0a':'Choose the language: <b>drag the image</b> to turn the camera, as with the dots. Camera facing left (reef moving right): English; facing right: Arabic.',
-  '0b':'English selected. <b>Press the shutter</b> to confirm, or turn the camera to the right (drag the image to the left) for Arabic.',
-  '0c':'Arabic selected. <b>Press the shutter</b> to confirm, or turn the camera to the left (drag the image to the right) for English. The prototype continues in English.',
+  '0a':'Choose the language: <b>drag the image</b> to turn the camera, as with the dots. The language on the side the camera faces lights up (camera facing left = the reef moves right).',
+  '0b':'English selected. <b>Press the shutter</b> to confirm, or turn the camera to the other side for Arabic.',
+  '0c':'Arabic selected. <b>Press the shutter</b> to confirm, or turn the camera to the other side for English. The prototype continues in English.',
   '01':'The camera sweeps on its own to the four rotation stops. <b>Drag the image</b> to start.',
   '02':'<b>Drag the image</b> to move the camera and bring a blue dot inside the viewfinder.',
   '03':'Animal detected: <b>hold the camera still</b> while the ring fills. It then moves to “Ready” on its own.',
-  '04':'<b>Press the shutter</b>: the red button on the right handle, or the space bar.',
+  '04':'<b>Press the shutter</b>: the red button (on the right handle in View · Simulation, next to the screen in View · Screen), or the space bar.',
   '05':'Flash. The species card opens on its own.',
   '06':'<b>Press the shutter</b> to close the card.',
-  '07':'No more arrows or instruction; the fish swim around the room. <b>Find another dot</b> or reset.'};
+  '07':'No more arrows or instruction; the fish swim around the room. <b>Find another dot</b> or reset.',
+  '08':'Photo summary (variant «Ending»): all the species of the piece, the ones photographed with their photo and name and the rest faded. <b>Turn the camera</b> (drag) to choose a photographed species («Press to select» appears under it, without sliding) and <b>press the shutter</b> to open its card again; closing it returns here. The name of a species shows only when it is chosen. <b>Keep searching</b> (orange, bottom right; with the arrow to the button when chosen): <b>tilt the camera down</b> (drag up) to choose it and press the shutter to go on exploring with the same photos. No Restart on this screen. With Ending <b>Completed</b> (or once all the species are found) the orange button is <b>Play again</b>: the photos are cleared and it starts again from screen 1, in the same language. Title provisional, from the client’s example (#413). Back to the attract screen after 10 s without moving.'};
 function screenOf(){
-  if(phase==='idle')return '00';if(phase==='lang')return langSel==='en'?'0b':langSel==='ar'?'0c':'0a';if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';
+  if(phase==='idle')return '00';if(phase==='lang')return langSel==='en'?'0b':langSel==='ar'?'0c':'0a';if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';if(phase==='summary')return '08';
   if(done)return '04';if(wasEng)return '03';return captured?'07':'02';
 }
 /* pone la simulación en el momento de esa pantalla (cámara como en el Figma) */
@@ -832,7 +1012,7 @@ function place(id){
   if(id==='00')return;
   wake();
   if(id==='0a')return;
-  if(id==='0b'||id==='0c'){camL={x:id==='0b'?LSEL:-LSEL,y:0};setLang(id==='0b'?'en':'ar',true);return}
+  if(id==='0b'||id==='0c'){const l=id==='0b'?'en':'ar';camL={x:langX(l),y:0};setLang(l,true);return}
   setLang('en',true);enterMove();
   if(id==='01')return;
   start();
@@ -845,12 +1025,13 @@ function place(id){
   fillCard();
   if(id==='06'){scene.classList.add('blur');openCard();return}
   closeCard();
+  if(id==='08'){(endSel.value==='all'?SPECIES:[SPECIES[2]]).forEach(sp=>{sp.got=true;sp.el.classList.add('got')});showSummary()}   // ejemplo: dos especies; con «Completed», todas   // ejemplo: dos especies fotografiadas
 }
 /* Avance solo al empezar: guion de cada pantalla. Se para con Back/Next, el disparador o al arrastrar; «Go to» y «Reset» lo reanudan */
 const DEMO={
   '0a':()=>[{w:1.3},{lpan:{x:LSEL,y:-14},d:1.6}],
-  '0b':()=>[{lpan:{x:LSEL,y:-14},d:.8},{w:2.0},{shot:1}],   // termina el giro que empezó en 0a
-  '0c':()=>[{lpan:{x:-LSEL,y:-14},d:.8},{w:2.0},{shot:1}],
+  '0b':()=>[{lpan:{x:langX('en'),y:-14},d:.8},{w:2.0},{shot:1}],   // termina el giro que empezó en 0a
+  '0c':()=>[{lpan:{x:langX('ar'),y:-14},d:.8},{w:2.0},{shot:1}],
   '01':()=>[{w:attractMode==='icon'?6:ALOOP+.3},{start:1}],
   '02':()=>[{w:.4},{pan:A2,d:.9},{w:2.2},{pan:T,d:1.6}],
   '04':()=>[{w:1.2},{shot:1}],
@@ -881,7 +1062,7 @@ function showHint(){barHint.innerHTML=(paused?'<b>Paused.</b> ':'')+(HINTS[scree
 function onScreen(id){
   if(!paused&&DEMO[id])seq={i:0,t:0,from:null,steps:DEMO[id]()};
   backBtn.disabled=id==='00';
-  showHint();
+  showHint();renderComments();
 }
 function setPaused(v){paused=v;if(v)seq=null;showHint()}
 function go(id){place(id);screenId=null;resetMoveTrack()}   // en el siguiente fotograma se pinta la pista y, si va solo, arranca su guion
@@ -891,6 +1072,7 @@ function frame(now){
   const dt=Math.min((now-last)/1000,.05);last=now;
   stepSeq(dt);
   const live=phase==='explore';
+  if(live&&endSel.value==='idle'&&captured&&!wasEng&&!done&&now-lastMoveT>SUM_IDLE){showSummary();return requestAnimationFrame(frame)}   // final por inactividad
   /* detecta si el punto está dentro de la zona de detección; al que ya está detectado se le deja salir 16 px más */
   let best=-1,bd=1e9;
   if(live)SPECIES.forEach((sp,i)=>{if(sp.got)return;const d=Math.hypot(sp.x+tx-640,sp.y+ty-400);
@@ -927,33 +1109,28 @@ function frame(now){
   const so='translate('+vx.toFixed(2)+'px,'+vy.toFixed(2)+'px)';scopeA.style.transform=so;
   if(Math.hypot(tx-lastTx,ty-lastTy)>.5){lastMoveT=now;if(Math.hypot(tx-startTx,ty-startTy)>40)movedOnce=true}lastTx=tx;lastTy=ty;
   let showArr=(phase==='attract'&&attractMode==='sweep')||(live&&onboarding&&!engaged&&!done);
-  const am=arrowsSel.value;
-  if(live&&am==='start')showArr=showArr&&!movedOnce;
-  if(live&&am==='idle')showArr=showArr&&now-lastMoveT>3000;
-  arrows.classList.toggle('stopsOnly',live&&am==='stops');
+  if(live)showArr=showArr&&now-lastMoveT>3000;   // flechas solo tras 3 s sin mover la cámara (fijo desde el 25/11)
   arrows.classList.toggle('off',!showArr);
   stage.classList.toggle('attractIcon',phase==='attract'&&attractMode==='icon');
   {const sc=phase==='idle'&&isScene();stage.classList.toggle('attractScene',isScene());
    scene.style.transformOrigin=sc?'0 0':'';scene.style.transform=sc?'scale('+SCENE_K+')':'';if(!sc)sceneT=0}
   stage.classList.toggle('galOn',phase==='idle'&&attractKind()==='gallery');stage.classList.toggle('idleOn',phase==='idle');
   stage.classList.toggle('wcaOn',phase==='idle'&&attractKind()==='wca');stage.classList.toggle('langOn',phase==='lang');
-  whaleFrame(dt);coralFrame(dt);wcaFishFrame(dt);deviceFrame(dt);stage.classList.toggle('rstOn',phase!=='idle'&&phase!=='lang');
+  whaleFrame(dt);coralFrame(dt);wcaFishFrame(dt);deviceFrame(dt);counterFrame();stage.classList.toggle('rstOn',phase!=='idle'&&phase!=='lang'&&phase!=='summary');   // sin Restart en el resumen (Montse, 25/11)
   attractTxt.style.opacity=phase==='attract'?1:0;
   cardHint.style.opacity=phase==='card'?1:0;
-  {const rdy=readyEl.classList.contains('on')&&!readyEl.classList.contains('msg');$('btnArrow').classList.toggle('on',phase==='card'||rdy);$('shade04').classList.toggle('on',rdy)}
+  {const rdy=readyEl.classList.contains('on')&&!readyEl.classList.contains('msg'),ab=$('btnArrow'),aon=phase==='card'||rdy;
+   ab.classList.toggle('on',aon);if(aon)aimArrow(ab,phase==='card');$('shade04').classList.toggle('on',rdy)}
   hintEl.style.opacity=(live&&onboarding&&!done&&now-startedAt>350)?1:0;
   if(live)readyEl.classList.toggle('on',done);
   if(done||!live)$('nopeLayer').classList.remove('on');
   /* guía: flecha (y línea) desde el visor al punto más cercano que aún no se ha fotografiado */
-  {const gm=guideSel.value;let show=false;
-   if(gm!=='off'&&live&&!engaged&&!done){let gd=1e9,gx=0,gy=0;
+  {let show=false;   // guía fija: flecha blanca en el círculo (Montse, 25/11: quitar la variante)
+   if(live&&!engaged&&!done){let gd=1e9,gx=0,gy=0;
      SPECIES.forEach(sp=>{if(sp.got)return;const dx=sp.x+tx-640,dy=sp.y+ty-400,d=Math.hypot(dx,dy);if(d<gd){gd=d;gx=dx;gy=dy}});
      if(gd<1e9){show=true;const a=Math.atan2(gy,gx),ca=Math.cos(a),sa=Math.sin(a),rr=106.5*RING,r0=rr+48+5*Math.sin(now/170);   // separada del círculo (23/11)
        guideArrow.setAttribute('transform','translate('+(640+vx+ca*r0).toFixed(1)+','+(400+vy+sa*r0).toFixed(1)+') rotate('+(a*180/Math.PI).toFixed(1)+')');
-       const r1=rr+72,r2=gd-24;
-       if(gm==='line'&&r2>r1){guideLine.setAttribute('x1',(640+ca*r1).toFixed(1));guideLine.setAttribute('y1',(400+sa*r1).toFixed(1));
-         guideLine.setAttribute('x2',(640+ca*r2).toFixed(1));guideLine.setAttribute('y2',(400+sa*r2).toFixed(1));guideLine.style.display=''}
-       else guideLine.style.display='none'}}
+}}
    guideEl.style.opacity=show?1:0}
   const f=easeIO(p),z=1+.35*f;
   bg.style.transform='translate('+tx+'px,'+ty+'px)';
@@ -991,13 +1168,16 @@ function frame(now){
 
 /* ===== controles ===== */
 let drag=null;
+/* la cámara se mueve siempre que el visitante gira el aparato, también con la ficha abierta, en el flash y al cerrarla
+   (Montse, 25/11: «no me dejas mover el dispositivo cuando tengo que pulsar el disparador, no hagas eso») */
+const camFree=()=>phase==='explore'||phase==='flash'||phase==='card'||phase==='closing'||phase==='summary';
 screenEl.addEventListener('pointerdown',e=>{screenEl.focus();setPaused(true);if(phase==='idle'){wake();return}
   if(phase==='lang'){drag={x:e.clientX,y:e.clientY};screenEl.classList.add('drag');screenEl.setPointerCapture(e.pointerId);return}
-  if(phase==='attract')start();if(phase!=='explore')return;drag={x:e.clientX,y:e.clientY};screenEl.classList.add('drag');screenEl.setPointerCapture(e.pointerId)});
+  if(phase==='attract')start();if(!camFree())return;drag={x:e.clientX,y:e.clientY};screenEl.classList.add('drag');screenEl.setPointerCapture(e.pointerId)});
 screenEl.addEventListener('pointermove',e=>{if(!drag)return;
   /* idioma: se arrastra la imagen como con los puntos; arrecife a la derecha = cámara mirando a la izquierda = English */
   if(phase==='lang'){panLang(camL.x+(e.clientX-drag.x)/scale,camL.y+(e.clientY-drag.y)/scale);drag={x:e.clientX,y:e.clientY};return}
-  if(phase!=='explore')return;setCam(tx+(e.clientX-drag.x)/scale,ty+(e.clientY-drag.y)/scale);drag={x:e.clientX,y:e.clientY}});
+  if(!camFree())return;if(phase==='summary')sumMove((e.clientX-drag.x)/scale,(e.clientY-drag.y)/scale);setCam(tx+(e.clientX-drag.x)/scale,ty+(e.clientY-drag.y)/scale);drag={x:e.clientX,y:e.clientY}});
 const end=()=>{drag=null;screenEl.classList.remove('drag')};
 screenEl.addEventListener('pointerup',end);screenEl.addEventListener('pointercancel',end);
 const stepTo=d=>{const i=ORDER.findIndex(o=>o[0]===screenOf());const j=i+d;if(j<0)return;setPaused(true);go(ORDER[j%ORDER.length][0])};
@@ -1008,6 +1188,10 @@ const pressPhys=()=>{physEl.classList.add('down');setTimeout(()=>physEl.classLis
 physEl.addEventListener('click',()=>{setPaused(true);shutter()});
 $('bReset').addEventListener('click',()=>{setPaused(false);go('00')});
 /* Restart en pantalla, como en otras piezas (Montse, 24/11): vuelve a la attract screen. No arranca el arrastre de la cámara */
+const sumBtnEl=$('sumBtn');
+sumBtnEl.addEventListener('pointerdown',e=>e.stopPropagation());
+sumBtnEl.addEventListener('click',e=>{e.stopPropagation();if(phase==='summary'){setPaused(true);sumAction()}});
+sumBtnEl.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();e.stopPropagation();if(phase==='summary'){setPaused(true);sumAction()}}});
 const rstEl=$('rstBtn');
 rstEl.addEventListener('pointerdown',e=>e.stopPropagation());
 rstEl.addEventListener('click',e=>{e.stopPropagation();setPaused(false);go('00')});
@@ -1024,10 +1208,7 @@ jumpSel.addEventListener('change',()=>{const v=jumpSel.value;jumpSel.value='';if
 /* Variants: cada desplegable se recuerda en este navegador. La clave de la retícula es nueva porque cambió la de por defecto (16/11) */
 const initSel=(sel,val,def)=>{sel.value=val;if(!sel.value)sel.value=def};
 reticleEl.dataset.v='n';   // visor: solo el círculo, sin líneas en el centro (Montse, 24/11: quitar la variante de las líneas)
-/* Revisión del 24/11 (variante, por defecto): puntos ya fotografiados más pequeños, sin parpadeo y sin transparencia */
-const reviewSel=$('reviewV');initSel(reviewSel,store.get('rev-2411','on'),'on');
-function applyReview(){stage.classList.toggle('gotSolid',reviewSel.value==='on')}
-applyReview();reviewSel.addEventListener('change',()=>{store.set('rev-2411',reviewSel.value);applyReview()});
+/* puntos ya fotografiados: más pequeños y apagados (fijo desde el 25/11, Montse: «donde los puntos que ya ha visto se ven menos») */
 /* Fijo desde el 23/11 (Montse): punto azul de la referencia, lente sin lupa ni desenfoque y UI sin sombra */
 stage.classList.add('lensclear','noshadow');
 stage.style.setProperty('--dotFill','radial-gradient(circle,#FFFFFF 0,#EAFBFF 30%,#93DEFF 62%,#2FA6FF 100%)');
@@ -1037,9 +1218,8 @@ stage.style.setProperty('--dotHalo','0 0 8px 2px rgba(160,228,255,.95),0 0 24px 
 let RING=1;
 function applySize(){RING=.7;stage.style.setProperty('--ringR',(106.5*RING+4.5)+'px');const sw=(9/RING).toFixed(2);track.setAttribute('stroke-width',sw);prog.setAttribute('stroke-width',sw)}
 applySize();
-/* «Press the shutter» a la derecha (23/11) o abajo en el centro */
-const promptSel=$('promptV');initSel(promptSel,store.get('aviso-v2','right'),'right');
-const applyPrompt=()=>stage.classList.toggle('promptRight',promptSel.value==='right');applyPrompt();
+/* «Press the shutter» grande, junto al círculo y apuntando al botón (fijo desde el 25/11, Montse: «lo quiero grande, cerca del círculo») */
+stage.classList.add('promptRight');
 /* Inicio: icono del aparato (23/11) o barrido automático de la cámara (16/11) */
 $('devIcon').dataset.k='front';   // icono fijo: alzado frontal del aparato en contorno (Montse, 24/11: quitar la variante y dejar esta)
 /* Inicio con el estilo de la galería: triángulos redondeados (como Guano Pile) y la ballena en el grande */
@@ -1056,8 +1236,85 @@ initSel(attractBgSel,store.get('attract-bg2','wca'),'wca');   // clave nueva: po
 const attractKind=()=>NAV?'wca':attractBgSel.value;   // versión de navegación: la de Montse, quieta
 const isScene=()=>attractKind()==='scene';
 attractBgSel.addEventListener('change',()=>{store.set('attract-bg2',attractBgSel.value);go('00')});
-const langModeSel=$('langModeV');initSel(langModeSel,store.get('idioma-modo','keep'),'keep');
-langModeSel.addEventListener('change',()=>{store.set('idioma-modo',langModeSel.value);setPaused(true);go('0a')});
+/* contador (Montse, 25/11: «añádeme un contador, hazme variables»): especies fotografiadas. Se suma al hacer la foto */
+/* «Press the shutter» quieto o latiendo (Montse, 25/11: «que el press the shutter no se mueva y la flecha sí»); la flecha siempre se mueve */
+const pmSel=$('promptMoveV');initSel(pmSel,store.get('aviso-mov','still'),'still');
+const applyPm=()=>stage.classList.toggle('promptStill',pmSel.value==='still');applyPm();
+pmSel.addEventListener('change',()=>{store.set('aviso-mov',pmSel.value);applyPm()});
+/* Final (variante «Ending», 25/11): resumen de las especies de la pieza. Tiempos provisionales */
+const SUM_IDLE=12000,SUM_BACK=10000;
+const sumEl=$('summary'),endSel=$('endV');initSel(endSel,store.get('final','idle'),'idle');endSel.addEventListener('change',()=>store.set('final',endSel.value));
+const SUM_PHOTO=document.querySelector('#card .hexG image').getAttribute('href');
+const SUM_HEX=roundPoly([[55,0],[165,0],[220,95.5],[165,191],[55,191],[0,95.5]],18);
+let sumSel=-1,sumCam=0,sumCamY=0,cardFromSum=false,sumBackT=null;const SUM_STEP=150,SUM_BTN=-2,SUM_TILT=90;
+const sumFound=()=>SPECIES.map((sp,i)=>sp.got?i:-1).filter(i=>i>=0);
+function armSumBack(){clearTimeout(sumBackT);sumBackT=setTimeout(()=>{if(phase==='summary')go('00')},SUM_BACK)}
+function setSumSel(i){sumSel=i;sumEl.querySelectorAll('.sumItem').forEach((el,k)=>el.classList.toggle('sel',k===i));
+  $('sumBtn').classList.toggle('sel',i===SUM_BTN);$('sumArrow').classList.toggle('on',i===SUM_BTN);   // es un aviso del disparador: lleva su flecha
+  const pr=$('sumPrompt');
+  if(i>=0){const n=SPECIES.length,start=(W-(n*220+(n-1)*60))/2,x=(start+110+i*280-151.5)+'px';
+    if(pr.style.left!==x||!pr.classList.contains('on')){pr.style.transition='none';pr.classList.remove('on');pr.style.left=x;pr.style.top='538px';
+      void pr.offsetWidth;pr.style.transition='';pr.classList.add('on')}}   // sin deslizarse: se funde en su sitio, bajo la especie elegida
+  else pr.classList.remove('on')}
+/* «Keep searching»: vuelve a explorar con las fotos que ya tiene; la cuenta de inactividad empieza de cero */
+/* botón naranja del resumen: con todas las especies, «Play again» (fotos a cero, pantalla 1, mismo idioma); si no, «Keep searching» */
+function sumAction(){SPECIES.every(sp=>sp.got)?playAgain():keepSearching()}
+function playAgain(){const L=langSel||'en';go('01');setLang(L,true)}
+function keepSearching(){clearTimeout(sumBackT);cardFromSum=false;sumEl.classList.remove('on','settled');setSumSel(-1);sumCamY=0;
+  scene.classList.remove('blur','dark');phase='explore';p=0;done=false;resetMoveTrack();
+  $('readyTxt').textContent='Press the shutter';readyEl.classList.remove('msg','msgC')}
+/* girar la cámara elige otra especie fotografiada: hacia la derecha (arrastrar a la izquierda), la siguiente.
+   Inclinarla hacia abajo (arrastrar hacia arriba) elige «Keep searching», que está debajo; hacia arriba vuelve a las especies */
+function sumMove(dx,dy){const f=sumFound();
+  sumCam=clamp(sumCam-dx,-SUM_STEP/2,Math.max(0,f.length-1)*SUM_STEP+SUM_STEP/2);
+  sumCamY=clamp(sumCamY-(dy||0),0,SUM_TILT*2);
+  const s=(sumCamY>SUM_TILT||!f.length)?SUM_BTN:f[clamp(Math.round(sumCam/SUM_STEP),0,f.length-1)];
+  if(s!==sumSel)setSumSel(s);armSumBack()}
+function showSummary(keep){
+  clearTimers();seq=null;phase='summary';
+  card.classList.remove('on');readyEl.classList.remove('on');scene.classList.add('blur','dark');
+  const n=SPECIES.filter(sp=>sp.got).length;
+  $('sumTitle').textContent='You found '+n+' species';
+  $('sumBtn').textContent=SPECIES.every(sp=>sp.got)?'Play again':'Keep searching';   // final completado: volver a jugar (Montse, 25/11)   // provisional: del ejemplo del cliente (#413)
+  $('sumList').innerHTML=SPECIES.map((sp,i)=>'<div class="sumItem'+(sp.got?'':' miss')+'" style="--d:'+(i*.12)+'s"><svg viewBox="0 0 220 191" aria-hidden="true"><defs><clipPath id="sumClip'+i+'"><path d="'+SUM_HEX+'"/></clipPath></defs><image width="220" height="191" preserveAspectRatio="xMidYMid slice" clip-path="url(#sumClip'+i+')"/><path d="'+SUM_HEX+'" fill="none" stroke="#EDA481" stroke-width="6"/></svg><div class="sumName">'+sp.name+'</div></div>').join('');
+  sumEl.querySelectorAll('image').forEach(im=>im.setAttribute('href',SUM_PHOTO));
+  sumEl.classList.remove('on','settled');void sumEl.offsetWidth;sumEl.classList.add('on');
+  setTimeout(()=>sumEl.classList.add('settled'),900);
+  const f=sumFound();
+  sumCamY=0;
+  if(keep&&sumSel>=0){sumCam=f.indexOf(sumSel)*SUM_STEP;setSumSel(sumSel)}else{sumCam=0;setSumSel(f.length?f[0]:SUM_BTN)}
+  armSumBack();
+}
+const cntEl=$('counter'),cntSel=$('counterV'),NSP=SPECIES.length;
+cntEl.querySelector('.cnt-dots').innerHTML='<i></i>'.repeat(NSP);
+cntEl.querySelector('.cnt-hex').innerHTML=('<svg viewBox="-16 -14 32 28"><path class="hx" d="M13.5 0L6.75 11.7L-6.75 11.7L-13.5 0L-6.75 -11.7L6.75 -11.7Z"/><path class="ck" d="M-6 0.5l3.8 3.8 8-8.6"/></svg>').repeat(NSP);
+$('cntT').textContent=NSP;
+initSel(cntSel,store.get('contador','dots'),'dots');
+const applyCnt=()=>{cntEl.dataset.k=cntSel.value};applyCnt();
+cntSel.addEventListener('change',()=>{store.set('contador',cntSel.value);applyCnt()});
+let cntLast=-1;
+/* flecha hacia el botón rojo (Montse, 25/11): en «Press the shutter» (04) y en la ficha (06), siempre en ↘ como en su Figma.
+   04: donde la puso ella en la página v5 (justo debajo de la punta del panel, en 960,8 × 457,8); 06: debajo a la derecha del panel alargado.
+   Se mueve hacia el botón (↘) y vuelve, para indicarlo */
+function aimArrow(el,card){el.style.left=(card?1184:960.8)+'px';el.style.top=(card?670:457.8)+'px';el.style.transform=''}
+function counterFrame(){
+  stage.classList.toggle('cntOn',phase==='explore'||phase==='flash'||phase==='card'||phase==='closing');
+  let n=SPECIES.filter(sp=>sp.got).length;if((phase==='flash'||phase==='card')&&!SPECIES[cur].got)n++;
+  if(n===cntLast)return;
+  const grew=cntLast>=0&&n>cntLast;cntLast=n;
+  const num=$('cntN');num.textContent=n;
+  const items=[...cntEl.querySelectorAll('.cnt-dots i,.cnt-hex svg')];
+  items.forEach(e=>e.classList.remove('pop'));num.classList.remove('pop');
+  [cntEl.querySelectorAll('.cnt-dots i'),cntEl.querySelectorAll('.cnt-hex svg')].forEach(L=>L.forEach((e,i)=>e.classList.toggle('on',i<n)));
+  if(grew){void cntEl.offsetWidth;[cntEl.querySelectorAll('.cnt-dots i')[n-1],cntEl.querySelectorAll('.cnt-hex svg')[n-1],num].forEach(e=>e&&e.classList.add('pop'))}}
+const viewSel=$('viewV');initSel(viewSel,viewMode,VIEW_DEF);
+function applyView(){viewMode=viewSel.value;document.body.dataset.view=viewMode;
+  const sim=viewMode==='sim';
+  physEl.querySelector('.physLbl small').textContent=sim?'space bar':'physical button · space';
+  physEl.setAttribute('aria-label',sim?'Shutter: physical button where the right handle joins the housing (space bar)':'Shutter: physical button on the camera housing (space bar)');
+  devYaw=devPitch=0;fit()}
+applyView();
+viewSel.addEventListener('change',()=>{store.set('vista',viewSel.value);applyView()});
 const whaleSel=$('whaleV'),whaleG=$('whaleG'),whFl=$('whFl');initSel(whaleSel,store.get('ballena','swim'),'swim');
 whaleSel.addEventListener('change',()=>store.set('ballena',whaleSel.value));
 const WP=[[505,330],[390,470],[160,610],[-330,770]],WLOOP=9;let whaleT=0;
@@ -1068,7 +1325,7 @@ const bez=(P,t)=>{const u=1-t,a=u*u*u,b=3*u*u*t,c=3*u*t*t,d=t*t*t;return[a*P[0][
    latido y los tentáculos ondulan con retraso. En la versión de navegación, quietos. */
 const fishAtlas=new Image();fishAtlas.src=FISHA;
 const fcv=$('wcaFish'),fctx=fcv.getContext('2d'),FC={x:64,y:59,r:2};
-const FISH_ANIM=!NAV;   // también con «reducir movimiento» del sistema: es un prototipo para ver la animación (24/11: no se veía)
+const FISH_ANIM=true;   // también en la versión de navegación (Montse, 25/11: «vuelve a ponerme la animación de los peces al inicio»); también con «reducir movimiento» del sistema: es un prototipo para ver la animación (24/11: no se veía)
 let wfT=0,wfDrawn=false,wfOut=9;
 FISHS.forEach((s,i)=>{const r=k=>{const v=Math.sin(i*12.9898+k*78.233)*43758.5453;return v-Math.floor(v)};   // azar fijo por pez
   s.p1=r(1)*6.283;s.p2=r(2)*6.283;s.ph=r(3)*6.283;
@@ -1118,6 +1375,7 @@ function wcaFishFrame(dt){
    0,03° por px del escenario, como mucho 20° a los lados y 9° arriba/abajo (aproximado). En la attract, quieto y recto */
 const DEV_K=.03,DEV_MY=20,DEV_MX=9;
 function deviceFrame(dt){
+  if(viewMode!=='sim'){devYaw=devPitch=0;return}
   let ux=0,uy=0;
   if(phase==='lang'){ux=camL.x;uy=camL.y}
   else if(phase!=='idle'){ux=tx-(W-BW)/2;uy=ty-(H-BH)/2}
@@ -1135,12 +1393,9 @@ function whaleFrame(dt){
   whaleG.setAttribute('transform','translate('+x.toFixed(1)+','+(y+bob).toFixed(1)+') rotate('+ang.toFixed(2)+') scale('+sc.toFixed(4)+')');
   whFl.setAttribute('transform','translate(178 0) rotate('+(14*Math.sin(whaleT*5)).toFixed(2)+')');
 }
-if(!NAV){$('rfidCta').classList.add('anim');$('wcaRings').classList.add('anim')}   // ondas del RFID animadas (en la versión de navegación, quietas)
-if(NAV){document.documentElement.classList.add('navMode');whaleSel.remove();attractBgSel.remove();$('barTtl').textContent="Toolbar camera prototype + device · navigation review"}
-const arrowsSel=$('arrowsV');initSel(arrowsSel,store.get('flechas','idle'),'idle');arrowsSel.addEventListener('change',()=>store.set('flechas',arrowsSel.value));
-const guideSel=$('guideV'),guideEl=$('guide'),guideArrow=$('guideArrow'),guideLine=$('guideLine');
-initSel(guideSel,store.get('guia','arrow'),'arrow');guideSel.addEventListener('change',()=>store.set('guia',guideSel.value));
-promptSel.addEventListener('change',()=>{store.set('aviso-v2',promptSel.value);applyPrompt()});
+$('rfidCta').classList.add('anim');$('wcaRings').classList.add('anim');   // ondas del RFID animadas, también en la versión de navegación (Montse, 25/11)
+if(NAV){document.documentElement.classList.add('navMode');whaleSel.closest('.ctl').remove();attractBgSel.closest('.ctl').remove();$('barTtl').textContent="Toolbar camera prototype · navigation review"}
+const guideEl=$('guide'),guideArrow=$('guideArrow');
 setFondo('ballena');
 
 /* Pestaña de arriba: oculta o muestra la barra; se recuerda en este navegador (23/11) */
@@ -1150,11 +1405,138 @@ function setBar(show){appEl.classList.toggle('barHidden',!show);barTab.setAttrib
 barTab.addEventListener('click',()=>setBar(appEl.classList.contains('barHidden')));
 setBar(store.get('barra','1')!=='0');
 
-/* Notes: se cierran con «✕ Close», con Esc, volviendo a tocar «Notes» o tocando fuera */
-const notes=$('notes');
-$('closeNotes').addEventListener('click',()=>{notes.open=false;notes.querySelector('summary').focus()});
-addEventListener('keydown',e=>{if(e.key==='Escape'&&notes.open){notes.open=false;notes.querySelector('summary').focus()}});
-document.addEventListener('pointerdown',e=>{if(notes.open&&!notes.contains(e.target))notes.open=false});
+/* Comentarios del cliente al 60 % (Montse, 25/11: «quítame las notas y añádeme los comentarios de cliente del 60 % en su lugar»).
+   Fuente: 261105_Report for Media Briefs- WR1 (60_ Design) - Batch 3.2-REV.00.xlsx, con la respuesta de ICARIA. Inglés literal;
+   español y pantallas: lectura nuestra. El #107 remite a los #62–#68 de WR1-103-IA01 («Same comments apply»), que se añaden.
+   sc: own = WR1-303-IA01 · fam = las tres fases · ref = de WR1-103-IA01. tags: pantallas de «Go to» o «general» */
+const COMMENTS=[
+  {n:'9',code:'B',pg:'General',sc:'own',tags:['general'],
+   en:`Clarify camera coverage and hotspot detection across the scenography, ensuring key scavenger species are represented and the interaction supports meaningful exploration. Details Below`,
+   es:`Aclarar la cobertura de la cámara y la detección de hotspots en toda la escenografía, asegurando que estén representadas las especies carroñeras clave y que la interacción permita una exploración con sentido. Detalles abajo.`,
+   ren:`Noted. The overall comments for this exhibit are acknowledged and will be taken into account in the 90% design development. Please refer to the detailed responses below.`,
+   res:`Recibido. Los comentarios generales de esta pieza se tienen en cuenta y se incorporarán al desarrollo del diseño al 90 %. Ver las respuestas detalladas abajo.`},
+  {n:'107',code:'B',pg:'',sc:'own',tags:['general'],refs:['62','63','64','65','66','67','68'],
+   en:`See Rows 62-68 above for overall comments related to Red Sea Underwater Camera. Same comments apply Underwater Cameras in the Whale Fall cluster.`,
+   es:`Ver las filas 62-68 más arriba para los comentarios generales sobre la cámara submarina del Red Sea. Los mismos comentarios se aplican a las cámaras submarinas del cluster de Whale Fall.`,
+   ren:`Noted. Please refer to our responses to the corresponding comments for WR1-103-IA01 Underwater Camera.`,
+   res:`Recibido. Ver nuestras respuestas a los comentarios correspondientes de la cámara submarina WR1-103-IA01.`},
+  {n:'108',code:'B',pg:'200–203',sc:'own',tags:['general'],
+   en:`Page 200: Phase Comparison: Key message shown for Phase 3 "Life from stone" needs revision. During the sulfophilic stage, bacteria break down the bones and remaining organic material. During the reef stage, all the organic material is gone and the mineralized bones become an artificial reef on which different organisms settle. There is no life coming from stone. Page 203: The whale shown in the schematic is a humpabck whale, not a blue whale, which is what is featured in the display, please correct accourdingly.`,
+   es:`Página 200: Phase Comparison: hay que revisar el mensaje clave de la fase 3, «Life from stone». En la fase sulfofílica, las bacterias descomponen los huesos y la materia orgánica que queda. En la fase de arrecife ya no queda materia orgánica y los huesos mineralizados se convierten en un arrecife artificial donde se asientan distintos organismos. No hay vida que salga de la piedra. Página 203: la ballena del esquema es una yubarta, no una ballena azul, que es la que aparece en la pieza; corregidlo.`,
+   ren:`Noted, thank you for the scientific input. The content will be reviewed accordingly and reflected in the 90% submission.`,
+   res:`Recibido, gracias por la aportación científica. El contenido se revisará en consecuencia y se reflejará en la entrega del 90 %.`},
+  {n:'109',code:'B',pg:'205',sc:'fam',tags:['03','04'],refs:['63'],
+   en:`Reconsider the message “A species has been detected,” (A camera doesn't normally "detect" the animal in this context.) as it may imply that the system has identified the species rather than the visitor successfully locating and framing it. Use feedback that reinforces the visitor’s action and maintains the camera metaphor, such as “Great framing. Press the button to take the photo”. This would strengthen the visitor’s sense of agency and discovery.`,
+   es:`Replantear el mensaje «A species has been detected» (en este contexto una cámara no suele «detectar» al animal), porque puede dar a entender que es el sistema quien ha identificado la especie y no el visitante quien la ha encontrado y encuadrado. Usar un mensaje que refuerce la acción del visitante y mantenga la metáfora de la cámara, como «Great framing. Press the button to take the photo». Así se refuerza la sensación de que es el visitante quien actúa y descubre.`,
+   ren:`Noted. Please refer to our response to comment #63.`,
+   res:`Recibido. Ver nuestra respuesta al comentario #63.`},
+  {n:'110',code:'B',pg:'208',sc:'own',tags:['02','03'],
+   en:`Storyboard Mobile Scavenger phase Hotspot detection: Unlike the Underwater Camera in Red Sea Coral Reef, this scenography encompasses a larger area with less density of species, many of them quite small. Please provide additional detail of how this challenge will be addressed, including a drawing to show location of each Camera relative to the positioning of the models to be detected.`,
+   es:`Storyboard, fase Mobile Scavenger, detección de hotspots: a diferencia de la cámara submarina del arrecife del Red Sea, esta escenografía abarca una zona más grande con menos densidad de especies, muchas de ellas bastante pequeñas. Detallad cómo se resolverá, con un plano que muestre dónde está cada cámara respecto a la posición de los modelos que hay que detectar.`,
+   ren:`Noted. Camera coverage relative to the position of the scenography models will be reviewed with the scenography team and clarified in the 90% submission.`,
+   res:`Recibido. La cobertura de la cámara respecto a la posición de los modelos de la escenografía se revisará con el equipo de escenografía y se aclarará en la entrega del 90 %.`},
+  {n:'111',code:'B',pg:'209',sc:'own',tags:['02','06'],
+   en:`Storyboard Mobile Scavenger phase: Please confirm the camera angle will take in the great white shark and tiger shark, both key mobile scavengers that strip of blubber and allow the carcass to sink. Tiger shark is currently missing from the list of hotspots for this phase.`,
+   es:`Storyboard, fase Mobile Scavenger: confirmad que el ángulo de la cámara abarcará el tiburón blanco y el tiburón tigre, dos carroñeros móviles clave que arrancan la grasa y dejan que el cadáver se hunda. Ahora mismo falta el tiburón tigre en la lista de hotspots de esta fase.`,
+   ren:`We will add the views covered by the camera, which will be limited by the device's own height—a height calculated based on accessibility standards.`,
+   res:`Añadiremos las vistas que cubre la cámara, que estarán limitadas por la altura del propio aparato, calculada según las normas de accesibilidad.`},
+  {n:'116',code:'B',pg:'231',sc:'fam',tags:['0b','0c','04','06'],
+   en:`Review whether the placement of the capture button supports an intuitive connection between aiming the camera and taking a photograph. Integrating the control into the camera could be explored, subject to accessibility, ergonomics and technical feasibility. Regardless of the chosen arrangement, ensure the capture control is clearly identifiable, reachable and easy to operate for the intended visitors.`,
+   es:`Revisar si la posición del botón de captura ayuda a relacionar de forma intuitiva apuntar con la cámara y hacer la foto. Se podría estudiar integrar el control en la cámara, según accesibilidad, ergonomía y viabilidad técnica. Sea cual sea la solución, el control de captura tiene que identificarse con claridad, estar al alcance y ser fácil de usar para los visitantes a los que va dirigido.`,
+   ren:`The buttons have been tested on an actual prototype and function correctly. This can be reviewed on the next mock-up at the Fuhtah facilities in Barcelona.`,
+   res:`Los botones se han probado en un prototipo real y funcionan correctamente. Se podrá revisar en el próximo mock-up en las instalaciones de Fuhtah en Barcelona.`},
+  {n:'62',code:'B',pg:'94',sc:'ref',tags:['02','07'],
+   en:`Interaction mechanics: please clarify how 'the point just seen stays marked' so that the visitor knows which animals they have already clicked on. Will they see already-captured points on the Explore mode of the screen?`,
+   es:`Mecánica de interacción: aclarar cómo «el punto que se acaba de ver queda marcado», para que el visitante sepa qué animales ya ha pulsado. ¿Verá los puntos ya capturados en el modo Explore de la pantalla?`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %.`},
+  {n:'63',code:'B',pg:'98',sc:'ref',tags:['03','04'],
+   en:`Reconsider the message “A species has been detected,” (A camera doesn't normally "detect" the animal in this context.) as it may imply that the system has identified the species rather than the visitor successfully locating and framing it. Use feedback that reinforces the visitor’s action and maintains the camera metaphor, such as “Great framing. Press the button to take the photo”. This would strengthen the visitor’s sense of agency and discovery.`,
+   es:`Replantear el mensaje «A species has been detected» (en este contexto una cámara no suele «detectar» al animal), porque puede dar a entender que es el sistema quien ha identificado la especie y no el visitante quien la ha encontrado y encuadrado. Usar un mensaje que refuerce la acción del visitante y mantenga la metáfora de la cámara, como «Great framing. Press the button to take the photo». Así se refuerza la sensación de que es el visitante quien actúa y descubre.`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %.`},
+  {n:'64',code:'C',pg:'100',sc:'ref',tags:['06'],
+   en:`Please provide a sample of species image and AR animation for each species card. Prefer realistic photo of the animal as opposed to an illustration, to give more realism to the experience and deliver some actual scientific content.`,
+   es:`Aportar un ejemplo de imagen de la especie y de animación AR para cada ficha. Mejor una foto realista del animal que una ilustración, para dar más realismo a la experiencia y ofrecer contenido científico real.`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %.`},
+  {n:'65',code:'B',pg:'102',sc:'ref',tags:['02','03','04','05'],
+   en:`The current styleframe demonstrates the species card, but not the key live-view / hotspot-detection / capture moments that define the experience. Please provide additional styleframes showing the aiming reticle, hotspot marker, capture feedback and how these elements sit over the actual reef view.`,
+   es:`El style frame actual muestra la ficha de la especie, pero no los momentos clave que definen la experiencia: la imagen en directo, la detección del hotspot y la captura. Aportar más style frames con la retícula para apuntar, el marcador del hotspot, la respuesta al capturar y cómo quedan estos elementos sobre la vista real del arrecife.`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %.`},
+  {n:'66',code:'B',pg:'102',sc:'ref',tags:['06'],
+   en:`The species card is visually quite dark and dense compared with the reef imagery. Please reconsider the card scale, contrast, typography and placement so information is easy to read on the 10-inch screen without covering too much of the captured reef image. Provide alternative layout options.`,
+   es:`La ficha de la especie es visualmente bastante oscura y densa en comparación con las imágenes del arrecife. Replantear el tamaño, el contraste, la tipografía y la posición de la ficha para que la información se lea con facilidad en la pantalla de 10 pulgadas sin tapar demasiado la imagen capturada del arrecife. Aportar opciones de maquetación alternativas.`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %.`},
+  {n:'67',code:'B',pg:'103',sc:'ref',tags:['general'],
+   en:`Physical set-up/ergonomics: even though the camera/screen can be tilted, the fixed height makes viewing problematic given the angle the camera will need to be pointed when looking at the higher and lower ends of the reef wall. Small visitors and those in wheelchairs will find it hard to see the lower animals, and most adults will have to stoop to explore animals near the top of the reef. Please make the height of the camera adjustable to make this experience accessible to all visitors. Alternately, explore whether it makes sense for one of the 2 Camera stations to be set higher and one to be set lower, as long as both offer a view of all of the species.`,
+   es:`Montaje físico / ergonomía: aunque la cámara/pantalla se puede inclinar, la altura fija complica la visión por el ángulo al que habrá que apuntar la cámara para mirar las partes más altas y más bajas de la pared del arrecife. A los visitantes pequeños y a los que van en silla de ruedas les costará ver los animales de abajo, y la mayoría de los adultos tendrán que agacharse para explorar los animales cerca de la parte alta del arrecife. Hacer regulable la altura de la cámara para que la experiencia sea accesible a todos los visitantes. O bien estudiar si tiene sentido poner una de las 2 estaciones de cámara más alta y otra más baja, siempre que las dos permitan ver todas las especies.`,
+   ren:`Noted. The content and texts will be reviewed in line with this comment for the 90% submission. Mobility and ergonomics can be evaluated using the mockup, which will be hosted at the Fuhtah facilities in Barcelona.`,
+   res:`Recibido. El contenido y los textos se revisarán según este comentario para la entrega del 90 %. La movilidad y la ergonomía se podrán evaluar con el mock-up, que estará en las instalaciones de Fuhtah en Barcelona.`},
+  {n:'68',code:'B',pg:'105',sc:'ref',tags:['04','06'],
+   en:`Review the placement of the capture button in relation to the physical camera. A control integrated into the camera may provide more intuitive mapping between aiming and capturing an image. Please assess this option against visitor usability, accessibility, reach, ergonomics and technical feasibility, and confirm that the final arrangement makes the capture action clear and easy to perform.`,
+   es:`Revisar la posición del botón de captura respecto a la cámara física. Un control integrado en la cámara puede relacionar de forma más intuitiva apuntar y capturar la imagen. Valorar esta opción en cuanto a usabilidad, accesibilidad, alcance, ergonomía y viabilidad técnica, y confirmar que la solución final hace que la acción de capturar sea clara y fácil.`,
+   ren:`All of this can be verified during the upcoming mock-up in Barcelona at the end of November. A camera and its chassis—both fully completed—will be available for testing.`,
+   res:`Todo esto se podrá comprobar en el próximo mock-up en Barcelona a finales de noviembre. Habrá una cámara y su chasis, ambos terminados, para probarlos.`}];
+const cpanel=$('cpanel'),ctog=$('ctog'),cbadge=$('cbadge'),clist=$('clist'),fScreen=$('fScreen'),fAll=$('fAll');
+const LB={both:$('lBoth'),en:$('lEn'),es:$('lEs')};
+const narrowV=()=>matchMedia('(max-width: 760px)').matches;
+let cOpen=!narrowV(),cFilter='screen',cLang='both';
+{const v=store.get('cpanel',''),l=store.get('clang',''),f=store.get('cfilter','');if(v&&!narrowV())cOpen=v==='open';if(LB[l])cLang=l;if(f==='all'||f==='screen')cFilter=f}
+const SCR_L=Object.fromEntries(ORDER);
+const CODE={B:'Code B · Orange',C:'Code C · Red'},CODE_T={B:'B: Approved with comments',C:'C: Objection, revise and resubmit'};
+const SC_L={own:'WR1-303-IA01',fam:'WR1-303-IA01 · IA02 · IA03'},OTHER='Other piece · WR1-103-IA01 Underwater Camera';
+const BYN=Object.fromEntries(COMMENTS.map(c=>[c.n,c]));
+const escH=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function cpara(en,es){const o=[];
+  if(cLang!=='es')o.push('<p lang="en">'+(cLang==='both'?'<span class="lg">EN</span>':'')+escH(en)+'</p>');
+  if(cLang!=='en')o.push('<p lang="es"'+(cLang==='both'?' class="es"':'')+'>'+(cLang==='both'?'<span class="lg">ES</span>':'')+escH(es)+'</p>');
+  return o.join('')}
+const cchips=c=>c.tags.map(t=>t==='general'?'<span>Whole piece</span>':'<button type="button" data-go="'+t+'">'+escH(SCR_L[t]||t)+'</button>').join('');
+const cpg=c=>!c.pg?'':c.pg==='General'?'General':'MB p. '+escH(c.pg);
+/* cuerpo de un comentario: cabecera, comentario, respuesta y pantallas. Los de la otra pieza llevan la marca «Other piece» */
+function cbody(c,id){const oth=c.sc==='ref';
+  return '<div class="cp-h"><span class="cp-num">#'+c.n+'</span>'+
+    (oth?'<span class="cp-pill other">'+OTHER+'</span>':'')+
+    '<span class="cp-pill '+c.code+'" title="'+CODE_T[c.code]+'">'+CODE[c.code]+'</span>'+
+    (oth?'':'<span class="cp-pill sc">'+SC_L[c.sc]+'</span>')+
+    '<span class="cp-pg">'+cpg(c)+'</span></div>'+
+    (oth?'<p class="cp-why">Comment on another piece. It applies here because #107 says so (“Same comments apply”).</p>':'')+
+    '<div class="cp-blk"><h4>Client comment</h4>'+cpara(c.en,c.es)+'</div>'+
+    '<div class="cp-blk cp-resp"><h4>ICARIA response</h4>'+cpara(c.ren,c.res)+'</div>'+
+    '<div class="cp-chips">Screens'+(oth?' in this piece':'')+':'+cchips(c)+'</div>'}
+/* los comentarios que cita, dentro, en un recuadro de «otra pieza» */
+function crefs(c,id){if(!c.refs)return '';
+  return '<div class="cp-refs"><h4>Referenced comment'+(c.refs.length>1?'s':'')+' ('+c.refs.length+') · other piece: WR1-103-IA01</h4>'+
+    c.refs.map(n=>{const r=BYN[n];return '<div class="cp-ref'+(r.tags.includes(id)?' hit':'')+'">'+cbody(r,id)+'</div>'}).join('')+'</div>'}
+function renderComments(){
+  const id=screenId||screenOf(),tagged=COMMENTS.filter(c=>c.tags.includes(id));
+  const inside=new Set(tagged.flatMap(c=>c.refs||[])),hits=tagged.filter(c=>!inside.has(c.n));   // un citado que ya va dentro de otro no se repite
+  const own=COMMENTS.filter(c=>c.sc!=='ref'),insideAll=new Set(own.flatMap(c=>c.refs||[]));
+  const all=own.concat(COMMENTS.filter(c=>c.sc==='ref'&&!insideAll.has(c.n)));
+  cbadge.textContent=hits.length;fScreen.textContent='This screen ('+hits.length+')';fAll.textContent='All ('+COMMENTS.length+')';
+  fScreen.setAttribute('aria-pressed',String(cFilter==='screen'));fAll.setAttribute('aria-pressed',String(cFilter==='all'));
+  Object.entries(LB).forEach(([k,b])=>b.setAttribute('aria-pressed',String(cLang===k)));
+  cpanel.hidden=!cOpen;ctog.setAttribute('aria-pressed',String(cOpen));
+  if(!cOpen)return;
+  const list=cFilter==='all'?all:hits,gen=own.filter(c=>c.tags.includes('general')).length;
+  let h='';
+  if(!list.length)h+='<p class="cp-empty">No client comment points to this screen. '+gen+' general comments apply to the whole piece: see «All».</p>';
+  list.forEach(c=>{
+    h+='<article class="cp-cm'+(c.sc==='ref'?' other':'')+(cFilter==='all'&&c.tags.includes(id)?' hit':'')+'">'+cbody(c,id)+crefs(c,id)+'</article>'});
+  if(cFilter==='screen'&&list.length)h+='<p class="cp-empty">+ '+gen+' general comments on the whole piece in «All».</p>';
+  clist.innerHTML=h}
+function setCP(open){cOpen=open;store.set('cpanel',open?'open':'closed');renderComments()}
+ctog.addEventListener('click',()=>setCP(!cOpen));
+$('cclose').addEventListener('click',()=>{setCP(false);ctog.focus()});
+fScreen.addEventListener('click',()=>{cFilter='screen';store.set('cfilter',cFilter);renderComments()});
+fAll.addEventListener('click',()=>{cFilter='all';store.set('cfilter',cFilter);renderComments()});
+Object.entries(LB).forEach(([k,b])=>b.addEventListener('click',()=>{cLang=k;store.set('clang',k);renderComments()}));
+clist.addEventListener('click',e=>{const b=e.target.closest('button[data-go]');if(!b)return;setPaused(true);go(b.dataset.go);if(narrowV())setCP(false)});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&cOpen&&narrowV()){setCP(false);ctog.focus()}});
+renderComments();
 
 setPaused(false);
 const fontsReady=document.fonts&&document.fonts.load?Promise.all(['400 30px Ilmi','600 30px Ilmi','700 30px Ilmi'].map(f=>document.fonts.load(f))):Promise.resolve();
