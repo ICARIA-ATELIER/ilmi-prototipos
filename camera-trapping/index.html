@@ -58,7 +58,10 @@ h1.t{font-size:56px;font-weight:600;line-height:1.12;letter-spacing:-.5px;text-w
 .flashA{position:absolute;inset:0;background:#fff;opacity:0;animation:flashA 9s linear infinite;pointer-events:none}
 @keyframes flashA{0%,33%{opacity:0}34%{opacity:.85}38%{opacity:0}100%{opacity:0}}
 .camA{position:absolute;left:1560px;top:170px;width:120px;height:120px;border-radius:50%;background:var(--navy);border:6px solid #fff;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.3)}
-.tapstart{position:absolute;right:56px;bottom:52px;font:600 34px Inter;background:#fff;color:var(--navy);padding:18px 40px;border-radius:999px;box-shadow:0 4px 14px rgba(0,0,0,.2),0 0 0 6px rgba(255,255,255,.6)}
+/* idle: same as the other ILMI prototypes («Scan your wristband or tap to start» + reader rings, bottom right) */
+.tq{position:absolute;right:0;top:830px;width:700px;height:250px;background:radial-gradient(closest-side,rgba(255,255,255,.95),rgba(255,255,255,0));pointer-events:none}
+.scan{position:absolute;right:104px;top:932px;font:600 28px/36px Inter;color:var(--ink);white-space:nowrap}
+.rf{position:absolute;border-radius:50%;border:solid var(--ink);box-sizing:border-box}
 
 /* intro: 3 story cards */
 .seq{opacity:0;animation:seqIn .6s ease forwards;animation-delay:var(--d,0s)}
@@ -523,7 +526,10 @@ const R={
  idle:()=>`<div class="bg kb"></div>${pawTrack()}<div class="camA">${IC.cam(64)}</div><div class="flashA"></div>
   <div class="glow" style="left:260px;top:330px;width:1400px;height:420px"></div>
   <h1 class="t abs" style="left:360px;top:440px;width:1200px;text-align:center;font-size:76px">Can you photograph<br>the Arabian leopard?</h1>
-  <div class="tapstart">Tap to start</div>`,
+  <div class="tq"></div><div class="scan">Scan your wristband or tap to start</div>
+  <div class="rf" style="left:1884px;top:914px;width:72px;height:72px;border-width:7px"></div>
+  <div class="rf" style="left:1866px;top:896px;width:108px;height:108px;border-width:5.5px"></div>
+  <div class="rf" style="left:1849px;top:879px;width:142px;height:142px;border-width:2px"></div>`,
  intro:()=>{const i=S.story,N=STORIES.length;const st=STORIES[i];
   return `${bg}<div class="st-dim"></div>
   <div class="st-card">
@@ -682,7 +688,7 @@ let idleT;function resetIdle(){clearTimeout(idleT);if(!INACTIVITY||['idle','end'
 
 /* ================= REVIEW BAR ================= */
 function hint(){const h=$('#hint'),s=S.alb?(S.alb.v==='photo'?'photo':'album'):S.screen;const t={
- idle:'Attract loop (paw prints + camera flash). <b>Tap the screen</b> to start.',
+ idle:'Attract loop (paw prints + camera flash). <b>Tap the screen</b> to start (or scan the wristband).',
  intro:'Intro: 3 short story cards over the landscape (6 s each). <b>Tap</b> to go on (left side = back). On the last card, <b>Place your cameras</b>.',
  map:`${S.day===1&&!S.tipSeen?'Tip card before placing. <b>Got it</b> closes it. ':''}Day ${S.day}/${maxDays()}. <b>Tap a spot</b> to place a camera-trap (tap it again to pick it up). A short note says what kind of place it is. Then <b>Leave them overnight</b>. ${LAYERS?'Variant «map layers»: <b>tap a clue at the top</b> to show or hide its evidence on the map; layers can be combined. ':''}The <b>field album</b> is always in the bottom bar: tap it (or one photo) to see the photos bigger.`,
  results:'Morning: the cameras appear closed. <b>Tap each camera</b> to open it; each photo flies into the album bar. Every card says why that animal was there and which leopard clues the spot has or misses. With all open, the strip sums up what was learned and the button for the next night appears. Once the leopard has been recorded, every morning also shows <b>Finish</b>; on the last day it is the only button.',
