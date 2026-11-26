@@ -545,6 +545,20 @@ body[data-view="screen"] .screen { border-radius: 10px; }
   font-size:23.84px;line-height:25px;font-weight:600;color:#FFF4F0;text-align:center;text-wrap:balance}
 .sumOv{opacity:0;transition:opacity .25s}
 .sumItem.sel .sumOv{opacity:1}
+/* «Are you still there?» (variante v1, Montse 26/11): velo azul noche sobre toda la pantalla, la pregunta, la instrucción y
+   una cuenta atrás en anillo (propuesta) */
+.still{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(15,17,36,.86);opacity:0;pointer-events:none;transition:opacity .4s}
+.still.on{opacity:1;pointer-events:auto}
+#stillMsg{display:flex;flex-direction:column;align-items:center;gap:16px}
+.stillQ{color:#FFF4F0;font-size:48px;font-weight:700;line-height:52px;letter-spacing:-.96px;text-align:center}
+.stillS{color:#EDA481;font-size:35.5px;font-weight:600;line-height:39px;text-align:center}
+.stillRing{width:112px;height:112px;margin-top:40px;overflow:visible}
+.stillRing circle{fill:none;stroke-width:8}
+.stillRing .trk{stroke:rgba(255,244,240,.2)}
+.stillRing .cd{stroke:#EDA481;stroke-linecap:round;stroke-dasharray:326.73;transform:rotate(-90deg);transform-origin:60px 60px}
+.stillRing text{fill:#FFF4F0;font-size:40px;font-weight:700}
+/* Ending no se usa en la versión v1 */
+.ctrls .ctl.off{opacity:.45}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -563,6 +577,10 @@ body[data-view="screen"] .screen { border-radius: 10px; }
       <span class="ctl"><label for="viewV">View</label><select id="viewV" aria-label="View">
           <option value="sim" title="The device, which turns with the camera, with the shutter on the right handle">Simulation</option>
           <option value="screen" title="The screen only, with the simulated shutter button next to it">Screen</option>
+        </select></span>
+      <span class="ctl"><label for="verV">Version</label><select id="verV" aria-label="Version">
+          <option value="cur" title="As until 25/11: the summary depends on Ending; dots already photographed cannot be chosen again">Current</option>
+          <option value="v1" title="No summary of seen and missing species (Ending is not used): centre a dot you already photographed and press the shutter to see its card again. «Are you still there?» after a while without moving the camera (26/11)">v1</option>
         </select></span>
       <span class="ctl"><label for="attractBgV">Attract screen</label><select id="attractBgV" aria-label="Attract screen">
           <option value="wca" title="“Water, Camera, Action!”, from Montse’s Figma (24/11)">Water, Camera, Action!</option>
@@ -711,6 +729,8 @@ body[data-view="screen"] .screen { border-radius: 10px; }
         <!-- resumen final (variante «Ending», 25/11): lo rellena showSummary() -->
         <div class="summary" id="summary" aria-live="polite"><div class="sumTitle" id="sumTitle"></div><div class="sumList" id="sumList"></div><div class="sumPrompt" id="sumPrompt">Press to select</div><div class="sumBtn" id="sumBtn" role="button" tabindex="0">Keep searching</div><svg class="sumArrow" id="sumArrow" viewBox="0 0 52 52" fill="none" aria-hidden="true"><path d="M3.93048 3.93059L47.5771 47.5772M3.93049 47.5772L47.5771 47.5772L47.5771 3.93059" stroke-width="7.86098" stroke-linecap="round" stroke-linejoin="round" stroke="#EDA481"/></svg></div>
         <!-- Restart (Figma de Montse, 24/11): el componente «Restart button» tal cual (texto en contornos) -->
+        <!-- «Are you still there?» (variante v1, 26/11): lo enseña showStill() -->
+        <div class="still" id="still" aria-hidden="true"><div id="stillMsg" role="alert"></div><svg class="stillRing" viewBox="0 0 120 120" aria-hidden="true"><circle class="trk" cx="60" cy="60" r="52"/><circle class="cd" id="stillCd" cx="60" cy="60" r="52"/><text id="stillN" x="60" y="62" text-anchor="middle" dominant-baseline="central">20</text></svg></div>
         <div class="rstBtn" id="rstBtn" role="button" tabindex="0" aria-label="Restart"><svg aria-hidden="true" viewBox="0 0 137 107" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g opacity="0.9" filter="url(#rstShadow)">
 <path d="M0 1.83203H92.2188C114.023 1.83203 131.699 19.508 131.699 41.3124V59.3516C131.699 81.1561 114.023 98.832 92.2188 98.832H0V1.83203Z" fill="#08172D" shape-rendering="crispEdges"/>
@@ -789,6 +809,11 @@ const KEY=NAV?'proto-wr1303-nav':'proto-wr1303';   // prefijo de localStorage (v
 const store={get(k,d){try{const v=localStorage.getItem(KEY+'-'+k);return v==null?d:v}catch(e){return d}},
   set(k,v){try{localStorage.setItem(KEY+'-'+k,v)}catch(e){}}};
 let TOL=50;   // zona de detección fija (Montse, 23/11)
+/* Version (Montse, 26/11): «cur» = como hasta el 25/11; «v1» = sin resumen, se puede volver a abrir la ficha de un punto ya visto
+   y aviso «Are you still there?» */
+let VER=store.get('version','cur')==='v1'?'v1':'cur';const isV1=()=>VER==='v1';
+let stillOn=false,stillT0=0,lastActT=0,reSkip=-1;
+const STILL_EXPLORE=20000,STILL_CARD=60000,STILL_WAIT=20000,STILL_C=2*Math.PI*52;
 const HOT={x:428*S,y:280*S};
 const MSGS=['Got it','Great shot','Nice find'];   // «Got it» sin exclamación, como en el Figma (16/11)
 /* Puntos: uno por especie (textos de las fichas del vídeo, provisionales). Coordenadas en la imagen completa;
@@ -910,7 +935,7 @@ function start(){
 }
 /* movimiento de la cámara, para la variante de las flechas de dirección */
 let startTx=0,startTy=0,lastTx=0,lastTy=0,lastMoveT=0,movedOnce=false;
-function resetMoveTrack(){startTx=lastTx=tx;startTy=lastTy=ty;movedOnce=false;lastMoveT=performance.now()}
+function resetMoveTrack(){startTx=lastTx=tx;startTy=lastTy=ty;movedOnce=false;lastMoveT=performance.now();lastActT=lastMoveT}
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const easeIO=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
 const easePan=t=>-(Math.cos(Math.PI*t)-1)/2;
@@ -965,7 +990,8 @@ function closeCard(){
   if(!fishOn)startFish();
   phase='closing';
   later(()=>{phase='explore';p=0;done=false;lastMoveT=performance.now();$('readyTxt').textContent='Press the shutter';readyEl.classList.remove('msg','msgC')},450);
-  if(endSel.value==='all'&&SPECIES.every(sp=>sp.got))later(showSummary,800);   // final: todas encontradas
+  if(isV1())reSkip=cur;   // v1: no se vuelve a detectar hasta que la cámara salga de ella
+  if(ending()==='all'&&SPECIES.every(sp=>sp.got))later(showSummary,800);   // final: todas encontradas
 }
 /* Disparador. En la pieza es un botón físico (elemento mecánico): hace la foto cuando está listo y cierra la ficha */
 /* Disparar sin nada enfocado: aviso corto en el sitio de «Press the shutter» (propuesta, 23/11) */
@@ -973,6 +999,8 @@ let nopeT=null;
 function nope(){const L=$('nopeLayer'),t='Nothing to capture yet';$('nope').textContent=t;   // texto fijo (Montse, 24/11: sin la variante)
   L.classList.remove('on');void L.offsetWidth;L.classList.add('on');clearTimeout(nopeT);nopeT=setTimeout(()=>L.classList.remove('on'),2000)}
 function shutter(){
+  lastActT=performance.now();
+  if(stillOn){hideStill();return}   // «Are you still there?»: el disparador también vale para seguir
   if(phase==='idle'){wake();return}
   if(phase==='summary'){   // «Keep searching» vuelve a explorar; una especie vuelve a abrir su ficha; sin nada elegido, acaba la sesión
     if(sumSel===SUM_BTN){sumAction();return}
@@ -981,6 +1009,7 @@ function shutter(){
   if(phase==='lang'){if(langSel)enterMove();return}   // elige el idioma marcado
   if(phase==='explore'){
     if(!done){nope();return}
+    if(isV1()&&SPECIES[cur].got){fillCard();scene.classList.add('blur');openCard();return}   // v1: punto ya visto = su ficha otra vez, sin flash
     phase='flash';
     flash.classList.remove('go');void flash.offsetWidth;flash.classList.add('go');
     readyEl.classList.remove('on');   // por defecto sin «Got it» al disparar (Montse, 23/11): solo el flash
@@ -990,7 +1019,7 @@ function shutter(){
   }else if(phase==='card')closeCard();
 }
 function resetAll(){
-  clearTimers();seq=null;phase='idle';setLang('');camL={x:0,y:0};corSnap=true;attractT=0;onboarding=true;captured=false;p=0;done=false;pulseT=-1;wasEng=false;cur=0;
+  clearTimers();seq=null;phase='idle';hideStill();reSkip=-1;lastActT=performance.now();setLang('');camL={x:0,y:0};corSnap=true;attractT=0;onboarding=true;captured=false;p=0;done=false;pulseT=-1;wasEng=false;cur=0;
   card.classList.remove('on');scene.classList.remove('blur','dark');scene.classList.add('idle');$('summary').classList.remove('on');clearTimeout(sumBackT);cardFromSum=false;sumSel=-1;sumCamY=0;$('sumBtn').classList.remove('sel');$('sumArrow').classList.remove('on');
   SPECIES.forEach(sp=>{sp.got=false;sp.el.classList.remove('got','in')});stopFish();
   $('readyTxt').textContent='Press the shutter';readyEl.classList.remove('on','msg','msgC');setCam(A.x,A.y);
@@ -999,7 +1028,9 @@ function resetAll(){
 /* ===== Pantallas del Figma (Toolbar Mockup, página v3). La pieza es una simulación continua: cada pantalla es un
    momento del recorrido. «Go to», «← Back» y «Next →» llevan la simulación a ese momento ===== */
 const ORDER=[['00','0 · Attract screen'],['0a','0a · Language: move to select'],['0b','0b · Language: English selected'],['0c','0c · Language: Arabic selected'],['01','1 · Move the camera'],['02','2 · Instructions'],['03','3 · Detected'],['04','4 · Ready to shoot'],
-  ['05','5 · Photo: flash'],['06','6 · Species card'],['07','7 · Fish, after the photo'],['08','8 · Photo summary (Ending)']];
+  ['05','5 · Photo: flash'],['06','6 · Species card'],['07','7 · Fish, after the photo'],['08','8 · Photo summary (Ending)'],['09','9 · Are you still there? (v1)']];
+/* pantallas de la versión elegida: el resumen (08) no existe en v1 y el aviso (09) solo existe en v1 */
+const ORD=()=>ORDER.filter(o=>isV1()?o[0]!=='08':o[0]!=='09');
 const HINTS={
   '00':'Attract screen. It waits until you <b>tap the screen</b> or <b>press the shutter</b>.',
   '0a':'Choose the language: <b>drag the image</b> to turn the camera, as with the dots. The language on the side the camera faces lights up (camera facing left = the reef moves right).',
@@ -1012,9 +1043,10 @@ const HINTS={
   '05':'Flash. The species card opens on its own.',
   '06':'<b>Press the shutter</b> to close the card.',
   '07':'No more arrows or instruction; the fish swim around the room. <b>Find another dot</b> or reset.',
+  '09':'<b>Are you still there?</b> (Version v1) It appears after 20 s without moving the camera while exploring, or 60 s with a card open (time to read). <b>Move the camera</b> (drag), touch the screen or press the shutter to go on where you were. If nobody answers in 20 s it goes back to the attract screen and the photos are cleared. The countdown ring is a proposal.',
   '08':'Photo summary (variant «Ending»): all the species of the piece, the ones photographed with their photo and the missing ones as a «?» placeholder. <b>Turn the camera</b> (drag) to choose a photographed species («Press to select» appears under it, without sliding) and <b>press the shutter</b> to open its card again; closing it returns here. The name of a species shows only when it is chosen, inside its hexagon over a dark overlay. <b>Keep searching</b> (orange, bottom right; with the arrow to the button when chosen): <b>tilt the camera down</b> (drag up) to choose it and press the shutter to go on exploring with the same photos. No Restart on this screen. While species are missing the orange button is <b>Keep searching</b>; once all are found (Ending <b>Completed</b>) it is <b>Play again</b>: the photos are cleared and it starts again from screen 1, in the same language. Ending <b>Not completed</b> opens this summary after 10 s without moving. Title provisional, from the client’s example (#413). Back to the attract screen after 10 s without moving.'};
 function screenOf(){
-  if(phase==='idle')return '00';if(phase==='lang')return langSel==='en'?'0b':langSel==='ar'?'0c':'0a';if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';if(phase==='summary')return '08';
+  if(phase==='idle')return '00';if(stillOn)return '09';if(phase==='lang')return langSel==='en'?'0b':langSel==='ar'?'0c':'0a';if(phase==='attract')return '01';if(phase==='flash')return '05';if(phase==='card')return '06';if(phase==='closing')return '07';if(phase==='summary')return '08';
   if(done)return '04';if(wasEng)return '03';return captured?'07':'02';
 }
 /* pone la simulación en el momento de esa pantalla (cámara como en el Figma) */
@@ -1036,7 +1068,8 @@ function place(id){
   fillCard();
   if(id==='06'){scene.classList.add('blur');openCard();return}
   closeCard();
-  if(id==='08'){(endSel.value==='all'?SPECIES:[SPECIES[2]]).forEach(sp=>{sp.got=true;sp.el.classList.add('got')});showSummary()}   // ejemplo: dos especies; con «Completed», todas   // ejemplo: dos especies fotografiadas
+  if(id==='09'){later(showStill,0);return}   // v1: aviso de inactividad sobre la pantalla 7 (después de go(), que pone la actividad a cero)
+  if(id==='08'){(ending()==='all'?SPECIES:[SPECIES[2]]).forEach(sp=>{sp.got=true;sp.el.classList.add('got')});showSummary()}   // ejemplo: dos especies; con «Completed», todas   // ejemplo: dos especies fotografiadas
 }
 /* Avance solo al empezar: guion de cada pantalla. Se para con Back/Next, el disparador o al arrastrar; «Go to» y «Reset» lo reanudan */
 const DEMO={
@@ -1069,7 +1102,11 @@ function stepSeq(dt){
     if(k>=1){seq.i++;seq.t=0;seq.from=null}
   }else if(seq.t>=s.w){seq.i++;seq.t=0}
 }
-function showHint(){barHint.innerHTML=(paused?'<b>Paused.</b> ':'')+(HINTS[screenId]||'')}
+const V1HINT={
+  '04':'<b>v1:</b> it works the same on a dot already photographed (smaller and dimmer): pressing the shutter opens its card again, without the flash.',
+  '06':'<b>v1:</b> «Are you still there?» if the card stays open 60 s without moving the camera.',
+  '07':'<b>v1:</b> no summary of seen and missing species. Centre a dot you already photographed (smaller and dimmer) and press the shutter to see its card again, without the flash; the one just closed is not detected again until the camera leaves it. «Are you still there?» after 20 s without moving the camera.'};
+function showHint(){barHint.innerHTML=(paused?'<b>Paused.</b> ':'')+(HINTS[screenId]||'')+(isV1()&&V1HINT[screenId]?' '+V1HINT[screenId]:'')}
 function onScreen(id){
   if(!paused&&DEMO[id])seq={i:0,t:0,from:null,steps:DEMO[id]()};
   backBtn.disabled=id==='00';
@@ -1083,10 +1120,11 @@ function frame(now){
   const dt=Math.min((now-last)/1000,.05);last=now;
   stepSeq(dt);
   const live=phase==='explore';
-  if(live&&(endSel.value==='idle'||endSel.value==='notdone')&&captured&&!wasEng&&!done&&now-lastMoveT>(endSel.value==='notdone'?SUM_IDLE_ND:SUM_IDLE)){showSummary();return requestAnimationFrame(frame)}   // final por inactividad
+  if(live&&(ending()==='idle'||ending()==='notdone')&&captured&&!wasEng&&!done&&now-lastMoveT>(ending()==='notdone'?SUM_IDLE_ND:SUM_IDLE)){showSummary();return requestAnimationFrame(frame)}   // final por inactividad
   /* detecta si el punto está dentro de la zona de detección; al que ya está detectado se le deja salir 16 px más */
   let best=-1,bd=1e9;
-  if(live)SPECIES.forEach((sp,i)=>{if(sp.got)return;const d=Math.hypot(sp.x+tx-640,sp.y+ty-400);
+  if(live)SPECIES.forEach((sp,i)=>{if(sp.got&&!isV1())return;const d=Math.hypot(sp.x+tx-640,sp.y+ty-400);
+    if(i===reSkip){if(d>TOL+16)reSkip=-1;return}   // v1: la ficha que se acaba de cerrar no se vuelve a detectar hasta salir de ella
     if(d<(i===cur&&wasEng?TOL+16:TOL)&&d<bd){bd=d;best=i}});
   const engaged=best>=0;
   if(engaged&&best!==cur){cur=best;p=0;done=false}
@@ -1118,7 +1156,12 @@ function frame(now){
   SIDES.forEach(s=>{s.k+=(s.target-s.k)*Math.min(dt*16,1);
     if(Math.abs(s.k-s.dk)>.002){s.path.setAttribute('d',chevD(s.k));s.path.setAttribute('stroke-width',(5+2*s.k).toFixed(2));s.dk=s.k}});
   const so='translate('+vx.toFixed(2)+'px,'+vy.toFixed(2)+'px)';scopeA.style.transform=so;
-  if(Math.hypot(tx-lastTx,ty-lastTy)>.5){lastMoveT=now;if(Math.hypot(tx-startTx,ty-startTy)>40)movedOnce=true}lastTx=tx;lastTy=ty;
+  if(Math.hypot(tx-lastTx,ty-lastTy)>.5){lastMoveT=lastActT=now;if(Math.hypot(tx-startTx,ty-startTy)>40)movedOnce=true}lastTx=tx;lastTy=ty;
+  /* v1: «Are you still there?» (20 s sin mover la cámara explorando, 60 s con la ficha abierta); 20 s para contestar o vuelve al inicio */
+  if(stillOn){
+    if(!isV1()||!['explore','card','closing'].includes(phase)||lastActT>stillT0)hideStill();
+    else{const left=STILL_WAIT-(now-stillT0);stillTick(left);if(left<=0){go('00');return requestAnimationFrame(frame)}}
+  }else if(isV1()&&(phase==='explore'||phase==='card')&&now-lastActT>(phase==='card'?STILL_CARD:STILL_EXPLORE))showStill();
   let showArr=(phase==='attract'&&attractMode==='sweep')||(live&&onboarding&&!engaged&&!done);
   if(live)showArr=showArr&&now-lastMoveT>3000;   // flechas solo tras 3 s sin mover la cámara (fijo desde el 25/11)
   arrows.classList.toggle('off',!showArr);
@@ -1182,7 +1225,7 @@ let drag=null;
 /* la cámara se mueve siempre que el visitante gira el aparato, también con la ficha abierta, en el flash y al cerrarla
    (Montse, 25/11: «no me dejas mover el dispositivo cuando tengo que pulsar el disparador, no hagas eso») */
 const camFree=()=>phase==='explore'||phase==='flash'||phase==='card'||phase==='closing'||phase==='summary';
-screenEl.addEventListener('pointerdown',e=>{screenEl.focus();setPaused(true);if(phase==='idle'){wake();return}
+screenEl.addEventListener('pointerdown',e=>{lastActT=performance.now();screenEl.focus();setPaused(true);if(phase==='idle'){wake();return}
   if(phase==='lang'){drag={x:e.clientX,y:e.clientY};screenEl.classList.add('drag');screenEl.setPointerCapture(e.pointerId);return}
   if(phase==='attract')start();if(!camFree())return;drag={x:e.clientX,y:e.clientY};screenEl.classList.add('drag');screenEl.setPointerCapture(e.pointerId)});
 screenEl.addEventListener('pointermove',e=>{if(!drag)return;
@@ -1191,7 +1234,7 @@ screenEl.addEventListener('pointermove',e=>{if(!drag)return;
   if(!camFree())return;if(phase==='summary')sumMove((e.clientX-drag.x)/scale,(e.clientY-drag.y)/scale);setCam(tx+(e.clientX-drag.x)/scale,ty+(e.clientY-drag.y)/scale);drag={x:e.clientX,y:e.clientY}});
 const end=()=>{drag=null;screenEl.classList.remove('drag')};
 screenEl.addEventListener('pointerup',end);screenEl.addEventListener('pointercancel',end);
-const stepTo=d=>{const i=ORDER.findIndex(o=>o[0]===screenOf());const j=i+d;if(j<0)return;setPaused(true);go(ORDER[j%ORDER.length][0])};
+const stepTo=d=>{const O=ORD(),i=O.findIndex(o=>o[0]===screenOf());const j=i+d;if(j<0)return;setPaused(true);go(O[j%O.length][0])};
 backBtn.addEventListener('click',()=>stepTo(-1));
 fwdBtn.addEventListener('click',()=>stepTo(1));
 /* botón físico del disparador (simulado) */
@@ -1214,7 +1257,9 @@ addEventListener('keydown',e=>{
   else if(e.key==='ArrowLeft'){e.preventDefault();stepTo(-1)}
   else if(e.key==='ArrowRight'){e.preventDefault();stepTo(1)}
 });
-ORDER.forEach(([id,l])=>{const o=document.createElement('option');o.value=id;o.textContent=l;jumpSel.appendChild(o)});
+function buildJump(){jumpSel.innerHTML='<option value="">Screen…</option>';
+  ORD().forEach(([id,l])=>{const o=document.createElement('option');o.value=id;o.textContent=l;jumpSel.appendChild(o)})}
+buildJump();
 jumpSel.addEventListener('change',()=>{const v=jumpSel.value;jumpSel.value='';if(v){setPaused(false);go(v)}});
 /* Variants: cada desplegable se recuerda en este navegador. La clave de la retícula es nueva porque cambió la de por defecto (16/11) */
 const initSel=(sel,val,def)=>{sel.value=val;if(!sel.value)sel.value=def};
@@ -1297,6 +1342,22 @@ function showSummary(keep){
   if(keep&&sumSel>=0){sumCam=f.indexOf(sumSel)*SUM_STEP;setSumSel(sumSel)}else{sumCam=0;setSumSel(f.length?f[0]:SUM_BTN)}
   armSumBack();
 }
+/* «Are you still there?» (v1) */
+function showStill(){stillOn=true;stillT0=performance.now();const el=$('still');
+  $('stillMsg').innerHTML='<div class="stillQ">Are you still there?</div><div class="stillS">Move the camera to continue</div>';
+  el.classList.add('on');el.setAttribute('aria-hidden','false');stillTick(STILL_WAIT)}
+function hideStill(){if(!stillOn)return;stillOn=false;const el=$('still');el.classList.remove('on');el.setAttribute('aria-hidden','true');
+  setTimeout(()=>{if(!stillOn)$('stillMsg').innerHTML=''},450)}
+function stillTick(left){const k=clamp(left/STILL_WAIT,0,1);$('stillCd').setAttribute('stroke-dashoffset',(STILL_C*(1-k)).toFixed(2));
+  $('stillN').textContent=Math.max(0,Math.ceil(left/1000))}
+/* Version: en v1 el resumen no existe, así que Ending queda desactivado */
+const ending=()=>isV1()?'none':endSel.value;
+const verSel=$('verV');initSel(verSel,VER,'cur');
+function applyVer(){VER=verSel.value==='v1'?'v1':'cur';const v1=isV1();
+  endSel.disabled=v1;endSel.closest('.ctl').classList.toggle('off',v1);endSel.closest('.ctl').title=v1?'Not used in v1: there is no summary':'';
+  buildJump();reSkip=-1;if(v1&&phase==='summary')keepSearching();if(!v1)hideStill();showHint()}
+applyVer();
+verSel.addEventListener('change',()=>{store.set('version',verSel.value);applyVer()});
 const cntEl=$('counter'),cntSel=$('counterV'),NSP=SPECIES.length;
 cntEl.querySelector('.cnt-dots').innerHTML='<i></i>'.repeat(NSP);
 cntEl.querySelector('.cnt-hex').innerHTML=('<svg viewBox="-16 -14 32 28"><path class="hx" d="M13.5 0L6.75 11.7L-6.75 11.7L-13.5 0L-6.75 -11.7L6.75 -11.7Z"/><path class="ck" d="M-6 0.5l3.8 3.8 8-8.6"/></svg>').repeat(NSP);
