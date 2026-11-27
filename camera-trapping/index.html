@@ -291,14 +291,12 @@ button.tile{cursor:pointer}
 <body>
 <div class="app">
  <header class="bar">
-  <div class="ttl"><strong>Camera Trapping · revision</strong><span>WR1-801-IA02 · learn by doing · 9 spots, 3 camera-traps, 3 days, field album always at hand · landscape F2 · photos and video are placeholders</span></div>
+  <div class="ttl"><strong>Camera Trapping · revision</strong><span>WR1-801-IA02 · learn by doing · 9 spots, 3 camera-traps a day, 3 days, evidence map layers, field album always at hand · landscape F2 · photos and video are placeholders</span></div>
   <p class="hint" id="hint" aria-live="polite"></p>
   <div class="ctrls">
    <span class="ctl"><button id="back" type="button" aria-label="Previous step">← Back</button><button id="fwd" type="button" aria-label="Next step">Next →</button></span>
-   <span class="ctl"><label for="vCams">Variants</label>
-    <select id="vCams" aria-label="Variants: cameras per day"><option value="3">Cameras · 3 per day (3 days)</option><option value="2">Cameras · 2 per day (5 days)</option></select>
+   <span class="ctl"><label for="vInact">Variants</label>
     <select id="vInact" aria-label="Variants: inactivity"><option value="off">Inactivity · off</option><option value="on">Inactivity · on (90 s → attract)</option></select>
-     <select id="vLayers" aria-label="Variants: evidence"><option value="off">Evidence · no layers</option><option value="on">Evidence · map layers (tap a clue)</option></select>
     <select id="vReveal" aria-label="Variants: leopard spot"><option value="off">Leopard spot · hidden</option><option value="on">Leopard spot · marked (test)</option></select></span>
    <span class="ctl"><label for="jump">Go to</label><select id="jump"><option value="">Screen…</option></select></span>
    <button id="restart" type="button">Reset</button>
@@ -310,9 +308,8 @@ button.tile{cursor:pointer}
 </div>
 <script>
 /* ================= CONFIG ================= */
-let CAMS_PER_DAY = 3;            // also in the review bar: Variants
+const CAMS_PER_DAY = 3;          // final: always 3 camera-traps per day (3 days)
 let INACTIVITY = false;          // off by default; Variants
-let LAYERS = false;              // Variants: the 5 clues at the top turn evidence layers on the map on and off
 let REVEAL = false;              // test aid: marks the leopard spot
 const IDLE_RETURN_S = 90;        // PROVISIONAL
 const NIGHT_MS = 1700, MORNING_MS = 600, STORY_MS = 6000, INFO_MS = 5000;   // PROVISIONAL
@@ -457,7 +454,7 @@ function albumBar(){const ids=albumIds();
   return `<span class="th ${s.sp==='leopard'?'leo':''} ${S.lastNew===id&&RF?'new':''}" data-act="photo" data-id="${id}" role="button" aria-label="${SP[s.sp].name}: see the photo bigger">${SP[s.sp].name}</span>`}).join('')}</span><span class="open">${IC.zoom(28)}</span></div>`;}
 
 
-/* ================= EVIDENCE LAYERS (variant) ================= */
+/* ================= EVIDENCE LAYERS ================= */
 // One layer per clue, drawn in code over landscape F2. Every zone covers exactly the spots that have that clue (see SPOTS[].c).
 const LY={prey:{hex:'#c96a10',pat:'pDots'},trail:{hex:'#6a3fb8'},rocks:{hex:'#157a7a',pat:'pDiag'},water:{hex:'#1f6fc4',pat:'pWave'},quiet:{hex:'#c23b3b',pat:'pHoriz'}};
 const GEO={
@@ -489,7 +486,7 @@ const LYDEFS=`<defs>
 <pattern id="pWave" width="28" height="14" patternUnits="userSpaceOnUse"><path d="M0 7q7 -7 14 0t14 0" fill="none" stroke="#1f6fc4" stroke-width="2.5"/></pattern>
 <pattern id="pHoriz" width="16" height="16" patternUnits="userSpaceOnUse"><path d="M0 4h16" stroke="#c23b3b" stroke-width="3"/></pattern>
 </defs>`;
-const layersOn=()=>LAYERS?CLUES.filter(k=>S.layers[k.id]).map(k=>k.id):[];
+const layersOn=()=>CLUES.filter(k=>S.layers[k.id]).map(k=>k.id);
 function layerSVG(){const on=layersOn();if(!on.length)return '';let g='',masks='';
  // Soft zones: each layer is a flat colour + pattern seen through a blurred mask, so the edges fade out.
  const zone=(id,shapes,extra='')=>{const L=LY[id];masks+=`<mask id="m-${id}" maskUnits="userSpaceOnUse" x="0" y="0" width="1920" height="1080"><g filter="url(#lyBlur)">${shapes}</g></mask>`;
@@ -503,9 +500,9 @@ function layerSVG(){const on=layersOn();if(!on.length)return '';let g='',masks='
  if(on.includes('quiet'))zone('quiet',band(GEO.road,210)+band(GEO.track,120)+blobs(GEO.camp,5));
  return `<div class="lyveil"></div><svg class="layers" viewBox="0 0 1920 1080" aria-hidden="true">${LYDEFS}<defs><filter id="lyBlur" filterUnits="userSpaceOnUse" x="-100" y="-100" width="2120" height="1280"><feGaussianBlur stdDeviation="22"/></filter>${masks}</defs>${g}</svg>`;}
 function cluesHTML(){
- const lbl=LAYERS?'Where do researchers place camera-traps? <span>Tap a clue to see it on the map.</span>':'Where do researchers place camera-traps? <span>The best spots have all 5 clues.</span>';
- const item=k=>{const inner=`<i>${IC[k.id](28)}</i><div>${k.label}<small>${LAYERS&&k.id==='quiet'&&S.layers.quiet?'Red: people and cars':k.why}</small></div>`;
-  return LAYERS?`<button class="clue ${S.layers[k.id]?'on':''}" style="--lc:${LY[k.id].hex}" data-layer="${k.id}" aria-pressed="${!!S.layers[k.id]}" aria-label="${k.label}: show on the map">${inner}</button>`:`<span class="clue">${inner}</span>`;};
+ const lbl='Where do researchers place camera-traps? <span>Tap a clue to see it on the map.</span>';
+ const item=k=>{const inner=`<i>${IC[k.id](28)}</i><div>${k.label}<small>${k.why}</small></div>`;
+  return `<button class="clue ${S.layers[k.id]?'on':''}" style="--lc:${LY[k.id].hex}" data-layer="${k.id}" aria-pressed="${!!S.layers[k.id]}" aria-label="${k.label}: show on the map">${inner}</button>`;};
  return `<div class="clues" id="clues" data-ov="clues"><div class="lbl">${lbl}</div><div class="row">${CLUES.map(item).join('')}</div></div>`;}
 // Turn one layer on or off without redrawing the map (nothing else moves or animates again).
 function toggleLayer(id){S.layers[id]=S.layers[id]?0:1;
@@ -543,10 +540,10 @@ const R={
   <div class="prompt" data-ov="prompt"><div class="l1"><span class="day">DAY ${S.day} OF ${maxDays()}</span><b>${S.foundDay?'You found the leopard!':'Where will the leopard pass?'}</b></div><div class="l2">${promptText()}</div></div>
   ${cluesHTML()}
   ${spotsHTML()}<div class="pinfo" id="pinfo" data-ov="info bubble"></div>
-  <div class="dock" id="dock">${albumBar()}${trayHTML()}<span class="sp"></span><span data-ov="main button">${btn('Leave them overnight','night',S.placed.length<n)}</span></div>
+  <div class="dock" id="dock">${albumBar()}<span class="sp"></span>${trayHTML()}<span class="sp"></span><span data-ov="main button">${btn('Leave them overnight','night',S.placed.length<n)}</span></div>
   ${S.day===1&&!S.tipSeen?`<div class="dim" style="z-index:34"></div><div class="tip-card"><div class="ico">${IC.cam(60)}</div>
    <h2>You have ${CAMS_PER_DAY} camera-traps. Where you place them matters.</h2>
-   <p>A leopard is much more likely to pass some places than others. ${LAYERS?'Tap each clue at the top to see it on the map.':'Watch for the clues.'}</p>
+   <p>A leopard is much more likely to pass some places than others. Tap each clue at the top to see it on the map.</p>
    <div class="row">${CLUES.map((k,i)=>`<span style="--d:${(.5+i*.2).toFixed(1)}s"><i>${IC[k.id](32)}</i>${k.label}</span>`).join('')}</div>
    ${btn('Got it','tipok')}</div>`:''}
   <div class="night" id="nt"></div><div class="ntmsg" id="ntx">Night falls. Your camera-traps are recording…</div>`;},
@@ -690,7 +687,7 @@ let idleT;function resetIdle(){clearTimeout(idleT);if(!INACTIVITY||['idle','end'
 function hint(){const h=$('#hint'),s=S.alb?(S.alb.v==='photo'?'photo':'album'):S.screen;const t={
  idle:'Attract loop (paw prints + camera flash). <b>Tap the screen</b> to start (or scan the wristband).',
  intro:'Intro: 3 short story cards over the landscape (6 s each). <b>Tap</b> to go on (left side = back). On the last card, <b>Place your cameras</b>.',
- map:`${S.day===1&&!S.tipSeen?'Tip card before placing. <b>Got it</b> closes it. ':''}Day ${S.day}/${maxDays()}. <b>Tap a spot</b> to place a camera-trap (tap it again to pick it up). A short note says what kind of place it is. Then <b>Leave them overnight</b>. ${LAYERS?'Variant «map layers»: <b>tap a clue at the top</b> to show or hide its evidence on the map; layers can be combined. ':''}The <b>field album</b> is always in the bottom bar: tap it (or one photo) to see the photos bigger.`,
+ map:`${S.day===1&&!S.tipSeen?'Tip card before placing. <b>Got it</b> closes it. ':''}Day ${S.day}/${maxDays()}. <b>Tap a spot</b> to place a camera-trap (tap it again to pick it up). A short note says what kind of place it is. <b>Tap a clue at the top</b> to show or hide its evidence on the map (layers can be combined). Then <b>Leave them overnight</b>. The <b>field album</b> is always in the bottom bar: tap it (or one photo) to see the photos bigger.`,
  results:'Morning: the cameras appear closed. <b>Tap each camera</b> to open it; each photo flies into the album bar. Every card says why that animal was there and which leopard clues the spot has or misses. With all open, the strip sums up what was learned and the button for the next night appears. Once the leopard has been recorded, every morning also shows <b>Finish</b>; on the last day it is the only button.',
  album:'Field album over the current screen. <b>Tap a photo</b> to enlarge it; close with ✕ or by tapping outside.',
  photo:'Enlarged photo with its card. The arrows on the photo move between the photos recorded so far. Top right: <b>←</b> goes back to all the photos, <b>✕</b> closes the album.',
@@ -736,7 +733,7 @@ const JUMPS=[
  ['18 · Album · last morning',()=>{playDays(lastDay());S.screen='results';S.alb={v:'grid'};}],
  ['19 · Album · leopard enlarged',()=>{playDays(lastDay());S.screen='results';S.alb={v:'photo',id:LEOPARD};}],
  ['20 · End',()=>{playDays(lastDay());S.screen='end';}],
- ['21 · Map · evidence layers on (turns the variant on)',()=>{setLayers(true);playDays(1);S.day=2;S.placed=[];S.opened=[];S.screen='map';S.layers={prey:1,rocks:1};}]];
+ ['21 · Map · day 2, two layers on',()=>{playDays(1);S.day=2;S.placed=[];S.opened=[];S.screen='map';S.layers={prey:1,rocks:1};}]];
 function jumpTo(i){const j=JUMPS[i];if(!j)return;pushHist();clearTimers();clearTimeout(infoT);busy=false;S.nightOn=false;j[1]();S.fresh=false;scr.classList.remove('fade');render();}
 const jump=$('#jump');JUMPS.forEach((j,i)=>{const o=document.createElement('option');o.value=i;o.textContent=j[0];jump.appendChild(o);});
 jump.addEventListener('change',()=>{if(jump.value!=='')jumpTo(+jump.value);jump.value='';});
@@ -747,14 +744,10 @@ addEventListener('keydown',e=>{if(e.target.closest('select,input'))return;if(e.k
  else if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click();}});
 // Variants (remembered per browser)
 const store={get(k,d){try{return localStorage.getItem(k)||d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
-const vCams=$('#vCams'),vInact=$('#vInact'),vReveal=$('#vReveal'),vLayers=$('#vLayers');
-function setLayers(on){LAYERS=on;vLayers.value=on?'on':'off';store.set('ct-rev-layers',vLayers.value);}
-(()=>{const q=+new URLSearchParams(location.search).get('cams');const c=[2,3].includes(q)?q:+store.get('ct-rev-cams','3');CAMS_PER_DAY=[2,3].includes(c)?c:3;vCams.value=String(CAMS_PER_DAY);
- const ql=new URLSearchParams(location.search).get('layers');LAYERS=ql?ql==='on':store.get('ct-rev-layers','off')==='on';vLayers.value=LAYERS?'on':'off';
+const vInact=$('#vInact'),vReveal=$('#vReveal');
+(()=>{
  INACTIVITY=store.get('ct-rev-inact','off')==='on';vInact.value=INACTIVITY?'on':'off';})();
-vCams.addEventListener('change',()=>{CAMS_PER_DAY=+vCams.value;store.set('ct-rev-cams',vCams.value);hist=[];clearTimers();busy=false;S.nightOn=false;const was=S.screen;newGame();go(was==='idle'?'idle':'map');});
 vInact.addEventListener('change',()=>{INACTIVITY=vInact.value==='on';store.set('ct-rev-inact',vInact.value);resetIdle();});
-vLayers.addEventListener('change',()=>{setLayers(vLayers.value==='on');if(!LAYERS)S.layers={};if(S.screen==='map')render();else hint();});
 vReveal.addEventListener('change',()=>{REVEAL=vReveal.value==='on';if(S.screen==='map')render();});
 new ResizeObserver(fit).observe($('#viewport'));
 fit();newGame();
