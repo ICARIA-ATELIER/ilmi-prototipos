@@ -286,18 +286,38 @@ button.tile{cursor:pointer}
 .det .chk .l{font:700 18px Inter;color:#555;letter-spacing:.4px}
 .det .chk .r{display:flex;gap:12px;margin-top:12px}
 .det .miss{font:600 25px/1.3 Inter;color:#333;margin-top:18px}
+
+/* Real media (Variants → Photos · real images + video) */
+.mimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;z-index:0;background:#222}
+.real::after{content:'';position:absolute;left:0;right:0;bottom:0;height:42%;background:linear-gradient(transparent,rgba(0,0,0,.6));z-index:1;pointer-events:none}
+.real .hud,.real .prov,.real .award,.real .zoom,.real .pb{z-index:2}
+.real .hud{color:#fff!important;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.det .big.real{padding:0}
+.det .big video.mimg{object-fit:contain;background:#000}
+.pb{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:76px;height:76px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;display:flex;align-items:center;justify-content:center}
+.det .big.real.lp::after{display:none}
+.det .big.real.lp .hud{bottom:auto;top:22px}
+.th.img{position:relative;padding:0;font-size:0}
+.real,.th.img{overflow:hidden}
+.st-photo.real{overflow:visible}
+.st-photo.real::after{display:none}
+.mclip{position:absolute;inset:0;overflow:hidden;z-index:0}
+.mclip::after{content:'';position:absolute;left:0;right:0;bottom:0;height:35%;background:linear-gradient(transparent,rgba(0,0,0,.6))}
+.st-photo.real .hud{z-index:2}
+.mimg.f{inset:auto;max-width:none;object-fit:fill}
 </style>
 </head>
 <body>
 <div class="app">
  <header class="bar">
-  <div class="ttl"><strong>Camera Trapping · revision</strong><span>WR1-801-IA02 · learn by doing · 9 spots, 3 camera-traps a day, 3 days, evidence map layers, field album always at hand · landscape F2 · photos and video are placeholders</span></div>
+  <div class="ttl"><strong>Camera Trapping · revision</strong><span>WR1-801-IA02 · learn by doing · 9 spots, 3 camera-traps a day, 3 days, evidence map layers, field album always at hand · landscape F2 · photos and video: placeholders or real images (Variants)</span></div>
   <p class="hint" id="hint" aria-live="polite"></p>
   <div class="ctrls">
    <span class="ctl"><button id="back" type="button" aria-label="Previous step">← Back</button><button id="fwd" type="button" aria-label="Next step">Next →</button></span>
    <span class="ctl"><label for="vInact">Variants</label>
     <select id="vInact" aria-label="Variants: inactivity"><option value="off">Inactivity · off</option><option value="on">Inactivity · on (90 s → attract)</option></select>
-    <select id="vReveal" aria-label="Variants: leopard spot"><option value="off">Leopard spot · hidden</option><option value="on">Leopard spot · marked (test)</option></select></span>
+    <select id="vReveal" aria-label="Variants: leopard spot"><option value="off">Leopard spot · hidden</option><option value="on">Leopard spot · marked (test)</option></select>
+    <select id="vMedia" aria-label="Variants: photos and video"><option value="ph">Photos · placeholders</option><option value="real">Photos · real images + video</option></select></span>
    <span class="ctl"><label for="jump">Go to</label><select id="jump"><option value="">Screen…</option></select></span>
    <button id="restart" type="button">Reset</button>
   </div>
@@ -310,7 +330,8 @@ button.tile{cursor:pointer}
 /* ================= CONFIG ================= */
 const CAMS_PER_DAY = 3;          // final: always 3 camera-traps per day (3 days)
 let INACTIVITY = false;          // off by default; Variants
-let REVEAL = false;              // test aid: marks the leopard spot
+let REVEAL = false;
+let MEDIA = false;   // Variants: real images + video instead of placeholders              // test aid: marks the leopard spot
 const IDLE_RETURN_S = 90;        // PROVISIONAL
 const NIGHT_MS = 1700, MORNING_MS = 600, STORY_MS = 6000, INFO_MS = 5000;   // PROVISIONAL
 
@@ -394,7 +415,7 @@ const STORIES=[
  {text:'So researchers leave cameras in the wild. When an animal walks past, the camera takes a photo by itself.',
   art:()=>`<div class="st-beam"></div><div class="st-cam">${IC.cam(80)}</div><div class="st-walk">${[0,1,2,3].map(k=>`<span style="display:inline-block;margin-right:30px;transform:translateY(${k%2?18:-18}px) rotate(90deg)">${IC.lpaw}</span>`).join('')}</div><div class="st-flash"></div>`},
  {text:'<span><b>This is called a camera-trap.</b> Can you find where the leopard passes?</span>',
-  art:()=>`<div class="abs" style="inset:0;background:rgba(255,255,255,.35)"></div><div class="st-photo">${IC.cam(80)}<div style="margin-top:12px">Real camera-trap photo · Arabian leopard</div><div class="hud">CAM 09 · 13/03/2025  03:10:42 · 18°C</div><div class="lab">Camera-trap photo, AlUla</div></div>`}];
+  art:()=>`<div class="abs" style="inset:0;background:rgba(255,255,255,.35)"></div><div class="st-photo ${MEDIA?'real':''}">${MEDIA?`<div class="mclip">${mImg('leopard','st','Arabian leopard resting among rocks')}</div>`:`${IC.cam(80)}<div style="margin-top:12px">Real camera-trap photo · Arabian leopard</div>`}<div class="hud">CAM 09 · 13/03/2025  03:10:42 · 18°C</div><div class="lab">Camera-trap photo, AlUla</div></div>`}];
 const spotById=id=>SPOTS.find(s=>s.id===id);
 const LEOPARD=9;
 const DEMO_ORDER=[1,4,5, 2,9,6, 3,8,7];   // order used by "Next →" in the review bar
@@ -451,7 +472,7 @@ function trayHTML(){const left=CAMS_PER_DAY-S.placed.length;
  return `<div class="tray" data-ov="tray">${[...Array(CAMS_PER_DAY)].map((_,i)=>`<span class="slot ${i<left?'av':'us'}">${IC.cam(34)}</span>`).join('')}<span class="t">${left} left</span></div>`;}
 function albumBar(){const ids=albumIds();
  return `<div class="albumbar" data-ov="album bar" data-act="album" role="button" tabindex="0" aria-label="Open the field album"><span class="lbl">Field album<small>${ids.length} of ${SPOTS.length} photos</small></span><span class="ths">${SPOTS.map((_,i)=>{const id=ids[i];if(!id)return '<span class="th e">?</span>';const s=spotById(id);
-  return `<span class="th ${s.sp==='leopard'?'leo':''} ${S.lastNew===id&&RF?'new':''}" data-act="photo" data-id="${id}" role="button" aria-label="${SP[s.sp].name}: see the photo bigger">${SP[s.sp].name}</span>`}).join('')}</span><span class="open">${IC.zoom(28)}</span></div>`;}
+  return `<span class="th ${MEDIA?'img':''} ${s.sp==='leopard'?'leo':''} ${S.lastNew===id&&RF?'new':''}" data-act="photo" data-id="${id}" role="button" aria-label="${SP[s.sp].name}: see the photo bigger">${MEDIA?mImg(s.sp,'th'):SP[s.sp].name}</span>`}).join('')}</span><span class="open">${IC.zoom(28)}</span></div>`;}
 
 
 /* ================= EVIDENCE LAYERS ================= */
@@ -582,7 +603,18 @@ function learnHTML(ids,leo,anim){let t;
 const p2=n=>String(n).padStart(2,'0');
 function closedCard(id,i,anim){const s=spotById(id);
  return `<button class="card closed" data-ov="card ${s.name}" data-act="open" data-id="${id}" style="${anim?`--d:${.15+i*.2}s`:'animation:none'}"><span class="cc">${IC.cam(110)}<span class="rec"></span></span><b>CAM ${p2(id)}</b><span class="cn">${s.name}</span><span class="ct">Tap to open</span></button>`;}
+const MSRC=k=>`media/${k}.jpg`, MVID='media/leopard.mp4';
+// Real images: pixel size and focal point (the animal's face, 0–1) so every crop keeps the face centred and visible.
+const MF={leopard:[1300,862,.45,.44],hyena:[1400,933,.63,.38],ibex:[781,535,.55,.52],hyrax:[743,541,.70,.60],gazelle:[808,541,.50,.45],
+ wolf:[1400,1040,.68,.30],oryx:[809,539,.45,.49],goat:[1400,788,.5,.6],camel:[1400,933,.5,.55]};
+// Box size and zoom per place: morning card, album tile, enlarged photo, album-bar thumbnail.
+const MBOX={st:[568,260,1.2],ph:[580,266,1.2],tp:[520,170,1.4],big:[1000,810,1],th:[66,66,2.2]};
+function mImg(k,box,alt){const [iw,ih,fx,fy]=MF[k],[w,h,z]=MBOX[box],sc=Math.max(w/iw,h/ih)*z,W=iw*sc,H=ih*sc,
+ cl=(v,min)=>Math.min(0,Math.max(min,v)),x=cl(w/2-fx*W,w-W),y=cl(h/2-fy*H,h-H);
+ return `<img class="mimg f" src="${MSRC(k)}" alt="${alt||''}" style="width:${W.toFixed(1)}px;height:${H.toFixed(1)}px;left:${x.toFixed(1)}px;top:${y.toFixed(1)}px">`;}
 function photoHTML(s,day,cls,iconSize){const sp=SP[s.sp],leo=s.sp==='leopard';
+ if(MEDIA){const m=leo?`<video class="mimg" src="${MVID}" poster="${MSRC('leopard')}" autoplay muted loop playsinline ${cls==='big'?'controls':''} aria-label="${s.photo}"></video>`:mImg(s.sp,cls,s.photo);
+  return `<div class="${cls} real ${leo?'lp':''}">${m}<div class="hud">CAM ${p2(s.id)} · ${stamp(s,day)} · ${s.temp}</div><span class="prov">${leo?'REFERENCE VIDEO':'REFERENCE IMAGE'}</span>${leo&&cls==='ph'?'<span class="award">LEOPARD RECORDED</span>':''}</div>`;}
  return `<div class="${cls} ${leo?'lp':''}">${leo?IC.play(iconSize):IC.cam(iconSize)}<div class="d">${leo?'Real camera-trap video (10–15 s, night IR)':'Real camera-trap photo'}<br>${s.photo}</div><div class="hud">CAM ${p2(s.id)} · ${stamp(s,day)} · ${s.temp}</div><span class="prov">PLACEHOLDER</span>${leo&&cls==='ph'?'<span class="award">LEOPARD RECORDED</span>':''}</div>`;}
 function card(id,flip){const s=spotById(id),sp=SP[s.sp],leo=s.sp==='leopard';
  return `<div class="card ${leo?'leo':''} ${flip?'flip':''}" data-ov="card ${s.name}">${photoHTML(s,S.day,'ph',leo?64:60)}
@@ -609,7 +641,7 @@ function albumOverlay(fresh){const a=S.alb,ids=albumIds(),n=ids.length;const sti
   <div class="alb-head"><div class="tx"><small>YOUR FIELD ALBUM${a.final&&n?' · TAP A PHOTO TO SEE IT BIGGER':''}</small><h2>${h}</h2><p>${sub}</p></div>${a.final?btn('Finish','end'):`<button class="x" data-act="albclose" aria-label="Close the album">${IC.x()}</button>`}</div>
   <div class="grid">${SPOTS.map((_,i)=>{const id=ids[i];if(!id)return '<div class="tile miss"><i>?</i><span>Not recorded yet</span></div>';
    const s=spotById(id),leo=s.sp==='leopard';
-   return `<button class="tile ${leo?'leo':''}" data-act="photo" data-id="${id}"><div class="tp">${leo?IC.play(46):IC.cam(46)}<span>${leo?'Camera-trap video':'Camera-trap photo'}</span><span class="zoom">${IC.zoom(24)}</span><span class="hud">CAM ${p2(s.id)} · ${stamp(s,albumDay(id))}</span></div>
+   return `<button class="tile ${leo?'leo':''}" data-act="photo" data-id="${id}"><div class="tp ${MEDIA?'real':''}">${MEDIA?`${mImg(s.sp,'tp')}`:`${leo?IC.play(46):IC.cam(46)}<span>${leo?'Camera-trap video':'Camera-trap photo'}</span>`}<span class="zoom">${IC.zoom(24)}</span><span class="hud">CAM ${p2(s.id)} · ${stamp(s,albumDay(id))}</span></div>
     <div class="tb"><div><b>${SP[s.sp].name}</b><span>${s.name} · day ${albumDay(id)}</span></div><em>${nClues(s.c)}/5 clues</em></div></button>`}).join('')}</div></div>`;}
 
 /* ================= AFTER-RENDER ================= */
@@ -744,11 +776,14 @@ addEventListener('keydown',e=>{if(e.target.closest('select,input'))return;if(e.k
  else if((e.key==='Enter'||e.key===' ')&&e.target.matches('[role=button]')){e.preventDefault();e.target.click();}});
 // Variants (remembered per browser)
 const store={get(k,d){try{return localStorage.getItem(k)||d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,v);}catch(e){}}};
-const vInact=$('#vInact'),vReveal=$('#vReveal');
+const vInact=$('#vInact'),vReveal=$('#vReveal'),vMedia=$('#vMedia');
+(()=>{const q=new URLSearchParams(location.search).get('media');
+ MEDIA=(q?q:store.get('ct-rev-media','ph'))==='real';vMedia.value=MEDIA?'real':'ph';})();
 (()=>{
  INACTIVITY=store.get('ct-rev-inact','off')==='on';vInact.value=INACTIVITY?'on':'off';})();
 vInact.addEventListener('change',()=>{INACTIVITY=vInact.value==='on';store.set('ct-rev-inact',vInact.value);resetIdle();});
 vReveal.addEventListener('change',()=>{REVEAL=vReveal.value==='on';if(S.screen==='map')render();});
+vMedia.addEventListener('change',()=>{MEDIA=vMedia.value==='real';store.set('ct-rev-media',vMedia.value);render();});
 new ResizeObserver(fit).observe($('#viewport'));
 fit();newGame();
 window.__proto={S,JUMPS,jumpTo,autoStep,render};
